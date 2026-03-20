@@ -7,6 +7,7 @@ import {
   Settings,
   Plus,
   Zap,
+  PenTool,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -29,6 +30,7 @@ const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Clients", url: "/clients", icon: Users },
+  { title: "Builder", url: "/invoices/builder", icon: PenTool },
   { title: "Templates", url: "/templates", icon: Palette },
   { title: "AI Generator", url: "/ai-generator", icon: Sparkles },
 ];

@@ -10,6 +10,7 @@ import CreateInvoice from "./pages/CreateInvoice";
 import Clients from "./pages/Clients";
 import Templates from "./pages/Templates";
 import AIGenerator from "./pages/AIGenerator";
+import InvoiceBuilder from "./pages/InvoiceBuilder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/new" element={<CreateInvoice />} />
+            <Route path="/invoices/builder" element={<InvoiceBuilder />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/ai-generator" element={<AIGenerator />} />
