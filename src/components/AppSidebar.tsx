@@ -30,6 +30,7 @@ const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Clients", url: "/clients", icon: Users },
+  { title: "Builder", url: "/invoices/builder", icon: PenTool },
   { title: "Templates", url: "/templates", icon: Palette },
   { title: "AI Generator", url: "/ai-generator", icon: Sparkles },
 ];
