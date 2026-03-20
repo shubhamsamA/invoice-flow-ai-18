@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Sparkles, ArrowRight, Zap, FileText, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, Zap, FileText, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { exportInvoicePDF } from "@/lib/pdf-export";
 
 const examples = [
   "Create invoice for 2 laptops ₹50,000 each with 18% GST for Rahul",
@@ -23,41 +25,30 @@ export default function AIGeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ParsedData | null>(null);
 
-  // Simulated AI extraction — in production this calls the AI edge function
-  const handleGenerate = () => {
+  /**
+   * Calls the parse-invoice edge function which uses Lovable AI
+   * to extract structured invoice data from natural language.
+   */
+  const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     setResult(null);
 
-    setTimeout(() => {
-      // Simple mock parser for demo purposes
-      const parsed: ParsedData = {
-        client: "Rahul Enterprises",
-        items: [
-          { name: "Laptop (Dell Inspiron)", qty: 2, price: 50000 },
-        ],
-        gst: 18,
-        discount: 0,
-      };
+    try {
+      const { data, error } = await supabase.functions.invoke("parse-invoice", {
+        body: { prompt: prompt.trim() },
+      });
 
-      if (prompt.toLowerCase().includes("meera")) {
-        parsed.client = "Meera Consulting";
-        parsed.items = [
-          { name: "Logo Design", qty: 1, price: 15000 },
-          { name: "Brand Guide", qty: 1, price: 8000 },
-        ];
-        parsed.discount = 5;
-      } else if (prompt.toLowerCase().includes("techcorp") || prompt.toLowerCase().includes("consulting")) {
-        parsed.client = "TechCorp Solutions";
-        parsed.items = [
-          { name: "Consulting (10 hrs × ₹3,500)", qty: 10, price: 3500 },
-        ];
-      }
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      setResult(parsed);
-      setLoading(false);
+      setResult(data as ParsedData);
       toast.success("Invoice data extracted successfully");
-    }, 1800);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to parse invoice");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const subtotal = result ? result.items.reduce((s, i) => s + i.qty * i.price, 0) : 0;
@@ -168,9 +159,18 @@ export default function AIGeneratorPage() {
               </div>
             </div>
 
-            <Button className="w-full gap-2 shadow-sm">
-              <ArrowRight className="h-4 w-4" /> Use This Data to Create Invoice
-            </Button>
+            <div className="flex gap-3">
+              <Button className="flex-1 gap-2 shadow-sm">
+                <ArrowRight className="h-4 w-4" /> Use This Data to Create Invoice
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => result && exportInvoicePDF(result)}
+              >
+                <Download className="h-4 w-4" /> PDF
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

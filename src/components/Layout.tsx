@@ -1,11 +1,18 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet } from "react-router-dom";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Layout() {
+  const { user, signOut } = useAuth();
+
+  const initials = user?.user_metadata?.display_name
+    ? user.user_metadata.display_name.charAt(0).toUpperCase()
+    : user?.email?.charAt(0).toUpperCase() ?? "U";
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -26,8 +33,17 @@ export function Layout() {
               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                 <Bell className="h-4 w-4" />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground"
+                onClick={signOut}
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
-                A
+                {initials}
               </div>
             </div>
           </header>
