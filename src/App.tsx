@@ -10,6 +10,7 @@ import CreateInvoice from "./pages/CreateInvoice";
 import Clients from "./pages/Clients";
 import Templates from "./pages/Templates";
 import AIGenerator from "./pages/AIGenerator";
+import InvoiceBuilder from "./pages/InvoiceBuilder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
