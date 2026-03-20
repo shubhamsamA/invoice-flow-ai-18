@@ -201,6 +201,42 @@ export type Database = {
         }
         Relationships: []
       }
+      templates: {
+        Row: {
+          canvas_height: number
+          canvas_width: number
+          created_at: string
+          description: string | null
+          id: string
+          layout_json: Json
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canvas_height?: number
+          canvas_width?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          layout_json: Json
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canvas_height?: number
+          canvas_width?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          layout_json?: Json
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
