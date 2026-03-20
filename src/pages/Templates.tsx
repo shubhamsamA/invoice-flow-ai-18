@@ -218,7 +218,22 @@ export default function TemplatesPage() {
           <Button
             size="lg"
             className="shadow-sm px-8"
-            onClick={() => toast.success(`"${templates.find((t) => t.id === selected)?.name}" template loaded into builder`)}
+            onClick={() => {
+              const layout = templateLayouts[selected];
+              if (layout) {
+                const data = {
+                  id: crypto.randomUUID(),
+                  name: templates.find(t => t.id === selected)?.name || "Template",
+                  elements: layout,
+                  canvasWidth: 640,
+                  canvasHeight: 900,
+                  createdAt: new Date().toISOString(),
+                };
+                localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+                toast.success("Template loaded into builder");
+                navigate("/invoices/builder");
+              }
+            }}
           >
             Use Template
           </Button>
