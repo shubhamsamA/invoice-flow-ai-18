@@ -1,18 +1,70 @@
 /**
- * PDF Export — uses the browser's print-to-PDF via a hidden iframe.
- * Renders the invoice HTML into a styled iframe and triggers window.print().
+ * PDF Export — renders a full invoice into a styled HTML page and triggers print-to-PDF.
+ * Supports both simple invoice data and full database invoice records with items.
  */
 
-interface InvoiceData {
+interface SimpleInvoiceData {
   client: string;
   items: { name: string; qty: number; price: number }[];
   gst: number;
   discount: number;
 }
 
-const fmt = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+interface FullInvoiceData {
+  invoice_number: string;
+  issue_date: string;
+  due_date?: string | null;
+  status: string;
+  subtotal: number;
+  discount: number;
+  gst_rate: number;
+  gst_amount: number;
+  total: number;
+  currency: string;
+  notes?: string | null;
+  client_name?: string;
+  client_email?: string;
+  client_address?: string;
+  client_gst?: string;
+  items: { name: string; description?: string; quantity: number; unit_price: number; amount: number }[];
+}
 
-export function exportInvoicePDF(data: InvoiceData, title = "Invoice") {
+const fmt = (n: number, currency = "INR") => {
+  if (currency === "USD") return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+  return `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
+};
+
+const baseStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',system-ui,sans-serif; color:#1a1a2e; background:#fff; padding:48px; }
+  .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; }
+  .brand { font-size:22px; font-weight:700; color:#1e3a5f; }
+  .badge { background:#f0f4f8; color:#1e3a5f; padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600; }
+  .status-paid { background:#e6f9ee; color:#15803d; }
+  .status-unpaid { background:#fef3cd; color:#92400e; }
+  .status-overdue { background:#fee2e2; color:#dc2626; }
+  .meta { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:36px; }
+  .meta-label { font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#8899a6; margin-bottom:4px; }
+  .meta-value { font-size:14px; font-weight:500; }
+  .meta-sub { font-size:12px; color:#666; margin-top:2px; }
+  table { width:100%; border-collapse:collapse; margin-bottom:28px; }
+  thead th { text-align:left; padding:10px 12px; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#8899a6; border-bottom:2px solid #e8edf2; }
+  thead th:nth-child(n+3) { text-align:right; }
+  td { padding:10px 12px; border-bottom:1px solid #eee; font-size:13px; }
+  td:nth-child(n+3) { text-align:right; font-variant-numeric:tabular-nums; }
+  td:first-child { color:#555; }
+  .totals { margin-left:auto; width:280px; }
+  .total-row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+  .total-row.grand { border-top:2px solid #1e3a5f; padding-top:10px; margin-top:6px; font-weight:700; font-size:16px; }
+  .notes { margin-top:32px; padding:16px; background:#f8f9fa; border-radius:8px; font-size:12px; color:#555; }
+  .notes-label { font-weight:600; margin-bottom:4px; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#888; }
+  .footer { margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#aaa; text-align:center; }
+  @media print { body { padding:32px; } }
+`;
+
+/** Export a simple invoice (from AI generator) */
+export function exportInvoicePDF(data: SimpleInvoiceData, title = "Invoice") {
   const subtotal = data.items.reduce((s, i) => s + i.qty * i.price, 0);
   const gstAmt = (subtotal * data.gst) / 100;
   const discAmt = (subtotal * data.discount) / 100;
@@ -22,85 +74,156 @@ export function exportInvoicePDF(data: InvoiceData, title = "Invoice") {
     .map(
       (item, i) => `
     <tr>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;color:#555;">${i + 1}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;">${item.name}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums;">${item.qty}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums;">${fmt(item.price)}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:500;font-variant-numeric:tabular-nums;">${fmt(item.qty * item.price)}</td>
+      <td>${i + 1}</td>
+      <td>${item.name}</td>
+      <td>${item.qty}</td>
+      <td>${fmt(item.price)}</td>
+      <td style="font-weight:500;">${fmt(item.qty * item.price)}</td>
     </tr>`
     )
     .join("");
 
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>${title}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',system-ui,sans-serif; color:#1a1a2e; background:#fff; padding:48px; }
-    .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; }
-    .brand { font-size:22px; font-weight:700; color:#1e3a5f; }
-    .badge { background:#f0f4f8; color:#1e3a5f; padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600; }
-    .meta { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:36px; }
-    .meta-label { font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#8899a6; margin-bottom:4px; }
-    .meta-value { font-size:14px; font-weight:500; }
-    table { width:100%; border-collapse:collapse; margin-bottom:28px; }
-    thead th { text-align:left; padding:10px 12px; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#8899a6; border-bottom:2px solid #e8edf2; }
-    thead th:nth-child(n+3) { text-align:right; }
-    .totals { margin-left:auto; width:280px; }
-    .total-row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
-    .total-row.grand { border-top:2px solid #1e3a5f; padding-top:10px; margin-top:6px; font-weight:700; font-size:16px; }
-    .footer { margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#aaa; text-align:center; }
-    @media print { body { padding:32px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="brand">InvoiceFlow</div>
-    <div class="badge">INVOICE</div>
-  </div>
-
+  const html = `<!DOCTYPE html><html><head><title>${title}</title><style>${baseStyles}</style></head><body>
+  <div class="header"><div class="brand">InvoiceFlow</div><div class="badge">INVOICE</div></div>
   <div class="meta">
-    <div>
-      <div class="meta-label">Bill To</div>
-      <div class="meta-value">${data.client}</div>
-    </div>
-    <div style="text-align:right;">
-      <div class="meta-label">Date</div>
-      <div class="meta-value">${new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</div>
-    </div>
+    <div><div class="meta-label">Bill To</div><div class="meta-value">${data.client}</div></div>
+    <div style="text-align:right;"><div class="meta-label">Date</div><div class="meta-value">${new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</div></div>
   </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${itemsRows}
-    </tbody>
-  </table>
-
+  <table><thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead><tbody>${itemsRows}</tbody></table>
   <div class="totals">
     <div class="total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
     ${data.gst > 0 ? `<div class="total-row"><span>GST (${data.gst}%)</span><span>+${fmt(gstAmt)}</span></div>` : ""}
     ${data.discount > 0 ? `<div class="total-row"><span>Discount (${data.discount}%)</span><span style="color:#2e8b57;">-${fmt(discAmt)}</span></div>` : ""}
     <div class="total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
   </div>
+  <div class="footer">Generated by InvoiceFlow · ${new Date().toLocaleDateString("en-IN")}</div>
+  <script>window.onload = function() { window.print(); }</script>
+</body></html>`;
+
+  openPrintWindow(html);
+}
+
+/** Export a full database invoice with all details */
+export function exportFullInvoicePDF(data: FullInvoiceData) {
+  const itemsRows = data.items
+    .map(
+      (item, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td>
+      <td>${item.quantity}</td>
+      <td>${fmt(item.unit_price, data.currency)}</td>
+      <td style="font-weight:500;">${fmt(item.amount, data.currency)}</td>
+    </tr>`
+    )
+    .join("");
+
+  const statusClass = `status-${data.status}`;
+
+  const html = `<!DOCTYPE html><html><head><title>${data.invoice_number}</title><style>${baseStyles}</style></head><body>
+  <div class="header">
+    <div class="brand">InvoiceFlow</div>
+    <div style="text-align:right;">
+      <div class="badge ${statusClass}" style="margin-bottom:8px;text-transform:uppercase;">${data.status}</div>
+      <div style="font-size:18px;font-weight:700;color:#1e3a5f;">${data.invoice_number}</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div>
+      <div class="meta-label">Bill To</div>
+      <div class="meta-value">${data.client_name || "—"}</div>
+      ${data.client_email ? `<div class="meta-sub">${data.client_email}</div>` : ""}
+      ${data.client_address ? `<div class="meta-sub">${data.client_address}</div>` : ""}
+      ${data.client_gst ? `<div class="meta-sub" style="font-family:monospace;font-size:11px;margin-top:4px;">GST: ${data.client_gst}</div>` : ""}
+    </div>
+    <div style="text-align:right;">
+      <div class="meta-label">Issue Date</div>
+      <div class="meta-value">${data.issue_date}</div>
+      ${data.due_date ? `<div style="margin-top:12px;"><div class="meta-label">Due Date</div><div class="meta-value">${data.due_date}</div></div>` : ""}
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>
+    <tbody>${itemsRows}</tbody>
+  </table>
+
+  <div class="totals">
+    <div class="total-row"><span>Subtotal</span><span>${fmt(Number(data.subtotal), data.currency)}</span></div>
+    ${Number(data.gst_rate) > 0 ? `<div class="total-row"><span>GST (${data.gst_rate}%)</span><span>+${fmt(Number(data.gst_amount), data.currency)}</span></div>` : ""}
+    ${Number(data.discount) > 0 ? `<div class="total-row"><span>Discount</span><span style="color:#2e8b57;">-${fmt(Number(data.discount), data.currency)}</span></div>` : ""}
+    <div class="total-row grand"><span>Total</span><span>${fmt(Number(data.total), data.currency)}</span></div>
+  </div>
+
+  ${data.notes ? `<div class="notes"><div class="notes-label">Notes</div>${data.notes}</div>` : ""}
 
   <div class="footer">Generated by InvoiceFlow · ${new Date().toLocaleDateString("en-IN")}</div>
-
   <script>window.onload = function() { window.print(); }</script>
-</body>
-</html>`;
+</body></html>`;
 
+  openPrintWindow(html);
+}
+
+/** Generate HTML string for invoice preview (no auto-print) */
+export function generateInvoicePreviewHTML(data: FullInvoiceData): string {
+  const itemsRows = data.items
+    .map(
+      (item, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td>
+      <td>${item.quantity}</td>
+      <td>${fmt(item.unit_price, data.currency)}</td>
+      <td style="font-weight:500;">${fmt(item.amount, data.currency)}</td>
+    </tr>`
+    )
+    .join("");
+
+  const statusClass = `status-${data.status}`;
+
+  return `
+  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;padding:32px;max-width:640px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">
+      <div style="font-size:20px;font-weight:700;color:#1e3a5f;">InvoiceFlow</div>
+      <div style="text-align:right;">
+        <span class="${statusClass}" style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;text-transform:uppercase;${data.status === 'paid' ? 'background:#e6f9ee;color:#15803d;' : data.status === 'overdue' ? 'background:#fee2e2;color:#dc2626;' : 'background:#fef3cd;color:#92400e;'}">${data.status}</span>
+        <div style="font-size:16px;font-weight:700;color:#1e3a5f;margin-top:6px;">${data.invoice_number}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">Bill To</div>
+        <div style="font-size:14px;font-weight:500;">${data.client_name || "—"}</div>
+        ${data.client_email ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.client_email}</div>` : ""}
+        ${data.client_address ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.client_address}</div>` : ""}
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">Issue Date</div>
+        <div style="font-size:14px;font-weight:500;">${data.issue_date}</div>
+        ${data.due_date ? `<div style="margin-top:8px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">Due Date</div><div style="font-size:14px;font-weight:500;">${data.due_date}</div></div>` : ""}
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+      <thead><tr>
+        <th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">#</th>
+        <th style="text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Item</th>
+        <th style="text-align:right;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Qty</th>
+        <th style="text-align:right;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Price</th>
+        <th style="text-align:right;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Amount</th>
+      </tr></thead>
+      <tbody>${itemsRows}</tbody>
+    </table>
+    <div style="margin-left:auto;width:240px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Subtotal</span><span>${fmt(Number(data.subtotal), data.currency)}</span></div>
+      ${Number(data.gst_rate) > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>GST (${data.gst_rate}%)</span><span>+${fmt(Number(data.gst_amount), data.currency)}</span></div>` : ""}
+      ${Number(data.discount) > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Discount</span><span style="color:#2e8b57;">-${fmt(Number(data.discount), data.currency)}</span></div>` : ""}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #1e3a5f;margin-top:4px;"><span>Total</span><span>${fmt(Number(data.total), data.currency)}</span></div>
+    </div>
+  </div>`;
+}
+
+function openPrintWindow(html: string) {
   const printWindow = window.open("", "_blank");
   if (printWindow) {
     printWindow.document.write(html);
