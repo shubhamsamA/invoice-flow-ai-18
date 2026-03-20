@@ -3,6 +3,8 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 
 const templates = [
   {
