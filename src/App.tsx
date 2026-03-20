@@ -9,6 +9,7 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import InvoicePreview from "./pages/InvoicePreview";
 import Clients from "./pages/Clients";
 import Templates from "./pages/Templates";
 import AIGenerator from "./pages/AIGenerator";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/new" element={<CreateInvoice />} />
+              <Route path="/invoices/:id" element={<InvoicePreview />} />
               <Route path="/invoices/builder" element={<InvoiceBuilder />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/templates" element={<Templates />} />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, MoreHorizontal, FileText, Download, Send, Eye, Trash2, Loader2 } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileText, Download, Trash2, Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { exportFullInvoicePDF } from "@/lib/pdf-export";
 
 const statusClasses: Record<string, string> = {
   paid: "invoice-status-paid",
@@ -29,13 +30,12 @@ export default function InvoicesPage() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  // Fetch invoices with client name
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ["invoices"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select("*, clients(name, email)")
+        .select("*, clients(name, email, address, gst_number)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -66,6 +66,40 @@ export default function InvoicesPage() {
       toast.success("Status updated");
     },
   });
+
+  /** Download PDF for a specific invoice — fetches items then exports */
+  const handleDownloadPDF = async (inv: any) => {
+    const { data: items } = await supabase
+      .from("invoice_items")
+      .select("*")
+      .eq("invoice_id", inv.id)
+      .order("sort_order");
+
+    exportFullInvoicePDF({
+      invoice_number: inv.invoice_number,
+      issue_date: inv.issue_date,
+      due_date: inv.due_date,
+      status: inv.status,
+      subtotal: inv.subtotal,
+      discount: inv.discount,
+      gst_rate: inv.gst_rate,
+      gst_amount: inv.gst_amount,
+      total: inv.total,
+      currency: inv.currency,
+      notes: inv.notes,
+      client_name: inv.clients?.name,
+      client_email: inv.clients?.email,
+      client_address: inv.clients?.address,
+      client_gst: inv.clients?.gst_number,
+      items: (items || []).map((i: any) => ({
+        name: i.name,
+        description: i.description,
+        quantity: Number(i.quantity),
+        unit_price: Number(i.unit_price),
+        amount: Number(i.amount),
+      })),
+    });
+  };
 
   const filtered = invoices.filter((inv: any) => {
     if (filter !== "all" && inv.status !== filter) return false;
@@ -147,10 +181,10 @@ export default function InvoicesPage() {
                     transition={{ delay: 0.25 + i * 0.04, duration: 0.3 }}
                   >
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-2">
+                      <Link to={`/invoices/${inv.id}`} className="flex items-center gap-2 hover:text-primary transition-colors">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{inv.invoice_number}</span>
-                      </div>
+                      </Link>
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="font-medium">{inv.clients?.name || "—"}</p>
@@ -179,8 +213,14 @@ export default function InvoicesPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="gap-2"><Eye className="h-3.5 w-3.5" /> View</DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2"><Download className="h-3.5 w-3.5" /> Download PDF</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" asChild>
+                            <Link to={`/invoices/${inv.id}`}>
+                              <Eye className="h-3.5 w-3.5" /> Preview
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleDownloadPDF(inv)}>
+                            <Download className="h-3.5 w-3.5" /> Download PDF
+                          </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteInvoice.mutate(inv.id)}>
                             <Trash2 className="h-3.5 w-3.5" /> Delete
                           </DropdownMenuItem>
