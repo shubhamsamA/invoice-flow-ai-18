@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, Filter, MoreHorizontal, FileText, Download, Send, Eye } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileText, Download, Send, Eye, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -10,15 +10,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const invoices = [
-  { id: "INV-001", client: "Priya Sharma", email: "priya@email.com", amount: 84000, status: "paid", date: "2026-03-15", due: "2026-04-15", items: 3 },
-  { id: "INV-002", client: "TechCorp Solutions", email: "billing@techcorp.in", amount: 150000, status: "unpaid", date: "2026-03-12", due: "2026-04-12", items: 5 },
-  { id: "INV-003", client: "Aarav Design Studio", email: "aarav@design.co", amount: 32500, status: "overdue", date: "2026-02-28", due: "2026-03-15", items: 2 },
-  { id: "INV-004", client: "GlobalTech India", email: "accounts@globaltech.in", amount: 67800, status: "paid", date: "2026-03-10", due: "2026-04-10", items: 4 },
-  { id: "INV-005", client: "Meera Consulting", email: "meera@consult.com", amount: 45000, status: "paid", date: "2026-03-08", due: "2026-04-08", items: 1 },
-  { id: "INV-006", client: "Ravi Kumar Enterprises", email: "ravi@enterprise.in", amount: 215000, status: "unpaid", date: "2026-03-05", due: "2026-04-05", items: 7 },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const statusClasses: Record<string, string> = {
   paid: "invoice-status-paid",
@@ -29,12 +24,53 @@ const statusClasses: Record<string, string> = {
 const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 export default function InvoicesPage() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const filtered = invoices.filter((inv) => {
+  // Fetch invoices with client name
+  const { data: invoices = [], isLoading } = useQuery({
+    queryKey: ["invoices"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("invoices")
+        .select("*, clients(name, email)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const deleteInvoice = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("invoices").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      toast.success("Invoice deleted");
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("invoices").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      toast.success("Status updated");
+    },
+  });
+
+  const filtered = invoices.filter((inv: any) => {
     if (filter !== "all" && inv.status !== filter) return false;
-    if (search && !inv.client.toLowerCase().includes(search.toLowerCase()) && !inv.id.toLowerCase().includes(search.toLowerCase())) return false;
+    const clientName = inv.clients?.name || "";
+    if (search && !clientName.toLowerCase().includes(search.toLowerCase()) && !inv.invoice_number.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -58,7 +94,6 @@ export default function InvoicesPage() {
         </Button>
       </motion.div>
 
-      {/* Filters */}
       <motion.div
         className="flex flex-col sm:flex-row gap-3"
         initial={{ opacity: 0, y: 12 }}
@@ -67,95 +102,98 @@ export default function InvoicesPage() {
       >
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by client or invoice ID..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <Input placeholder="Search by client or invoice number..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-1.5">
           {["all", "paid", "unpaid", "overdue"].map((s) => (
-            <Button
-              key={s}
-              variant={filter === s ? "default" : "outline"}
-              size="sm"
-              className="capitalize text-xs"
-              onClick={() => setFilter(s)}
-            >
+            <Button key={s} variant={filter === s ? "default" : "outline"} size="sm" className="capitalize text-xs" onClick={() => setFilter(s)}>
               {s === "all" ? "All" : s}
             </Button>
           ))}
         </div>
       </motion.div>
 
-      {/* Table */}
       <motion.div
         className="bg-card rounded-xl border shadow-sm overflow-hidden"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Invoice</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Client</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Date</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Due</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Amount</th>
-                <th className="text-center px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 w-10"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((inv, i) => (
-                <motion.tr
-                  key={inv.id}
-                  className="border-b border-border/50 hover:bg-muted/20 transition-colors"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 + i * 0.04, duration: 0.3 }}
-                >
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{inv.id}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <p className="font-medium">{inv.client}</p>
-                    <p className="text-xs text-muted-foreground">{inv.email}</p>
-                  </td>
-                  <td className="px-4 py-3.5 text-muted-foreground hidden md:table-cell">{inv.date}</td>
-                  <td className="px-4 py-3.5 text-muted-foreground hidden lg:table-cell">{inv.due}</td>
-                  <td className="px-4 py-3.5 text-right font-semibold tabular-nums">{formatCurrency(inv.amount)}</td>
-                  <td className="px-4 py-3.5 text-center">
-                    <span className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full capitalize ${statusClasses[inv.status]}`}>
-                      {inv.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="gap-2"><Eye className="h-3.5 w-3.5" /> View</DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2"><Download className="h-3.5 w-3.5" /> Download PDF</DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2"><Send className="h-3.5 w-3.5" /> Send to client</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {filtered.length === 0 && (
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/30">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Invoice</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Client</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Date</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Due</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Amount</th>
+                  <th className="text-center px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((inv: any, i: number) => (
+                  <motion.tr
+                    key={inv.id}
+                    className="border-b border-border/50 hover:bg-muted/20 transition-colors"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.25 + i * 0.04, duration: 0.3 }}
+                  >
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{inv.invoice_number}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <p className="font-medium">{inv.clients?.name || "—"}</p>
+                      <p className="text-xs text-muted-foreground">{inv.clients?.email || ""}</p>
+                    </td>
+                    <td className="px-4 py-3.5 text-muted-foreground hidden md:table-cell">{inv.issue_date}</td>
+                    <td className="px-4 py-3.5 text-muted-foreground hidden lg:table-cell">{inv.due_date || "—"}</td>
+                    <td className="px-4 py-3.5 text-right font-semibold tabular-nums">{formatCurrency(Number(inv.total))}</td>
+                    <td className="px-4 py-3.5 text-center">
+                      <button
+                        className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full capitalize cursor-pointer ${statusClasses[inv.status]}`}
+                        onClick={() => {
+                          const next = inv.status === "paid" ? "unpaid" : "paid";
+                          updateStatus.mutate({ id: inv.id, status: next });
+                        }}
+                        title="Click to toggle status"
+                      >
+                        {inv.status}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem className="gap-2"><Eye className="h-3.5 w-3.5" /> View</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2"><Download className="h-3.5 w-3.5" /> Download PDF</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteInvoice.mutate(inv.id)}>
+                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {!isLoading && filtered.length === 0 && (
           <div className="text-center py-12">
             <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">No invoices match your filters.</p>
