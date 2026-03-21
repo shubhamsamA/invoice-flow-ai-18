@@ -53,7 +53,7 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
 
 /** Default content for each element type */
 export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = {
-  note: { text: "Your text here", fontSize: 14, bold: false },
+  text: { text: "Your text here", fontSize: 14, bold: false },
   logo: { url: "", placeholder: true },
   "client-details": { name: "Client Name", email: "client@example.com", address: "123 Main St", gst: "GSTIN" },
   "items-table": { items: [{ name: "Item 1", qty: 1, price: 0 }] },
