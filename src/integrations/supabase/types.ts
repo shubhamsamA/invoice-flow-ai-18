@@ -170,6 +170,9 @@ export type Database = {
           display_name: string | null
           gst_number: string | null
           id: string
+          logo_url: string | null
+          signature_url: string | null
+          stamp_url: string | null
           updated_at: string
           user_id: string
         }
@@ -183,6 +186,9 @@ export type Database = {
           display_name?: string | null
           gst_number?: string | null
           id?: string
+          logo_url?: string | null
+          signature_url?: string | null
+          stamp_url?: string | null
           updated_at?: string
           user_id: string
         }
@@ -196,6 +202,9 @@ export type Database = {
           display_name?: string | null
           gst_number?: string | null
           id?: string
+          logo_url?: string | null
+          signature_url?: string | null
+          stamp_url?: string | null
           updated_at?: string
           user_id?: string
         }
