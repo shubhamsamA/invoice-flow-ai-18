@@ -198,8 +198,117 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   openPrintWindow(html);
 }
 
+/** Render a single builder element to HTML */
+function renderBuilderElement(el: any, data: FullInvoiceData): string {
+  const style = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;min-height:${el.height}px;`;
+
+  switch (el.type) {
+    case "text": {
+      const fs = el.content?.fontSize || 14;
+      const bold = el.content?.bold ? "font-weight:700;" : "";
+      const text = el.content?.text || "";
+      // Replace placeholders with actual data
+      const rendered = text
+        .replace(/\{\{invoice_number\}\}/g, data.invoice_number || "")
+        .replace(/\{\{issue_date\}\}/g, data.issue_date || "")
+        .replace(/\{\{due_date\}\}/g, data.due_date || "")
+        .replace(/\{\{status\}\}/g, data.status || "")
+        .replace(/\{\{total\}\}/g, fmt(Number(data.total), data.currency))
+        .replace(/\{\{business_name\}\}/g, data.business_name || "")
+        .replace(/\{\{client_name\}\}/g, data.client_name || "");
+      return `<div style="${style}font-size:${fs}px;${bold}">${rendered}</div>`;
+    }
+    case "logo": {
+      const url = data.logo_url || el.content?.url;
+      if (url) {
+        return `<div style="${style}"><img src="${url}" style="max-width:100%;max-height:100%;object-fit:contain;" alt="Logo" /></div>`;
+      }
+      return `<div style="${style}font-size:20px;font-weight:700;color:#1e3a5f;">${data.business_name || "InvoiceFlow"}</div>`;
+    }
+    case "client-details": {
+      return `<div style="${style}">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">Bill To</div>
+        <div style="font-size:14px;font-weight:500;">${data.client_name || "—"}</div>
+        ${data.client_email ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.client_email}</div>` : ""}
+        ${data.client_address ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.client_address}</div>` : ""}
+        ${data.client_gst ? `<div style="font-size:11px;font-family:monospace;color:#666;margin-top:4px;">GST: ${data.client_gst}</div>` : ""}
+      </div>`;
+    }
+    case "items-table": {
+      const rows = data.items.map((item, i) => `
+        <tr>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;">${i + 1}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">${item.quantity}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">${fmt(item.unit_price, data.currency)}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;font-weight:500;">${fmt(item.amount, data.currency)}</td>
+        </tr>`).join("");
+      return `<div style="${style}overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">#</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Item</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Qty</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Price</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Amount</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }
+    case "total-summary": {
+      return `<div style="${style}">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span>Subtotal</span><span>${fmt(Number(data.subtotal), data.currency)}</span></div>
+        ${Number(data.gst_rate) > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span>GST (${data.gst_rate}%)</span><span>+${fmt(Number(data.gst_amount), data.currency)}</span></div>` : ""}
+        ${Number(data.discount) > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span>Discount</span><span style="color:#2e8b57;">-${fmt(Number(data.discount), data.currency)}</span></div>` : ""}
+        <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #1e3a5f;margin-top:4px;"><span>Total</span><span>${fmt(Number(data.total), data.currency)}</span></div>
+      </div>`;
+    }
+    case "signature": {
+      const url = data.signature_url;
+      return `<div style="${style}text-align:center;">
+        ${url ? `<img src="${url}" style="max-height:40px;max-width:140px;object-fit:contain;" alt="Signature" />` : '<div style="height:40px;border-bottom:1px solid #ccc;"></div>'}
+        <div style="font-size:10px;color:#888;margin-top:4px;">${el.content?.label || "Authorized Signatory"}</div>
+      </div>`;
+    }
+    case "divider": {
+      const divStyle = el.content?.style || "solid";
+      return `<div style="${style}display:flex;align-items:center;"><hr style="width:100%;border:none;border-top:1px ${divStyle} #ddd;" /></div>`;
+    }
+    default:
+      return "";
+  }
+}
+
+/** Render using layout_json template */
+function renderTemplateHTML(data: FullInvoiceData): string {
+  const elements = Array.isArray(data.layout_json) ? data.layout_json : (data.layout_json as any)?.elements || [];
+  if (!elements.length) return null as any;
+
+  // Calculate canvas height from element positions
+  let maxBottom = 600;
+  elements.forEach((el: any) => {
+    const bottom = (el.y || 0) + (el.height || 0);
+    if (bottom > maxBottom) maxBottom = bottom;
+  });
+
+  const rendered = elements.map((el: any) => renderBuilderElement(el, data)).join("");
+
+  return `
+  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:640px;min-height:${maxBottom + 40}px;margin:0 auto;padding:20px;">
+    ${rendered}
+  </div>`;
+}
+
 /** Generate HTML string for invoice preview (no auto-print) */
 export function generateInvoicePreviewHTML(data: FullInvoiceData): string {
+  // If layout_json exists, use template-based rendering
+  if (data.layout_json) {
+    const templateHTML = renderTemplateHTML(data);
+    if (templateHTML) return templateHTML;
+  }
+
+  // Fallback to default layout
   const itemsRows = data.items.map((item, i) => `
     <tr>
       <td>${i + 1}</td>
