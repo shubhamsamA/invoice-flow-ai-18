@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, Save, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 
 interface InvoiceItem {
   id: string;
@@ -31,6 +39,59 @@ const emptyItem = (): InvoiceItem => ({
   price: 0,
 });
 
+/** Builtin template layouts */
+const builtinTemplateOptions: { id: string; name: string; elements: BuilderElement[] }[] = [
+  {
+    id: "minimal",
+    name: "Minimal",
+    elements: [
+      { id: crypto.randomUUID(), type: "text", x: 32, y: 32, width: 320, height: 48, content: { text: "INVOICE", fontSize: 24, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 96, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "divider", x: 32, y: 256, ...DEFAULT_SIZES["divider"], content: DEFAULT_CONTENT["divider"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 528, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 736, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    ],
+  },
+  {
+    id: "corporate",
+    name: "Corporate",
+    elements: [
+      { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
+      { id: crypto.randomUUID(), type: "text", x: 208, y: 48, width: 400, height: 48, content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 128, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, width: 576, height: 256, content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 560, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    ],
+  },
+  {
+    id: "freelance",
+    name: "Modern Freelance",
+    elements: [
+      { id: crypto.randomUUID(), type: "divider", x: 32, y: 16, width: 576, height: 16, content: { style: "solid" } },
+      { id: crypto.randomUUID(), type: "logo", x: 32, y: 48, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
+      { id: crypto.randomUUID(), type: "text", x: 32, y: 144, width: 400, height: 48, content: { text: "Invoice", fontSize: 28, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 208, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 368, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 608, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+    ],
+  },
+  {
+    id: "gst",
+    name: "Indian GST",
+    elements: [
+      { id: crypto.randomUUID(), type: "text", x: 160, y: 32, width: 320, height: 48, content: { text: "TAX INVOICE", fontSize: 22, bold: true } },
+      { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, width: 112, height: 64, content: DEFAULT_CONTENT["logo"] },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 112, ...DEFAULT_SIZES["client-details"], content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" } },
+      { id: crypto.randomUUID(), type: "divider", x: 32, y: 272, width: 576, height: 16, content: DEFAULT_CONTENT["divider"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 304, width: 576, height: 256, content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] } },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 576, ...DEFAULT_SIZES["total-summary"], content: { subtotal: 10000, gst: 18, discount: 0 } },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    ],
+  },
+];
+
 export default function CreateInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -42,12 +103,28 @@ export default function CreateInvoicePage() {
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
       const { data, error } = await supabase.from("clients").select("id, name").order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch custom templates
+  const { data: customTemplates = [] } = useQuery({
+    queryKey: ["custom-templates"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("templates")
+        .select("id, name, layout_json")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -72,6 +149,25 @@ export default function CreateInvoicePage() {
     enabled: !!user,
   });
 
+  /** Get layout_json for the selected template */
+  const getSelectedLayoutJson = (): any[] | null => {
+    if (!selectedTemplate) return null;
+    const builtin = builtinTemplateOptions.find((t) => t.id === selectedTemplate);
+    if (builtin) return builtin.elements;
+    const custom = customTemplates.find((t: any) => t.id === selectedTemplate);
+    if (custom) return custom.layout_json as any[];
+    return null;
+  };
+
+  const getSelectedTemplateName = (): string | null => {
+    if (!selectedTemplate) return null;
+    const builtin = builtinTemplateOptions.find((t) => t.id === selectedTemplate);
+    if (builtin) return builtin.name;
+    const custom = customTemplates.find((t: any) => t.id === selectedTemplate);
+    if (custom) return custom.name;
+    return null;
+  };
+
   const addItem = () => setItems([...items, emptyItem()]);
   const removeItem = (id: string) => setItems(items.filter((i) => i.id !== id));
   const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
@@ -92,7 +188,8 @@ export default function CreateInvoicePage() {
     }
     setSaving(true);
     try {
-      // Create invoice
+      const layoutJson = getSelectedLayoutJson();
+
       const { data: invoice, error: invError } = await supabase
         .from("invoices")
         .insert({
@@ -106,12 +203,12 @@ export default function CreateInvoicePage() {
           gst_rate: gstRate,
           gst_amount: gstAmount,
           total: total,
+          layout_json: layoutJson,
         })
         .select("id")
         .single();
       if (invError) throw invError;
 
-      // Create invoice items
       const itemRows = items
         .filter((i) => i.name.trim())
         .map((item, idx) => ({
@@ -140,6 +237,11 @@ export default function CreateInvoicePage() {
     }
   };
 
+  const allTemplates = [
+    ...builtinTemplateOptions.map((t) => ({ id: t.id, name: t.name, isCustom: false })),
+    ...customTemplates.map((t: any) => ({ id: t.id, name: t.name, isCustom: true })),
+  ];
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <motion.div
@@ -164,6 +266,106 @@ export default function CreateInvoicePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
+          {/* Template Selection */}
+          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold">Template</h2>
+              <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                    <LayoutTemplate className="h-3.5 w-3.5" />
+                    {selectedTemplate ? "Change Template" : "Choose Template"}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Select a Template</DialogTitle>
+                  </DialogHeader>
+                  <p className="text-xs text-muted-foreground">
+                    The template layout will be saved with this invoice for PDF rendering.
+                  </p>
+                  <div className="space-y-2 mt-3 max-h-[400px] overflow-y-auto">
+                    <button
+                      className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
+                        !selectedTemplate
+                          ? "ring-2 ring-primary bg-primary/5 border-primary"
+                          : "hover:bg-muted/50"
+                      }`}
+                      onClick={() => {
+                        setSelectedTemplate(null);
+                        setTemplateDialogOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">No Template (Default)</span>
+                        {!selectedTemplate && <Check className="h-4 w-4 text-primary" />}
+                      </div>
+                      <span className="text-xs text-muted-foreground">Standard invoice without custom layout</span>
+                    </button>
+
+                    {builtinTemplateOptions.length > 0 && (
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Prebuilt</p>
+                    )}
+                    {builtinTemplateOptions.map((t) => (
+                      <button
+                        key={t.id}
+                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
+                          selectedTemplate === t.id
+                            ? "ring-2 ring-primary bg-primary/5 border-primary"
+                            : "hover:bg-muted/50"
+                        }`}
+                        onClick={() => {
+                          setSelectedTemplate(t.id);
+                          setTemplateDialogOpen(false);
+                          toast.success(`Template "${t.name}" selected`);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{t.name}</span>
+                          {selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{t.elements.length} elements</span>
+                      </button>
+                    ))}
+
+                    {customTemplates.length > 0 && (
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Your Templates</p>
+                    )}
+                    {customTemplates.map((t: any) => (
+                      <button
+                        key={t.id}
+                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
+                          selectedTemplate === t.id
+                            ? "ring-2 ring-primary bg-primary/5 border-primary"
+                            : "hover:bg-muted/50"
+                        }`}
+                        onClick={() => {
+                          setSelectedTemplate(t.id);
+                          setTemplateDialogOpen(false);
+                          toast.success(`Template "${t.name}" selected`);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{t.name}</span>
+                          {selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {Array.isArray(t.layout_json) ? t.layout_json.length : 0} elements
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            {selectedTemplate && (
+              <div className="flex items-center gap-2 bg-primary/5 text-primary rounded-lg px-3 py-2 text-xs font-medium">
+                <LayoutTemplate className="h-3.5 w-3.5" />
+                Using: {getSelectedTemplateName()}
+              </div>
+            )}
+          </div>
+
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <h2 className="text-sm font-semibold">Invoice Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
