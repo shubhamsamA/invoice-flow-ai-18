@@ -218,6 +218,11 @@ export default function InvoicesPage() {
                               <Eye className="h-3.5 w-3.5" /> Preview
                             </Link>
                           </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" asChild>
+                            <Link to={`/invoices/${inv.id}/edit`}>
+                              <Edit className="h-3.5 w-3.5" /> Edit
+                            </Link>
+                          </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" onClick={() => handleDownloadPDF(inv)}>
                             <Download className="h-3.5 w-3.5" /> Download PDF
                           </DropdownMenuItem>

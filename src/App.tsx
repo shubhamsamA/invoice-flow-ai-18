@@ -9,11 +9,13 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import EditInvoice from "./pages/EditInvoice";
 import InvoicePreview from "./pages/InvoicePreview";
 import Clients from "./pages/Clients";
 import Templates from "./pages/Templates";
 import AIGenerator from "./pages/AIGenerator";
 import InvoiceBuilder from "./pages/InvoiceBuilder";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -39,10 +41,12 @@ const App = () => (
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/new" element={<CreateInvoice />} />
               <Route path="/invoices/:id" element={<InvoicePreview />} />
+              <Route path="/invoices/:id/edit" element={<EditInvoice />} />
               <Route path="/invoices/builder" element={<InvoiceBuilder />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/ai-generator" element={<AIGenerator />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
