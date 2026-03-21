@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, MoreHorizontal, FileText, Download, Trash2, Loader2, Eye } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileText, Download, Trash2, Loader2, Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -216,6 +216,11 @@ export default function InvoicesPage() {
                           <DropdownMenuItem className="gap-2" asChild>
                             <Link to={`/invoices/${inv.id}`}>
                               <Eye className="h-3.5 w-3.5" /> Preview
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" asChild>
+                            <Link to={`/invoices/${inv.id}/edit`}>
+                              <Edit className="h-3.5 w-3.5" /> Edit
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" onClick={() => handleDownloadPDF(inv)}>
