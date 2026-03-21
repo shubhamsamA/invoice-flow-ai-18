@@ -148,6 +148,18 @@ export function exportInvoicePDF(data: SimpleInvoiceData, title = "Invoice") {
 
 /** Export a full database invoice with business branding */
 export function exportFullInvoicePDF(data: FullInvoiceData) {
+  // If layout_json exists, use template-based rendering for PDF
+  if (data.layout_json) {
+    const templateHTML = renderTemplateHTML(data);
+    if (templateHTML) {
+      const html = `<!DOCTYPE html><html><head><title>${data.invoice_number}</title>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Inter',system-ui,sans-serif; background:#fff; padding:32px; } @media print { body { padding:16px; } }</style>
+      </head><body>${templateHTML}<script>window.onload = function() { window.print(); }</script></body></html>`;
+      openPrintWindow(html);
+      return;
+    }
+  }
+
   const itemsRows = data.items.map((item, i) => `
     <tr><td>${i + 1}</td><td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td><td>${item.quantity}</td><td>${fmt(item.unit_price, data.currency)}</td><td style="font-weight:500;">${fmt(item.amount, data.currency)}</td></tr>`).join("");
 
