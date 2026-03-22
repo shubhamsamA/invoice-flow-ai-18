@@ -287,10 +287,37 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       const divStyle = el.content?.style || "solid";
       return `<div style="${style}display:flex;align-items:center;"><hr style="width:100%;border:none;border-top:1px ${divStyle} #ddd;" /></div>`;
     }
+    case "stamp": {
+      const url = data.stamp_url || el.content?.url;
+      if (url) {
+        return `<div style="${style}text-align:center;"><img src="${url}" style="max-width:100%;max-height:100%;object-fit:contain;opacity:0.85;" alt="Stamp" /></div>`;
+      }
+      return `<div style="${style}text-align:center;font-size:10px;color:#aaa;border:1px dashed #ddd;display:flex;align-items:center;justify-content:center;">Stamp</div>`;
+    }
+    case "business-details": {
+      return `<div style="${style}">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">From</div>
+        <div style="font-size:14px;font-weight:500;">${data.business_name || el.content?.name || ""}</div>
+        ${(data.business_email || el.content?.email) ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.business_email || el.content?.email}</div>` : ""}
+        ${el.content?.phone || "" ? `<div style="font-size:12px;color:#666;margin-top:2px;">${el.content?.phone}</div>` : ""}
+        ${(data.business_address || el.content?.address) ? `<div style="font-size:12px;color:#666;margin-top:2px;">${data.business_address || el.content?.address}</div>` : ""}
+        ${(data.business_gst || el.content?.gst) ? `<div style="font-size:11px;font-family:monospace;color:#666;margin-top:4px;">GST: ${data.business_gst || el.content?.gst}</div>` : ""}
+      </div>`;
+    }
+    case "note": {
+      const fs = el.content?.fontSize || 12;
+      const color = el.content?.color || "#555";
+      const noteText = (el.content?.text || data.notes || "")
+        .replace(/\{\{notes\}\}/g, data.notes || "");
+      return `<div style="${style}">
+        <div style="padding:10px;background:#f8f9fa;border-radius:6px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:4px;font-weight:600;">Note</div>
+          <div style="font-size:${fs}px;color:${color};">${noteText}</div>
+        </div>
+      </div>`;
+    }
     default:
       return "";
-  }
-}
 
 /** Render using layout_json template */
 function renderTemplateHTML(data: FullInvoiceData): string {

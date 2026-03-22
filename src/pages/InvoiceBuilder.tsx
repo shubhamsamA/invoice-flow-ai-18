@@ -3,24 +3,29 @@ import { BuilderSidebar } from "@/components/builder/BuilderSidebar";
 import { BuilderCanvas } from "@/components/builder/BuilderCanvas";
 import { BuilderElement, BuilderElementType, BuilderLayout } from "@/types/builder";
 import { Button } from "@/components/ui/button";
-import { Save, Download, Upload, Undo2, ArrowLeft } from "lucide-react";
+import { Save, Download, Upload, Undo2, ArrowLeft, BookmarkPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { BuilderPropertiesPanel } from "@/components/builder/BuilderPropertiesPanel";
 
 const CANVAS_W = 640;
 const CANVAS_H = 900;
 const STORAGE_KEY = "invoiceflow-builder-layout";
 
-/**
- * Invoice Builder Page
- * 
- * Architecture:
- * - State lives here (single source of truth for all elements)
- * - BuilderSidebar: component palette (drag source)
- * - BuilderCanvas: drop target + positioning + resizing
- * - Layout is persisted to localStorage as JSON
- */
 export default function InvoiceBuilderPage() {
+  const { user } = useAuth();
   const [elements, setElements] = useState<BuilderElement[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -33,8 +38,13 @@ export default function InvoiceBuilderPage() {
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [history, setHistory] = useState<BuilderElement[][]>([]);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDesc, setTemplateDesc] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  // Push current state to undo history before making changes
+  const selectedElement = elements.find((el) => el.id === selectedId) || null;
+
   const pushHistory = useCallback(() => {
     setHistory((prev) => [...prev.slice(-20), elements]);
   }, [elements]);
@@ -64,7 +74,6 @@ export default function InvoiceBuilderPage() {
     setSelectedId(null);
   }, [history]);
 
-  // Save layout as JSON to localStorage
   const handleSave = useCallback(() => {
     const layout: BuilderLayout = {
       id: crypto.randomUUID(),
@@ -78,7 +87,6 @@ export default function InvoiceBuilderPage() {
     toast.success("Layout saved");
   }, [elements]);
 
-  // Export layout as downloadable JSON file
   const handleExportJSON = useCallback(() => {
     const layout: BuilderLayout = {
       id: crypto.randomUUID(),
@@ -98,7 +106,6 @@ export default function InvoiceBuilderPage() {
     toast.success("Layout exported as JSON");
   }, [elements]);
 
-  // Import layout from JSON file
   const handleImportJSON = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
@@ -125,6 +132,30 @@ export default function InvoiceBuilderPage() {
     input.click();
   }, [pushHistory]);
 
+  const handleSaveAsTemplate = useCallback(async () => {
+    if (!user || !templateName.trim()) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase.from("templates").insert({
+        user_id: user.id,
+        name: templateName.trim(),
+        description: templateDesc.trim() || null,
+        layout_json: elements as any,
+        canvas_width: CANVAS_W,
+        canvas_height: CANVAS_H,
+      });
+      if (error) throw error;
+      toast.success("Template saved!");
+      setSaveTemplateOpen(false);
+      setTemplateName("");
+      setTemplateDesc("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save template");
+    } finally {
+      setSaving(false);
+    }
+  }, [user, templateName, templateDesc, elements]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)]">
       {/* Toolbar */}
@@ -149,6 +180,9 @@ export default function InvoiceBuilderPage() {
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleExportJSON}>
             <Download className="h-3.5 w-3.5" /> Export
           </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setSaveTemplateOpen(true)} disabled={elements.length === 0}>
+            <BookmarkPlus className="h-3.5 w-3.5" /> Save as Template
+          </Button>
           <Button size="sm" className="gap-1.5 text-xs shadow-sm" onClick={handleSave}>
             <Save className="h-3.5 w-3.5" /> Save
           </Button>
@@ -168,7 +202,50 @@ export default function InvoiceBuilderPage() {
           canvasWidth={CANVAS_W}
           canvasHeight={CANVAS_H}
         />
+        <BuilderPropertiesPanel
+          element={selectedElement}
+          onUpdate={(updates) => {
+            if (selectedId) handleUpdateElement(selectedId, updates);
+          }}
+        />
       </div>
+
+      {/* Save as Template Dialog */}
+      <Dialog open={saveTemplateOpen} onOpenChange={setSaveTemplateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save as Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Template Name</Label>
+              <Input
+                placeholder="e.g. Professional Invoice"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description (optional)</Label>
+              <Textarea
+                placeholder="Brief description of this template"
+                value={templateDesc}
+                onChange={(e) => setTemplateDesc(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {elements.length} element{elements.length !== 1 ? "s" : ""} will be saved
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSaveTemplateOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveAsTemplate} disabled={!templateName.trim() || saving}>
+              {saving ? "Saving..." : "Save Template"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
