@@ -161,7 +161,7 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
     const templateHTML = renderTemplateHTML(data);
     if (templateHTML) {
       const html = `<!DOCTYPE html><html><head><title>${data.invoice_number}</title>
-        <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Inter',system-ui,sans-serif; background:#fff; padding:2px; } @media print { body { padding:1px; } }</style>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Inter',system-ui,sans-serif; background:#fff; padding:32px; } @media print { body { padding:16px; } }</style>
       </head><body>${templateHTML}<script>window.onload = function() { window.print(); }</script></body></html>`;
       openPrintWindow(html);
       return;
