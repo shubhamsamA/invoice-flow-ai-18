@@ -12,7 +12,10 @@ export type BuilderElementType =
   | "items-table"
   | "total-summary"
   | "signature"
-  | "divider";
+  | "divider"
+  | "stamp"
+  | "business-details"
+  | "note";
 
 export interface BuilderElement {
   id: string;
@@ -49,6 +52,9 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
   "total-summary": { width: 288, height: 176 },
   signature: { width: 240, height: 96 },
   divider: { width: 544, height: 16 },
+  stamp: { width: 120, height: 120 },
+  "business-details": { width: 320, height: 160 },
+  note: { width: 400, height: 80 },
 };
 
 /** Default content for each element type */
@@ -60,4 +66,7 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   "total-summary": { subtotal: 0, gst: 18, discount: 0 },
   signature: { label: "Authorized Signature", signed: false },
   divider: { style: "solid" },
+  stamp: { url: "", placeholder: true },
+  "business-details": { name: "Your Business", email: "info@business.com", phone: "+91 00000 00000", address: "Business Address", gst: "GSTIN" },
+  note: { text: "Thank you for your business!", fontSize: 12 },
 };
