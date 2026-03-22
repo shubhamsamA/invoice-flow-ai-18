@@ -13,7 +13,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     case "text":
       return (
         <div className="h-full flex items-center px-3">
-          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400 }}>
+          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400, color: content.color || undefined }}>
             {content.text || "Text"}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               <StickyNote className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">Note</span>
             </div>
-            <p className="text-xs text-muted-foreground" style={{ fontSize: content.fontSize || 12 }}>
+            <p className="text-xs" style={{ fontSize: content.fontSize || 12, color: content.color || undefined }}>
               {content.text || "Add a note..."}
             </p>
           </div>
