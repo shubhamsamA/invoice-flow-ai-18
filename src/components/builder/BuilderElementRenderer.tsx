@@ -1,15 +1,11 @@
 import { BuilderElement } from "@/types/builder";
-import { Type, Image, Users, Table, Calculator, PenTool } from "lucide-react";
+import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote } from "lucide-react";
 
 interface Props {
   element: BuilderElement;
   selected: boolean;
 }
 
-/**
- * Renders the visual preview of each element type on the canvas.
- * Content is editable via the properties panel (future enhancement).
- */
 export function BuilderElementRenderer({ element, selected }: Props) {
   const { type, content } = element;
 
@@ -17,13 +13,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     case "text":
       return (
         <div className="h-full flex items-center px-3">
-          <p
-            className="w-full outline-none"
-            style={{
-              fontSize: content.fontSize || 14,
-              fontWeight: content.bold ? 600 : 400,
-            }}
-          >
+          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400 }}>
             {content.text || "Text"}
           </p>
         </div>
@@ -40,6 +30,50 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               <span className="text-[10px]">Drop logo here</span>
             </div>
           )}
+        </div>
+      );
+
+    case "stamp":
+      return (
+        <div className="h-full flex items-center justify-center bg-muted/30 rounded-md">
+          {content.url ? (
+            <img src={content.url} alt="Stamp" className="max-h-full max-w-full object-contain p-2" />
+          ) : (
+            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+              <Stamp className="h-6 w-6" />
+              <span className="text-[10px]">Company Stamp</span>
+            </div>
+          )}
+        </div>
+      );
+
+    case "business-details":
+      return (
+        <div className="p-3 space-y-1 text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+            <Building2 className="h-3 w-3" />
+            <span className="text-[10px] uppercase tracking-wider font-medium">Business</span>
+          </div>
+          <p className="font-medium text-sm">{content.name}</p>
+          <p className="text-muted-foreground">{content.email}</p>
+          <p className="text-muted-foreground">{content.phone}</p>
+          <p className="text-muted-foreground">{content.address}</p>
+          <p className="text-muted-foreground font-mono text-[10px]">{content.gst}</p>
+        </div>
+      );
+
+    case "note":
+      return (
+        <div className="h-full flex items-start px-3 py-2">
+          <div className="w-full">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <StickyNote className="h-3 w-3" />
+              <span className="text-[10px] uppercase tracking-wider font-medium">Note</span>
+            </div>
+            <p className="text-xs text-muted-foreground" style={{ fontSize: content.fontSize || 12 }}>
+              {content.text || "Add a note..."}
+            </p>
+          </div>
         </div>
       );
 
@@ -93,7 +127,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">₹{(content.subtotal || 0).toLocaleString("en-IN")}</span></div>
           <div className="flex justify-between"><span className="text-muted-foreground">GST ({content.gst || 0}%)</span><span className="tabular-nums">+₹{(((content.subtotal || 0) * (content.gst || 0)) / 100).toLocaleString("en-IN")}</span></div>
           {(content.discount || 0) > 0 && (
-            <div className="flex justify-between"><span className="text-muted-foreground">Discount ({content.discount}%)</span><span className="tabular-nums text-success">-₹{(((content.subtotal || 0) * content.discount) / 100).toLocaleString("en-IN")}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Discount ({content.discount}%)</span><span className="tabular-nums text-green-600">-₹{(((content.subtotal || 0) * content.discount) / 100).toLocaleString("en-IN")}</span></div>
           )}
           <div className="flex justify-between font-semibold border-t pt-1.5 text-sm">
             <span>Total</span>
