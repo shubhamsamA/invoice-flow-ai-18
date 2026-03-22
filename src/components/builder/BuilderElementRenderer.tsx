@@ -70,7 +70,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               <StickyNote className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">Note</span>
             </div>
-            <p className="text-xs text-muted-foreground" style={{ fontSize: content.fontSize || 12 }}>
+            <p className="text-xs" style={{ fontSize: content.fontSize || 12, color: content.color || undefined }}>
               {content.text || "Add a note..."}
             </p>
           </div>

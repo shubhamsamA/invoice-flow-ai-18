@@ -218,8 +218,8 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
     case "text": {
       const fs = el.content?.fontSize || 14;
       const bold = el.content?.bold ? "font-weight:700;" : "";
+      const color = el.content?.color ? `color:${el.content.color};` : "";
       const text = el.content?.text || "";
-      // Replace placeholders with actual data
       const rendered = text
         .replace(/\{\{invoice_number\}\}/g, data.invoice_number || "")
         .replace(/\{\{issue_date\}\}/g, data.issue_date || "")
@@ -228,7 +228,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
         .replace(/\{\{total\}\}/g, fmt(Number(data.total), data.currency))
         .replace(/\{\{business_name\}\}/g, data.business_name || "")
         .replace(/\{\{client_name\}\}/g, data.client_name || "");
-      return `<div style="${style}font-size:${fs}px;${bold}">${rendered}</div>`;
+      return `<div style="${style}font-size:${fs}px;${bold}${color}">${rendered}</div>`;
     }
     case "logo": {
       const url = data.logo_url || el.content?.url;
