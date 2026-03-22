@@ -318,6 +318,8 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
     }
     default:
       return "";
+  }
+}
 
 /** Render using layout_json template */
 function renderTemplateHTML(data: FullInvoiceData): string {
