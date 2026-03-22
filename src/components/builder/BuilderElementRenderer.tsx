@@ -13,7 +13,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     case "text":
       return (
         <div className="h-full flex items-center px-3">
-          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400 }}>
+          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400, color: content.color || undefined }}>
             {content.text || "Text"}
           </p>
         </div>
