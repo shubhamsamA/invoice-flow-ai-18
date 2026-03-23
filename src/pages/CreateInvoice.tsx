@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -102,6 +103,7 @@ export default function CreateInvoicePage() {
   const [clientId, setClientId] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
+  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
@@ -204,6 +206,7 @@ export default function CreateInvoicePage() {
           gst_amount: gstAmount,
           total: total,
           layout_json: layoutJson,
+          notes: notes || null,
         })
         .select("id")
         .single();
@@ -432,8 +435,8 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl border shadow-sm p-6">
-            <h2 className="text-sm font-semibold mb-4">Tax & Discount</h2>
+          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">GST Rate (%)</Label>
@@ -443,6 +446,15 @@ export default function CreateInvoicePage() {
                 <Label className="text-xs">Discount (%)</Label>
                 <Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="tabular-nums" />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Notes</Label>
+              <Textarea
+                placeholder="Payment terms, thank you message, bank details..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
             </div>
           </div>
         </motion.div>

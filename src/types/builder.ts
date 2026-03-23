@@ -15,7 +15,9 @@ export type BuilderElementType =
   | "divider"
   | "stamp"
   | "business-details"
-  | "note";
+  | "note"
+  | "invoice-number"
+  | "invoice-date";
 
 export interface BuilderElement {
   id: string;
@@ -55,6 +57,8 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
   stamp: { width: 120, height: 120 },
   "business-details": { width: 320, height: 160 },
   note: { width: 400, height: 80 },
+  "invoice-number": { width: 280, height: 48 },
+  "invoice-date": { width: 280, height: 48 },
 };
 
 /** Default content for each element type */
@@ -69,4 +73,6 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   stamp: { url: "", placeholder: true },
   "business-details": { name: "Your Business", email: "info@business.com", phone: "+91 00000 00000", address: "Business Address", gst: "GSTIN" },
   note: { text: "Thank you for your business!", fontSize: 12 },
+  "invoice-number": { label: "Invoice #", value: "{{invoice_number}}" },
+  "invoice-date": { label: "Date", showIssue: true, showDue: true },
 };

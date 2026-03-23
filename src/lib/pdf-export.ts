@@ -331,6 +331,28 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
         </div>
       </div>`;
     }
+    case "invoice-number": {
+      const label = el.content?.label || "Invoice #";
+      const value = (el.content?.value || "{{invoice_number}}")
+        .replace(/\{\{invoice_number\}\}/g, data.invoice_number || "");
+      return `<div style="${style}">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;">${label}</div>
+        <div style="font-size:15px;font-weight:600;font-family:'Courier New',monospace;">${value}</div>
+      </div>`;
+    }
+    case "invoice-date": {
+      const label = el.content?.label || "Date";
+      const showIssue = el.content?.showIssue !== false;
+      const showDue = el.content?.showDue !== false;
+      let dateHtml = `<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:6px;">${label}</div>`;
+      if (showIssue) {
+        dateHtml += `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:#8899a6;">Issue:</span><span style="font-weight:500;">${data.issue_date || "—"}</span></div>`;
+      }
+      if (showDue) {
+        dateHtml += `<div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#8899a6;">Due:</span><span style="font-weight:500;">${data.due_date || "—"}</span></div>`;
+      }
+      return `<div style="${style}">${dateHtml}</div>`;
+    }
     default:
       return "";
   }
