@@ -205,6 +205,7 @@ export default function CreateInvoicePage() {
           gst_amount: gstAmount,
           total: total,
           layout_json: layoutJson,
+          notes: notes || null,
         })
         .select("id")
         .single();
