@@ -1,5 +1,5 @@
 import { BuilderElement } from "@/types/builder";
-import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote } from "lucide-react";
+import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays } from "lucide-react";
 
 interface Props {
   element: BuilderElement;
@@ -73,6 +73,43 @@ export function BuilderElementRenderer({ element, selected }: Props) {
             <p className="text-xs" style={{ fontSize: content.fontSize || 12, color: content.color || undefined }}>
               {content.text || "Add a note..."}
             </p>
+          </div>
+        </div>
+      );
+
+    case "invoice-number":
+      return (
+        <div className="h-full flex items-center px-3">
+          <div className="w-full">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <Hash className="h-3 w-3" />
+              <span className="text-[10px] uppercase tracking-wider font-medium">{content.label || "Invoice #"}</span>
+            </div>
+            <p className="text-sm font-semibold font-mono">{content.value || "{{invoice_number}}"}</p>
+          </div>
+        </div>
+      );
+
+    case "invoice-date":
+      return (
+        <div className="h-full flex items-start px-3 py-2">
+          <div className="w-full space-y-1.5">
+            <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <CalendarDays className="h-3 w-3" />
+              <span className="text-[10px] uppercase tracking-wider font-medium">{content.label || "Date"}</span>
+            </div>
+            {content.showIssue !== false && (
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Issue:</span>
+                <span className="font-medium font-mono">{"{{issue_date}}"}</span>
+              </div>
+            )}
+            {content.showDue !== false && (
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Due:</span>
+                <span className="font-medium font-mono">{"{{due_date}}"}</span>
+              </div>
+            )}
           </div>
         </div>
       );
