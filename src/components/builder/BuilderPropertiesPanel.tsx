@@ -198,6 +198,39 @@ export function BuilderPropertiesPanel({ element, onUpdate }: Props) {
             </p>
           </div>
         )}
+
+        {/* Invoice Number */}
+        {element.type === "invoice-number" && (
+          <>
+            <div>
+              <Label className="text-[10px]">Label</Label>
+              <Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-[10px]">Value / Placeholder</Label>
+              <Input className="h-7 text-xs mt-1" value={element.content.value || ""} onChange={(e) => updateContent("value", e.target.value)} />
+              <p className="text-[10px] text-muted-foreground mt-1">Use {"{{invoice_number}}"} for auto-fill</p>
+            </div>
+          </>
+        )}
+
+        {/* Invoice Date */}
+        {element.type === "invoice-date" && (
+          <>
+            <div>
+              <Label className="text-[10px]">Label</Label>
+              <Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-[10px]">Show Issue Date</Label>
+              <Switch checked={element.content.showIssue !== false} onCheckedChange={(v) => updateContent("showIssue", v)} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-[10px]">Show Due Date</Label>
+              <Switch checked={element.content.showDue !== false} onCheckedChange={(v) => updateContent("showDue", v)} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
