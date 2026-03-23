@@ -73,4 +73,6 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   stamp: { url: "", placeholder: true },
   "business-details": { name: "Your Business", email: "info@business.com", phone: "+91 00000 00000", address: "Business Address", gst: "GSTIN" },
   note: { text: "Thank you for your business!", fontSize: 12 },
+  "invoice-number": { label: "Invoice #", value: "{{invoice_number}}" },
+  "invoice-date": { label: "Date", showIssue: true, showDue: true },
 };
