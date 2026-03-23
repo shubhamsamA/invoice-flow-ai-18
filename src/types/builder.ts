@@ -57,6 +57,8 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
   stamp: { width: 120, height: 120 },
   "business-details": { width: 320, height: 160 },
   note: { width: 400, height: 80 },
+  "invoice-number": { width: 280, height: 48 },
+  "invoice-date": { width: 280, height: 48 },
 };
 
 /** Default content for each element type */
