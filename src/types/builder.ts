@@ -15,7 +15,9 @@ export type BuilderElementType =
   | "divider"
   | "stamp"
   | "business-details"
-  | "note";
+  | "note"
+  | "invoice-number"
+  | "invoice-date";
 
 export interface BuilderElement {
   id: string;
