@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
