@@ -352,11 +352,20 @@ export default function EditInvoicePage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl border shadow-sm p-6">
-            <h2 className="text-sm font-semibold mb-4">Tax & Discount</h2>
+          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label className="text-xs">GST Rate (%)</Label><Input type="number" value={gstRate} onChange={(e) => setGstRate(parseFloat(e.target.value) || 0)} className="tabular-nums" /></div>
               <div className="space-y-1.5"><Label className="text-xs">Discount (%)</Label><Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="tabular-nums" /></div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Notes</Label>
+              <Textarea
+                placeholder="Payment terms, thank you message, bank details..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
             </div>
           </div>
         </motion.div>
