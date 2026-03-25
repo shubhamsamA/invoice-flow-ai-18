@@ -104,7 +104,12 @@ export default function InvoicesPage() {
   const filtered = invoices.filter((inv: any) => {
     if (filter !== "all" && inv.status !== filter) return false;
     const clientName = inv.clients?.name || "";
-    if (search && !clientName.toLowerCase().includes(search.toLowerCase()) && !inv.invoice_number.toLowerCase().includes(search.toLowerCase())) return false;
+    if (
+      search &&
+      !clientName.toLowerCase().includes(search.toLowerCase()) &&
+      !inv.invoice_number.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -136,11 +141,22 @@ export default function InvoicesPage() {
       >
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by client or invoice number..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input
+            placeholder="Search by client or invoice number..."
+            className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
         <div className="flex gap-1.5">
           {["all", "paid", "unpaid", "overdue"].map((s) => (
-            <Button key={s} variant={filter === s ? "default" : "outline"} size="sm" className="capitalize text-xs" onClick={() => setFilter(s)}>
+            <Button
+              key={s}
+              variant={filter === s ? "default" : "outline"}
+              size="sm"
+              className="capitalize text-xs"
+              onClick={() => setFilter(s)}
+            >
               {s === "all" ? "All" : s}
             </Button>
           ))}
@@ -162,12 +178,24 @@ export default function InvoicesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Invoice</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Client</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Date</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Due</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Amount</th>
-                  <th className="text-center px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                    Invoice
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                    Client
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">
+                    Date
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">
+                    Due
+                  </th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="text-center px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                    Status
+                  </th>
                   <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
@@ -181,7 +209,10 @@ export default function InvoicesPage() {
                     transition={{ delay: 0.25 + i * 0.04, duration: 0.3 }}
                   >
                     <td className="px-4 py-3.5">
-                      <Link to={`/invoices/${inv.id}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                      <Link
+                        to={`/invoices/${inv.id}`}
+                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                      >
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{inv.invoice_number}</span>
                       </Link>
@@ -192,7 +223,9 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden md:table-cell">{inv.issue_date}</td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden lg:table-cell">{inv.due_date || "—"}</td>
-                    <td className="px-4 py-3.5 text-right font-semibold tabular-nums">{formatCurrency(Number(inv.total))}</td>
+                    <td className="px-4 py-3.5 text-right font-semibold tabular-nums">
+                      {formatCurrency(Number(inv.total))}
+                    </td>
                     <td className="px-4 py-3.5 text-center">
                       <button
                         className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full capitalize cursor-pointer ${statusClasses[inv.status]}`}
@@ -223,10 +256,10 @@ export default function InvoicesPage() {
                               <Edit className="h-3.5 w-3.5" /> Edit
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleDownloadPDF(inv)}>
-                            <Download className="h-3.5 w-3.5" /> Download PDF
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteInvoice.mutate(inv.id)}>
+                          <DropdownMenuItem
+                            className="gap-2 text-destructive"
+                            onClick={() => deleteInvoice.mutate(inv.id)}
+                          >
                             <Trash2 className="h-3.5 w-3.5" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -242,7 +275,15 @@ export default function InvoicesPage() {
           <div className="text-center py-12">
             <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">No invoices match your filters.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => { setFilter("all"); setSearch(""); }}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setFilter("all");
+                setSearch("");
+              }}
+            >
               Clear filters
             </Button>
           </div>
