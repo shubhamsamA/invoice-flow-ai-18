@@ -37,6 +37,8 @@ export interface BuilderLayout {
   canvasWidth: number;
   canvasHeight: number;
   createdAt: string;
+  pageSize?: string;
+  pageLocked?: boolean;
 }
 
 /** Grid snap size in pixels */

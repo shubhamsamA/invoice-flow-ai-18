@@ -1,5 +1,6 @@
 import { BuilderElement } from "@/types/builder";
 import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays } from "lucide-react";
+import { getFontFamily } from "@/lib/invoice-layout";
 
 interface Props {
   element: BuilderElement;
@@ -11,9 +12,22 @@ export function BuilderElementRenderer({ element, selected }: Props) {
 
   switch (type) {
     case "text":
+      const textStyle: React.CSSProperties = {
+        fontSize: content.fontSize || 14,
+        fontWeight: content.fontWeight || (content.bold ? 600 : 400),
+        color: content.color || undefined,
+        fontFamily: getFontFamily(content.fontFamily),
+        fontStyle: content.italic ? "italic" : undefined,
+        textDecoration: content.underline ? "underline" : undefined,
+        textAlign: content.textAlign || "left",
+        lineHeight: content.lineHeight || 1.4,
+        letterSpacing: typeof content.letterSpacing === "number" ? `${content.letterSpacing}px` : undefined,
+        textTransform: content.textTransform || undefined,
+        backgroundColor: content.backgroundColor && content.backgroundColor !== "transparent" ? content.backgroundColor : undefined,
+      };
       return (
-        <div className="h-full flex items-center px-3">
-          <p className="w-full outline-none" style={{ fontSize: content.fontSize || 14, fontWeight: content.bold ? 600 : 400, color: content.color || undefined }}>
+        <div className="h-full flex items-center px-3" style={{ backgroundColor: textStyle.backgroundColor }}>
+          <p className="w-full outline-none" style={{ ...textStyle, backgroundColor: undefined }}>
             {content.text || "Text"}
           </p>
         </div>
@@ -63,6 +77,14 @@ export function BuilderElementRenderer({ element, selected }: Props) {
       );
 
     case "note":
+      const noteStyle: React.CSSProperties = {
+        fontSize: content.fontSize || 12,
+        color: content.color || undefined,
+        fontFamily: getFontFamily(content.fontFamily),
+        fontWeight: content.fontWeight || 400,
+        textAlign: content.textAlign || "left",
+        lineHeight: content.lineHeight || 1.4,
+      };
       return (
         <div className="h-full flex items-start px-3 py-2">
           <div className="w-full">
@@ -70,7 +92,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               <StickyNote className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">Note</span>
             </div>
-            <p className="text-xs" style={{ fontSize: content.fontSize || 12, color: content.color || undefined }}>
+            <p className="text-xs" style={noteStyle}>
               {content.text || "Add a note..."}
             </p>
           </div>
