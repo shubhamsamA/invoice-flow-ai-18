@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline } from "lucide-react";
+import { Toggle } from "@/components/ui/toggle";
 
 interface Props {
   element: BuilderElement | null;
@@ -69,6 +71,20 @@ export function BuilderPropertiesPanel({ element, onUpdate }: Props) {
                 onChange={(e) => updateContent("text", e.target.value)}
               />
             </div>
+
+            {/* Font Family */}
+            <div>
+              <Label className="text-[10px]">Font Family</Label>
+              <Select value={element.content.fontFamily || "sans"} onValueChange={(v) => updateContent("fontFamily", v)}>
+                <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sans">Sans (Inter)</SelectItem>
+                  <SelectItem value="serif">Serif (Merriweather)</SelectItem>
+                  <SelectItem value="mono">Mono (JetBrains)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label className="text-[10px]">Font Size ({element.content.fontSize || 14}px)</Label>
               <Slider
@@ -80,6 +96,50 @@ export function BuilderPropertiesPanel({ element, onUpdate }: Props) {
                 onValueChange={([v]) => updateContent("fontSize", v)}
               />
             </div>
+
+            {/* Font Weight */}
+            <div>
+              <Label className="text-[10px]">Font Weight</Label>
+              <Select value={String(element.content.fontWeight || (element.content.bold ? 700 : 400))} onValueChange={(v) => { updateContent("fontWeight", Number(v)); updateContent("bold", Number(v) >= 600); }}>
+                <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="300">Light</SelectItem>
+                  <SelectItem value="400">Regular</SelectItem>
+                  <SelectItem value="500">Medium</SelectItem>
+                  <SelectItem value="600">Semibold</SelectItem>
+                  <SelectItem value="700">Bold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Style toggles: Bold / Italic / Underline */}
+            <div>
+              <Label className="text-[10px]">Style</Label>
+              <div className="flex gap-1 mt-1">
+                <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.bold || (element.content.fontWeight || 0) >= 600} onPressedChange={(v) => { updateContent("bold", v); updateContent("fontWeight", v ? 700 : 400); }}>
+                  <Bold className="h-3 w-3" />
+                </Toggle>
+                <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.italic} onPressedChange={(v) => updateContent("italic", v)}>
+                  <Italic className="h-3 w-3" />
+                </Toggle>
+                <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.underline} onPressedChange={(v) => updateContent("underline", v)}>
+                  <Underline className="h-3 w-3" />
+                </Toggle>
+              </div>
+            </div>
+
+            {/* Text Alignment */}
+            <div>
+              <Label className="text-[10px]">Alignment</Label>
+              <div className="flex gap-1 mt-1">
+                {([["left", AlignLeft], ["center", AlignCenter], ["right", AlignRight], ["justify", AlignJustify]] as const).map(([align, Icon]) => (
+                  <Toggle key={align} size="sm" className="h-7 w-7 p-0" pressed={(element.content.textAlign || "left") === align} onPressedChange={(pressed) => { if (pressed) updateContent("textAlign", align); }}>
+                    <Icon className="h-3 w-3" />
+                  </Toggle>
+                ))}
+              </div>
+            </div>
+
             <div>
               <Label className="text-[10px]">Color</Label>
               <div className="flex items-center gap-2 mt-1">
@@ -96,15 +156,42 @@ export function BuilderPropertiesPanel({ element, onUpdate }: Props) {
                 />
               </div>
             </div>
-            {element.type === "text" && (
-              <div className="flex items-center justify-between">
-                <Label className="text-[10px]">Bold</Label>
-                <Switch
-                  checked={!!element.content.bold}
-                  onCheckedChange={(v) => updateContent("bold", v)}
-                />
+
+            {/* Line Height */}
+            <div>
+              <Label className="text-[10px]">Line Height ({element.content.lineHeight || 1.4})</Label>
+              <Slider className="mt-1" min={0.8} max={3} step={0.1} value={[element.content.lineHeight || 1.4]} onValueChange={([v]) => updateContent("lineHeight", v)} />
+            </div>
+
+            {/* Letter Spacing */}
+            <div>
+              <Label className="text-[10px]">Letter Spacing ({element.content.letterSpacing || 0}px)</Label>
+              <Slider className="mt-1" min={-2} max={10} step={0.5} value={[element.content.letterSpacing || 0]} onValueChange={([v]) => updateContent("letterSpacing", v)} />
+            </div>
+
+            {/* Text Transform */}
+            <div>
+              <Label className="text-[10px]">Transform</Label>
+              <Select value={element.content.textTransform || "none"} onValueChange={(v) => updateContent("textTransform", v)}>
+                <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="uppercase">UPPERCASE</SelectItem>
+                  <SelectItem value="lowercase">lowercase</SelectItem>
+                  <SelectItem value="capitalize">Capitalize</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Background Color */}
+            <div>
+              <Label className="text-[10px]">Background</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={element.content.backgroundColor || "#ffffff"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+                <Input className="h-7 text-xs flex-1" value={element.content.backgroundColor || "transparent"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+                <button className="text-[9px] text-muted-foreground hover:text-foreground" onClick={() => updateContent("backgroundColor", "transparent")}>Clear</button>
               </div>
-            )}
+            </div>
           </>
         )}
 

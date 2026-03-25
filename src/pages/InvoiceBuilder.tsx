@@ -1,13 +1,21 @@
 import { useState, useCallback } from "react";
 import { BuilderSidebar } from "@/components/builder/BuilderSidebar";
 import { BuilderCanvas } from "@/components/builder/BuilderCanvas";
-import { BuilderElement, BuilderElementType, BuilderLayout } from "@/types/builder";
+import { BuilderElement, BuilderElementType, BuilderLayout, snapToGrid } from "@/types/builder";
 import { Button } from "@/components/ui/button";
-import { Save, Download, Upload, Undo2, ArrowLeft, BookmarkPlus } from "lucide-react";
+import { Save, Download, Upload, Undo2, ArrowLeft, BookmarkPlus, Lock, Unlock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { PAGE_PRESETS, PagePresetKey, DEFAULT_PAGE_PRESET } from "@/lib/invoice-layout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -20,12 +28,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BuilderPropertiesPanel } from "@/components/builder/BuilderPropertiesPanel";
 
-const CANVAS_W = 640;
-const CANVAS_H = 900;
 const STORAGE_KEY = "invoiceflow-builder-layout";
 
 export default function InvoiceBuilderPage() {
   const { user } = useAuth();
+  const [pageSize, setPageSize] = useState<PagePresetKey>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const layout = JSON.parse(saved);
+        return layout.pageSize || DEFAULT_PAGE_PRESET;
+      }
+    } catch {}
+    return DEFAULT_PAGE_PRESET;
+  });
+  const [pageLocked, setPageLocked] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved).pageLocked || false;
+    } catch {}
+    return false;
+  });
+  const preset = PAGE_PRESETS[pageSize];
+  const canvasW = preset.width;
+  const canvasH = preset.height;
+
   const [elements, setElements] = useState<BuilderElement[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -79,22 +106,26 @@ export default function InvoiceBuilderPage() {
       id: crypto.randomUUID(),
       name: "Custom Layout",
       elements,
-      canvasWidth: CANVAS_W,
-      canvasHeight: CANVAS_H,
+      canvasWidth: canvasW,
+      canvasHeight: canvasH,
       createdAt: new Date().toISOString(),
+      pageSize,
+      pageLocked,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
     toast.success("Layout saved");
-  }, [elements]);
+  }, [elements, canvasW, canvasH, pageSize, pageLocked]);
 
   const handleExportJSON = useCallback(() => {
     const layout: BuilderLayout = {
       id: crypto.randomUUID(),
       name: "Exported Layout",
       elements,
-      canvasWidth: CANVAS_W,
-      canvasHeight: CANVAS_H,
+      canvasWidth: canvasW,
+      canvasHeight: canvasH,
       createdAt: new Date().toISOString(),
+      pageSize,
+      pageLocked,
     };
     const blob = new Blob([JSON.stringify(layout, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -104,7 +135,7 @@ export default function InvoiceBuilderPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Layout exported as JSON");
-  }, [elements]);
+  }, [elements, canvasW, canvasH, pageSize, pageLocked]);
 
   const handleImportJSON = useCallback(() => {
     const input = document.createElement("input");
@@ -140,9 +171,9 @@ export default function InvoiceBuilderPage() {
         user_id: user.id,
         name: templateName.trim(),
         description: templateDesc.trim() || null,
-        layout_json: elements as any,
-        canvas_width: CANVAS_W,
-        canvas_height: CANVAS_H,
+        layout_json: { elements, canvasWidth: canvasW, canvasHeight: canvasH, pageSize, pageLocked } as any,
+        canvas_width: canvasW,
+        canvas_height: canvasH,
       });
       if (error) throw error;
       toast.success("Template saved!");
@@ -154,7 +185,7 @@ export default function InvoiceBuilderPage() {
     } finally {
       setSaving(false);
     }
-  }, [user, templateName, templateDesc, elements]);
+  }, [user, templateName, templateDesc, elements, canvasW, canvasH, pageSize, pageLocked]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)]">
@@ -171,6 +202,40 @@ export default function InvoiceBuilderPage() {
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Page Size Selector */}
+          <div className="flex items-center gap-1 mr-2">
+            <Select
+              value={pageSize}
+              onValueChange={(v) => {
+                if (pageLocked) {
+                  toast.error("Page size is locked. Unlock to change.");
+                  return;
+                }
+                setPageSize(v as PagePresetKey);
+              }}
+              disabled={pageLocked}
+            >
+              <SelectTrigger className="h-7 w-[100px] text-[10px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(PAGE_PRESETS).map((p) => (
+                  <SelectItem key={p.key} value={p.key} className="text-xs">
+                    {p.label} ({p.width}×{p.height})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant={pageLocked ? "default" : "ghost"}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setPageLocked(!pageLocked)}
+              title={pageLocked ? "Unlock page size" : "Lock page size"}
+            >
+              {pageLocked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+            </Button>
+          </div>
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleUndo} disabled={history.length === 0}>
             <Undo2 className="h-3.5 w-3.5" /> Undo
           </Button>
@@ -199,8 +264,8 @@ export default function InvoiceBuilderPage() {
           onUpdateElement={handleUpdateElement}
           onAddElement={handleAddElement}
           onRemoveElement={handleRemoveElement}
-          canvasWidth={CANVAS_W}
-          canvasHeight={CANVAS_H}
+          canvasWidth={canvasW}
+          canvasHeight={canvasH}
         />
         <BuilderPropertiesPanel
           element={selectedElement}
