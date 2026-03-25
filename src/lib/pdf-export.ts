@@ -46,7 +46,8 @@ const fmt = (n: number, currency = "INR") => {
 const baseStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Inter',system-ui,sans-serif; color:#1a1a2e; background:#fff; padding:48px; }
+  @page { size: A4; margin: 0; }
+  body { font-family:'Inter',system-ui,sans-serif; color:#1a1a2e; background:#fff; padding:48px; margin:0; }
   .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; }
   .brand { font-size:22px; font-weight:700; color:#1e3a5f; }
   .brand-logo { max-height:48px; max-width:180px; object-fit:contain; }
@@ -161,8 +162,14 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
     const templateHTML = renderTemplateHTML(data);
     if (templateHTML) {
       const html = `<!DOCTYPE html><html><head><title>${data.invoice_number}</title>
-        <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Inter',system-ui,sans-serif; background:#fff; padding:32px; } @media print { body { padding:16px; } }</style>
-      </head><body>${templateHTML}<script>window.onload = function() { window.print(); }</script></body></html>`;
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+          @page { size: ${(() => { const lo = data.layout_json as any; const ps = lo?.pageSize; return ps === 'a4' ? '210mm 297mm' : ps === 'letter' ? '8.5in 11in' : lo?.canvasWidth ? `${lo.canvasWidth}px ${lo.canvasHeight || 900}px` : '640px 900px'; })()}; margin: 0; }
+          * { margin:0; padding:0; box-sizing:border-box; }
+          html, body { width:100%; height:100%; }
+          body { font-family:'Inter',system-ui,sans-serif; background:#fff; }
+        </style>
+      </head><body>${templateHTML}<script>window.onload=function(){window.print();}</script></body></html>`;
       openPrintWindow(html);
       return;
     }
