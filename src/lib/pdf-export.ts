@@ -231,14 +231,25 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
 
 /** Render a single builder element to HTML */
 function renderBuilderElement(el: any, data: FullInvoiceData): string {
-  const style = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;min-height:${el.height}px;`;
+  const c = el.content || {};
+  const fontFamily = c.fontFamily === 'serif' ? "'Merriweather','Georgia',serif"
+    : c.fontFamily === 'mono' ? "'JetBrains Mono','Courier New',monospace"
+    : "'Inter',system-ui,sans-serif";
+  const style = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;overflow:hidden;`;
 
   switch (el.type) {
     case "text": {
-      const fs = el.content?.fontSize || 14;
-      const bold = el.content?.bold ? "font-weight:700;" : "";
-      const color = el.content?.color ? `color:${el.content.color};` : "";
-      const text = el.content?.text || "";
+      const fs = c.fontSize || 14;
+      const fw = c.fontWeight || (c.bold ? 700 : 400);
+      const color = c.color ? `color:${c.color};` : "";
+      const textAlign = c.textAlign ? `text-align:${c.textAlign};` : "";
+      const lineHeight = c.lineHeight ? `line-height:${c.lineHeight};` : "line-height:1.4;";
+      const letterSpacing = typeof c.letterSpacing === 'number' ? `letter-spacing:${c.letterSpacing}px;` : "";
+      const italic = c.italic ? "font-style:italic;" : "";
+      const underline = c.underline ? "text-decoration:underline;" : "";
+      const textTransform = c.textTransform && c.textTransform !== 'none' ? `text-transform:${c.textTransform};` : "";
+      const bgColor = c.backgroundColor && c.backgroundColor !== 'transparent' ? `background-color:${c.backgroundColor};` : "";
+      const text = c.text || "";
       const rendered = text
         .replace(/\{\{invoice_number\}\}/g, data.invoice_number || "")
         .replace(/\{\{issue_date\}\}/g, data.issue_date || "")
@@ -247,7 +258,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
         .replace(/\{\{total\}\}/g, fmt(Number(data.total), data.currency))
         .replace(/\{\{business_name\}\}/g, data.business_name || "")
         .replace(/\{\{client_name\}\}/g, data.client_name || "");
-      return `<div style="${style}font-size:${fs}px;${bold}${color}">${rendered}</div>`;
+      return `<div style="${style}font-family:${fontFamily};font-size:${fs}px;font-weight:${fw};${color}${textAlign}${lineHeight}${letterSpacing}${italic}${underline}${textTransform}${bgColor}display:flex;align-items:center;padding:0 12px;">${rendered}</div>`;
     }
     case "logo": {
       const url = data.logo_url || el.content?.url;
@@ -328,13 +339,16 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       </div>`;
     }
     case "note": {
-      const fs = el.content?.fontSize || 12;
-      const color = el.content?.color || "#555";
-      const noteText = (el.content?.text || data.notes || "").replace(/\{\{notes\}\}/g, data.notes || "");
+      const fs = c.fontSize || 12;
+      const fw = c.fontWeight || 400;
+      const color = c.color || "#555";
+      const textAlign = c.textAlign ? `text-align:${c.textAlign};` : "";
+      const lineHeight = c.lineHeight ? `line-height:${c.lineHeight};` : "line-height:1.4;";
+      const noteText = (c.text || data.notes || "").replace(/\{\{notes\}\}/g, data.notes || "");
       return `<div style="${style}">
-        <div style="padding:10px;background:#f8f9fa;border-radius:6px;">
+        <div style="padding:10px;background:#f8f9fa;border-radius:6px;font-family:${fontFamily};${textAlign}${lineHeight}">
           <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:4px;font-weight:600;">Note</div>
-          <div style="font-size:${fs}px;color:${color};">${noteText}</div>
+          <div style="font-size:${fs}px;font-weight:${fw};color:${color};">${noteText}</div>
         </div>
       </div>`;
     }
@@ -367,20 +381,24 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
 
 /** Render using layout_json template */
 function renderTemplateHTML(data: FullInvoiceData): string {
-  const elements = Array.isArray(data.layout_json) ? data.layout_json : (data.layout_json as any)?.elements || [];
+  const layoutObj = data.layout_json as any;
+  const elements = Array.isArray(layoutObj) ? layoutObj : layoutObj?.elements || [];
   if (!elements.length) return null as any;
 
-  // Calculate canvas height from element positions
-  let maxBottom = 600;
-  elements.forEach((el: any) => {
-    const bottom = (el.y || 0) + (el.height || 0);
-    if (bottom > maxBottom) maxBottom = bottom;
-  });
+  const canvasWidth = Number(layoutObj?.canvasWidth) || 640;
+  const canvasHeight = Number(layoutObj?.canvasHeight) || (() => {
+    let maxBottom = 600;
+    elements.forEach((el: any) => {
+      const bottom = (el.y || 0) + (el.height || 0);
+      if (bottom > maxBottom) maxBottom = bottom;
+    });
+    return maxBottom;
+  })();
 
   const rendered = elements.map((el: any) => renderBuilderElement(el, data)).join("");
 
   return `
-  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:640px;min-height:${maxBottom + 40}px;margin:0 auto;padding:20px;">
+  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:${canvasWidth}px;height:${canvasHeight}px;margin:0 auto;overflow:hidden;">
     ${rendered}
   </div>`;
 }
