@@ -68,38 +68,6 @@ export default function InvoicesPage() {
   });
 
   /** Download PDF for a specific invoice — fetches items then exports */
-  const handleDownloadPDF = async (inv: any) => {
-    const { data: items } = await supabase
-      .from("invoice_items")
-      .select("*")
-      .eq("invoice_id", inv.id)
-      .order("sort_order");
-
-    exportFullInvoicePDF({
-      invoice_number: inv.invoice_number,
-      issue_date: inv.issue_date,
-      due_date: inv.due_date,
-      status: inv.status,
-      subtotal: inv.subtotal,
-      discount: inv.discount,
-      gst_rate: inv.gst_rate,
-      gst_amount: inv.gst_amount,
-      total: inv.total,
-      currency: inv.currency,
-      notes: inv.notes,
-      client_name: inv.clients?.name,
-      client_email: inv.clients?.email,
-      client_address: inv.clients?.address,
-      client_gst: inv.clients?.gst_number,
-      items: (items || []).map((i: any) => ({
-        name: i.name,
-        description: i.description,
-        quantity: Number(i.quantity),
-        unit_price: Number(i.unit_price),
-        amount: Number(i.amount),
-      })),
-    });
-  };
 
   const filtered = invoices.filter((inv: any) => {
     if (filter !== "all" && inv.status !== filter) return false;
