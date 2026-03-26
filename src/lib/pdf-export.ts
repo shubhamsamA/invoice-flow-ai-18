@@ -398,8 +398,9 @@ function renderTemplateHTML(data: FullInvoiceData): string {
 
   const rendered = elements.map((el: any) => renderBuilderElement(el, data)).join("");
 
+  // Container matches canvas dimensions exactly — no padding, no margin adjustments
   return `
-  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:${canvasWidth}px;height:${canvasHeight}px;margin:0 auto;overflow:hidden;">
+  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:${canvasWidth}px;height:${canvasHeight}px;margin:0 auto;overflow:hidden;box-sizing:border-box;">
     ${rendered}
   </div>`;
 }
