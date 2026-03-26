@@ -229,12 +229,13 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   openPrintWindow(html);
 }
 
-/** Render a single builder element to HTML */
+/** Render a single builder element to HTML — uses exact pixel positions from canvas */
 function renderBuilderElement(el: any, data: FullInvoiceData): string {
   const c = el.content || {};
   const fontFamily = c.fontFamily === 'serif' ? "'Merriweather','Georgia',serif"
     : c.fontFamily === 'mono' ? "'JetBrains Mono','Courier New',monospace"
     : "'Inter',system-ui,sans-serif";
+  // Use exact pixel positions — these include alignment-guide snapped values
   const style = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;overflow:hidden;`;
 
   switch (el.type) {
