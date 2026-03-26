@@ -27,11 +27,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BuilderPropertiesPanel } from "@/components/builder/BuilderPropertiesPanel";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Settings2 } from "lucide-react";
 
 const STORAGE_KEY = "invoiceflow-builder-layout";
 
 export default function InvoiceBuilderPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [pageSize, setPageSize] = useState<PagePresetKey>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -69,6 +79,7 @@ export default function InvoiceBuilderPage() {
   const [templateName, setTemplateName] = useState("");
   const [templateDesc, setTemplateDesc] = useState("");
   const [saving, setSaving] = useState(false);
+  const [propsOpen, setPropsOpen] = useState(false);
 
   const selectedElement = elements.find((el) => el.id === selectedId) || null;
 
@@ -187,23 +198,29 @@ export default function InvoiceBuilderPage() {
     }
   }, [user, templateName, templateDesc, elements, canvasW, canvasH, pageSize, pageLocked]);
 
+  // Open props sheet on selection (mobile)
+  const handleSelectElement = useCallback((id: string | null) => {
+    setSelectedId(id);
+    if (id && isMobile) setPropsOpen(true);
+  }, [isMobile]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)]">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b bg-card px-4 py-2 shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between border-b bg-card px-2 sm:px-4 py-2 shrink-0 gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2 shrink-0">
           <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
             <Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link>
           </Button>
-          <h1 className="text-sm font-semibold">Invoice Builder</h1>
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          <h1 className="text-sm font-semibold hidden sm:block">Invoice Builder</h1>
+          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full hidden sm:inline">
             {elements.length} element{elements.length !== 1 ? "s" : ""}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           {/* Page Size Selector */}
-          <div className="flex items-center gap-1 mr-2">
+          <div className="flex items-center gap-1 mr-1">
             <Select
               value={pageSize}
               onValueChange={(v) => {
@@ -215,7 +232,7 @@ export default function InvoiceBuilderPage() {
               }}
               disabled={pageLocked}
             >
-              <SelectTrigger className="h-7 w-[100px] text-[10px]">
+              <SelectTrigger className="h-7 w-[80px] sm:w-[100px] text-[10px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -236,20 +253,23 @@ export default function InvoiceBuilderPage() {
               {pageLocked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
             </Button>
           </div>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleUndo} disabled={history.length === 0}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 sm:hidden" onClick={handleUndo} disabled={history.length === 0} title="Undo">
+            <Undo2 className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleUndo} disabled={history.length === 0}>
             <Undo2 className="h-3.5 w-3.5" /> Undo
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleImportJSON}>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleImportJSON}>
             <Upload className="h-3.5 w-3.5" /> Load
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleExportJSON}>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleExportJSON}>
             <Download className="h-3.5 w-3.5" /> Export
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setSaveTemplateOpen(true)} disabled={elements.length === 0}>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs hidden lg:flex" onClick={() => setSaveTemplateOpen(true)} disabled={elements.length === 0}>
             <BookmarkPlus className="h-3.5 w-3.5" /> Save as Template
           </Button>
           <Button size="sm" className="gap-1.5 text-xs shadow-sm" onClick={handleSave}>
-            <Save className="h-3.5 w-3.5" /> Save
+            <Save className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Save</span>
           </Button>
         </div>
       </div>
@@ -260,19 +280,55 @@ export default function InvoiceBuilderPage() {
         <BuilderCanvas
           elements={elements}
           selectedId={selectedId}
-          onSelectElement={setSelectedId}
+          onSelectElement={handleSelectElement}
           onUpdateElement={handleUpdateElement}
           onAddElement={handleAddElement}
           onRemoveElement={handleRemoveElement}
           canvasWidth={canvasW}
           canvasHeight={canvasH}
         />
-        <BuilderPropertiesPanel
-          element={selectedElement}
-          onUpdate={(updates) => {
-            if (selectedId) handleUpdateElement(selectedId, updates);
-          }}
-        />
+
+        {/* Desktop: inline properties panel */}
+        {!isMobile && (
+          <BuilderPropertiesPanel
+            element={selectedElement}
+            onUpdate={(updates) => {
+              if (selectedId) handleUpdateElement(selectedId, updates);
+            }}
+          />
+        )}
+
+        {/* Mobile: sheet-based properties panel */}
+        {isMobile && (
+          <>
+            {selectedElement && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="fixed bottom-4 right-4 z-40 gap-1.5 shadow-lg text-xs"
+                onClick={() => setPropsOpen(true)}
+              >
+                <Settings2 className="h-3.5 w-3.5" /> Properties
+              </Button>
+            )}
+            <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
+              <SheetContent side="right" className="w-72 p-0">
+                <SheetHeader className="p-3 border-b">
+                  <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Properties</SheetTitle>
+                </SheetHeader>
+                <div className="overflow-y-auto h-[calc(100%-50px)]">
+                  <BuilderPropertiesPanel
+                    element={selectedElement}
+                    onUpdate={(updates) => {
+                      if (selectedId) handleUpdateElement(selectedId, updates);
+                    }}
+                    embedded
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
       </div>
 
       {/* Save as Template Dialog */}

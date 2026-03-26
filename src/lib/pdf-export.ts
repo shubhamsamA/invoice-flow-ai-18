@@ -229,12 +229,13 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   openPrintWindow(html);
 }
 
-/** Render a single builder element to HTML */
+/** Render a single builder element to HTML — uses exact pixel positions from canvas */
 function renderBuilderElement(el: any, data: FullInvoiceData): string {
   const c = el.content || {};
   const fontFamily = c.fontFamily === 'serif' ? "'Merriweather','Georgia',serif"
     : c.fontFamily === 'mono' ? "'JetBrains Mono','Courier New',monospace"
     : "'Inter',system-ui,sans-serif";
+  // Use exact pixel positions — these include alignment-guide snapped values
   const style = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;overflow:hidden;`;
 
   switch (el.type) {
@@ -397,8 +398,9 @@ function renderTemplateHTML(data: FullInvoiceData): string {
 
   const rendered = elements.map((el: any) => renderBuilderElement(el, data)).join("");
 
+  // Container matches canvas dimensions exactly — no padding, no margin adjustments
   return `
-  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:${canvasWidth}px;height:${canvasHeight}px;margin:0 auto;overflow:hidden;">
+  <div style="font-family:'Inter',system-ui,sans-serif;color:#1a1a2e;position:relative;width:${canvasWidth}px;height:${canvasHeight}px;margin:0 auto;overflow:hidden;box-sizing:border-box;">
     ${rendered}
   </div>`;
 }
