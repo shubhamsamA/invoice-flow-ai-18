@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { 
   BuilderElement, BuilderElementType, 
   GRID_SIZE, snapToGrid, 
@@ -6,6 +6,12 @@ import {
 } from "@/types/builder";
 import { BuilderElementRenderer } from "./BuilderElementRenderer";
 import { Trash2, Move, Lock, Unlock } from "lucide-react";
+
+interface AlignGuide {
+  axis: "x" | "y";
+  position: number;
+  type: "center" | "edge";
+}
 
 interface Props {
   elements: BuilderElement[];
@@ -18,14 +24,62 @@ interface Props {
   canvasHeight: number;
 }
 
+const SNAP_THRESHOLD = 6;
+
+function computeAlignmentGuides(
+  movingEl: BuilderElement,
+  allElements: BuilderElement[],
+  canvasWidth: number,
+  canvasHeight: number,
+): AlignGuide[] {
+  const guides: AlignGuide[] = [];
+  const mCx = movingEl.x + movingEl.width / 2;
+  const mCy = movingEl.y + movingEl.height / 2;
+  const mRight = movingEl.x + movingEl.width;
+  const mBottom = movingEl.y + movingEl.height;
+
+  // Canvas center guides
+  const canvasCx = canvasWidth / 2;
+  const canvasCy = canvasHeight / 2;
+  if (Math.abs(mCx - canvasCx) < SNAP_THRESHOLD) guides.push({ axis: "x", position: canvasCx, type: "center" });
+  if (Math.abs(mCy - canvasCy) < SNAP_THRESHOLD) guides.push({ axis: "y", position: canvasCy, type: "center" });
+
+  for (const other of allElements) {
+    if (other.id === movingEl.id) continue;
+    const oCx = other.x + other.width / 2;
+    const oCy = other.y + other.height / 2;
+    const oRight = other.x + other.width;
+    const oBottom = other.y + other.height;
+
+    // Vertical (x-axis) guides
+    if (Math.abs(movingEl.x - other.x) < SNAP_THRESHOLD) guides.push({ axis: "x", position: other.x, type: "edge" });
+    if (Math.abs(mRight - oRight) < SNAP_THRESHOLD) guides.push({ axis: "x", position: oRight, type: "edge" });
+    if (Math.abs(mCx - oCx) < SNAP_THRESHOLD) guides.push({ axis: "x", position: oCx, type: "center" });
+    if (Math.abs(movingEl.x - oRight) < SNAP_THRESHOLD) guides.push({ axis: "x", position: oRight, type: "edge" });
+    if (Math.abs(mRight - other.x) < SNAP_THRESHOLD) guides.push({ axis: "x", position: other.x, type: "edge" });
+
+    // Horizontal (y-axis) guides
+    if (Math.abs(movingEl.y - other.y) < SNAP_THRESHOLD) guides.push({ axis: "y", position: other.y, type: "edge" });
+    if (Math.abs(mBottom - oBottom) < SNAP_THRESHOLD) guides.push({ axis: "y", position: oBottom, type: "edge" });
+    if (Math.abs(mCy - oCy) < SNAP_THRESHOLD) guides.push({ axis: "y", position: oCy, type: "center" });
+    if (Math.abs(movingEl.y - oBottom) < SNAP_THRESHOLD) guides.push({ axis: "y", position: oBottom, type: "edge" });
+    if (Math.abs(mBottom - other.y) < SNAP_THRESHOLD) guides.push({ axis: "y", position: other.y, type: "edge" });
+  }
+
+  // Deduplicate
+  const seen = new Set<string>();
+  return guides.filter((g) => {
+    const key = `${g.axis}-${g.position}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /**
  * The main canvas area where elements are positioned absolutely.
- * 
- * Drag-and-drop logic:
- * 1. New elements are dropped from the sidebar (onDrop reads "builder/component-type" from dataTransfer)
- * 2. Existing elements are repositioned via mousedown/mousemove/mouseup on the element header
- * 3. Elements are resized via a handle in the bottom-right corner
- * 4. All positions snap to a 16px grid for clean alignment
+ * Supports alignment guides that snap elements to edges/centers of other elements,
+ * and these exact pixel positions are preserved in the PDF output.
  */
 export function BuilderCanvas({
   elements,
@@ -48,8 +102,29 @@ export function BuilderCanvas({
     origW: number;
     origH: number;
   } | null>(null);
+  const [guides, setGuides] = useState<AlignGuide[]>([]);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Handle drop from sidebar — creates a new element at the drop position
+  // Auto-scale canvas to fit container
+  useEffect(() => {
+    const updateScale = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      const padding = 32;
+      const availW = container.clientWidth - padding * 2;
+      const availH = container.clientHeight - padding * 2;
+      const scaleX = availW / canvasWidth;
+      const scaleY = availH / canvasHeight;
+      const newScale = Math.min(scaleX, scaleY, 1);
+      setScale(Math.max(0.3, newScale));
+    };
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [canvasWidth, canvasHeight]);
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const type = e.dataTransfer.getData("builder/component-type") as BuilderElementType;
@@ -59,8 +134,8 @@ export function BuilderCanvas({
     if (!rect) return;
 
     const defaults = DEFAULT_SIZES[type];
-    const x = snapToGrid(e.clientX - rect.left - defaults.width / 2);
-    const y = snapToGrid(e.clientY - rect.top - defaults.height / 2);
+    const x = snapToGrid((e.clientX - rect.left) / scale - defaults.width / 2);
+    const y = snapToGrid((e.clientY - rect.top) / scale - defaults.height / 2);
 
     const newElement: BuilderElement = {
       id: crypto.randomUUID(),
@@ -74,9 +149,8 @@ export function BuilderCanvas({
 
     onAddElement(newElement);
     onSelectElement(newElement.id);
-  }, [canvasWidth, canvasHeight, onAddElement, onSelectElement]);
+  }, [canvasWidth, canvasHeight, onAddElement, onSelectElement, scale]);
 
-  // Begin dragging an existing element (move or resize)
   const startDrag = useCallback((
     e: React.MouseEvent,
     elementId: string,
@@ -99,12 +173,43 @@ export function BuilderCanvas({
     });
 
     const handleMouseMove = (ev: MouseEvent) => {
-      const dx = ev.clientX - e.clientX;
-      const dy = ev.clientY - e.clientY;
+      const dx = (ev.clientX - e.clientX) / scale;
+      const dy = (ev.clientY - e.clientY) / scale;
 
       if (mode === "move") {
-        const newX = snapToGrid(el.x + dx);
-        const newY = snapToGrid(el.y + dy);
+        let newX = snapToGrid(el.x + dx);
+        let newY = snapToGrid(el.y + dy);
+        newX = Math.max(0, Math.min(newX, canvasWidth - el.width));
+        newY = Math.max(0, Math.min(newY, canvasHeight - el.height));
+
+        // Compute alignment guides for visual feedback
+        const tempEl = { ...el, x: newX, y: newY };
+        const newGuides = computeAlignmentGuides(tempEl, elements, canvasWidth, canvasHeight);
+        setGuides(newGuides);
+
+        // Snap to alignment guides
+        for (const guide of newGuides) {
+          if (guide.axis === "x") {
+            const elCx = newX + el.width / 2;
+            if (Math.abs(elCx - guide.position) < SNAP_THRESHOLD) {
+              newX = guide.position - el.width / 2;
+            } else if (Math.abs(newX - guide.position) < SNAP_THRESHOLD) {
+              newX = guide.position;
+            } else if (Math.abs(newX + el.width - guide.position) < SNAP_THRESHOLD) {
+              newX = guide.position - el.width;
+            }
+          } else {
+            const elCy = newY + el.height / 2;
+            if (Math.abs(elCy - guide.position) < SNAP_THRESHOLD) {
+              newY = guide.position - el.height / 2;
+            } else if (Math.abs(newY - guide.position) < SNAP_THRESHOLD) {
+              newY = guide.position;
+            } else if (Math.abs(newY + el.height - guide.position) < SNAP_THRESHOLD) {
+              newY = guide.position - el.height;
+            }
+          }
+        }
+
         onUpdateElement(elementId, {
           x: Math.max(0, Math.min(newX, canvasWidth - el.width)),
           y: Math.max(0, Math.min(newY, canvasHeight - el.height)),
@@ -121,20 +226,26 @@ export function BuilderCanvas({
 
     const handleMouseUp = () => {
       setDragState(null);
+      setGuides([]);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
-  }, [elements, canvasWidth, canvasHeight, onUpdateElement]);
+  }, [elements, canvasWidth, canvasHeight, onUpdateElement, scale]);
 
   return (
-    <div className="flex-1 overflow-auto bg-[hsl(var(--surface-sunken))] p-8">
+    <div ref={containerRef} className="flex-1 overflow-auto bg-muted/30 flex items-start justify-center p-4">
       <div
         ref={canvasRef}
-        className="relative bg-white rounded-lg shadow-md mx-auto border"
-        style={{ width: canvasWidth, height: canvasHeight }}
+        className="relative bg-white rounded-lg shadow-md border origin-top"
+        style={{
+          width: canvasWidth,
+          height: canvasHeight,
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           e.dataTransfer.dropEffect = "copy";
@@ -142,14 +253,27 @@ export function BuilderCanvas({
         onDrop={handleDrop}
         onClick={() => onSelectElement(null)}
       >
-        {/* Grid dots for alignment reference */}
+        {/* Grid dots */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.15]"
+          className="absolute inset-0 pointer-events-none opacity-[0.12]"
           style={{
             backgroundImage: "radial-gradient(circle, hsl(var(--foreground)) 0.5px, transparent 0.5px)",
             backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
           }}
         />
+
+        {/* Alignment guides */}
+        {guides.map((guide, i) => (
+          <div
+            key={`guide-${i}`}
+            className="absolute pointer-events-none z-50"
+            style={
+              guide.axis === "x"
+                ? { left: guide.position, top: 0, width: 1, height: canvasHeight, background: "#ec4899", opacity: 0.7 }
+                : { left: 0, top: guide.position, width: canvasWidth, height: 1, background: "#ec4899", opacity: 0.7 }
+            }
+          />
+        ))}
 
         {/* Render each element */}
         {elements.map((el) => {
@@ -173,7 +297,7 @@ export function BuilderCanvas({
                 onSelectElement(el.id);
               }}
             >
-              {/* Move handle — drag to reposition */}
+              {/* Move handle */}
               {!el.locked && (
                 <div
                   className="absolute -top-0.5 left-0 right-0 h-5 cursor-move flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-30"
@@ -190,7 +314,7 @@ export function BuilderCanvas({
                 <BuilderElementRenderer element={el} selected={isSelected} />
               </div>
 
-              {/* Action buttons when selected */}
+              {/* Action buttons */}
               {isSelected && (
                 <div className="absolute -top-8 right-0 flex gap-1 z-30">
                   <button
@@ -214,7 +338,7 @@ export function BuilderCanvas({
                 </div>
               )}
 
-              {/* Resize handle — bottom-right corner */}
+              {/* Resize handle */}
               {!el.locked && isSelected && (
                 <div
                   className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-sm cursor-se-resize z-30 shadow-sm"
@@ -230,7 +354,7 @@ export function BuilderCanvas({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center space-y-2">
               <p className="text-sm text-muted-foreground">Drag components from the sidebar</p>
-              <p className="text-[10px] text-muted-foreground/60">They'll snap to a 16px grid automatically</p>
+              <p className="text-[10px] text-muted-foreground/60">They'll snap to grid & show alignment guides</p>
             </div>
           </div>
         )}
