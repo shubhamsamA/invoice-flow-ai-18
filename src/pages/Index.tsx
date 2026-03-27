@@ -1,4 +1,14 @@
-import { ArrowUpRight, ArrowDownRight, FileText, Users, DollarSign, Clock, Plus, TrendingUp, Loader2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  FileText,
+  Users,
+  DollarSign,
+  Clock,
+  Plus,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,7 +27,9 @@ const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const fadeUp = {
   hidden: { opacity: 0, y: 16, filter: "blur(4px)" },
   visible: (i: number) => ({
-    opacity: 1, y: 0, filter: "blur(0px)",
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
     transition: { delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
   }),
 };
@@ -109,7 +121,10 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Welcome back. Here's your invoice overview.</p>
         </div>
-        <Button asChild className="gap-2 shadow-sm">
+        <Button
+          asChild
+          className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+        >
           <Link to="/invoices/new">
             <Plus className="h-4 w-4" />
             New Invoice
@@ -147,7 +162,9 @@ export default function DashboardPage() {
                   <p className="text-2xl font-semibold tracking-tight">{stat.value}</p>
                   <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-3 uppercase tracking-wider font-medium">{stat.label}</p>
+                <p className="text-[11px] text-muted-foreground mt-3 uppercase tracking-wider font-medium">
+                  {stat.label}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -177,31 +194,37 @@ export default function DashboardPage() {
                 <>
                   <div className="flex items-end gap-3 h-36">
                     {/* Show last 6 invoices as bar chart */}
-                    {invoices.slice(0, 6).reverse().map((inv: any, i: number) => {
-                      const maxTotal = Math.max(...invoices.slice(0, 6).map((x: any) => Number(x.total)));
-                      const pct = maxTotal > 0 ? (Number(inv.total) / maxTotal) * 100 : 10;
-                      return (
-                        <motion.div
-                          key={inv.id}
-                          className="flex-1 rounded-t-md bg-primary/15 relative group"
-                          initial={{ height: 0 }}
-                          animate={{ height: `${Math.max(pct, 8)}%` }}
-                          transition={{ delay: 0.5 + i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                          <div
-                            className={`w-full rounded-t-md ${inv.status === "paid" ? "bg-primary" : "bg-primary/40"}`}
-                            style={{ height: "100%" }}
-                          />
-                        </motion.div>
-                      );
-                    })}
+                    {invoices
+                      .slice(0, 6)
+                      .reverse()
+                      .map((inv: any, i: number) => {
+                        const maxTotal = Math.max(...invoices.slice(0, 6).map((x: any) => Number(x.total)));
+                        const pct = maxTotal > 0 ? (Number(inv.total) / maxTotal) * 100 : 10;
+                        return (
+                          <motion.div
+                            key={inv.id}
+                            className="flex-1 rounded-t-md bg-primary/15 relative group"
+                            initial={{ height: 0 }}
+                            animate={{ height: `${Math.max(pct, 8)}%` }}
+                            transition={{ delay: 0.5 + i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          >
+                            <div
+                              className={`w-full rounded-t-md ${inv.status === "paid" ? "bg-primary" : "bg-primary/40"}`}
+                              style={{ height: "100%" }}
+                            />
+                          </motion.div>
+                        );
+                      })}
                   </div>
                   <div className="flex gap-3 mt-3">
-                    {invoices.slice(0, 6).reverse().map((inv: any) => (
-                      <span key={inv.id} className="flex-1 text-center text-[10px] text-muted-foreground truncate">
-                        {inv.invoice_number}
-                      </span>
-                    ))}
+                    {invoices
+                      .slice(0, 6)
+                      .reverse()
+                      .map((inv: any) => (
+                        <span key={inv.id} className="flex-1 text-center text-[10px] text-muted-foreground truncate">
+                          {inv.invoice_number}
+                        </span>
+                      ))}
                   </div>
                 </>
               )}
@@ -220,9 +243,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
               {recentInvoices.length === 0 ? (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  No invoices yet.
-                </div>
+                <div className="text-center py-8 text-sm text-muted-foreground">No invoices yet.</div>
               ) : (
                 <div className="space-y-3">
                   {recentInvoices.map((inv: any, i: number) => (
@@ -235,11 +256,15 @@ export default function DashboardPage() {
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{inv.clients?.name || "No client"}</p>
-                        <p className="text-[11px] text-muted-foreground">{inv.invoice_number} · {inv.issue_date}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {inv.invoice_number} · {inv.issue_date}
+                        </p>
                       </div>
                       <div className="text-right shrink-0 ml-3">
                         <p className="text-sm font-semibold tabular-nums">{formatCurrency(Number(inv.total))}</p>
-                        <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full capitalize ${statusClasses[inv.status]}`}>
+                        <span
+                          className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full capitalize ${statusClasses[inv.status]}`}
+                        >
                           {inv.status}
                         </span>
                       </div>
