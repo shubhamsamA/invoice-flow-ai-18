@@ -25,7 +25,7 @@ const mainNav = [
   { title: "AI Generator", url: "/ai-generator", icon: Sparkles },
 ];
 
-const secondaryNav = [{ title: "Settings", url: "/settings", icon: Settings }];
+const secondaryNav = [{ title: "Business Profile ", url: "/settings", icon: Settings }];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -91,7 +91,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/40 text-[10px] uppercase tracking-widest">
-            Business Profile
+            Profile
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
