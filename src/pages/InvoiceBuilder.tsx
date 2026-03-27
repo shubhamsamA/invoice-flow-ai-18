@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
 import { BuilderSidebar } from "@/components/builder/BuilderSidebar";
 import { BuilderCanvas } from "@/components/builder/BuilderCanvas";
+import { BuilderLivePreview } from "@/components/builder/BuilderLivePreview";
 import { BuilderElement, BuilderElementType, BuilderLayout, snapToGrid } from "@/types/builder";
 import { Button } from "@/components/ui/button";
-import { Save, Download, Upload, Undo2, ArrowLeft, BookmarkPlus, Lock, Unlock } from "lucide-react";
+import { Save, Download, Upload, Undo2, ArrowLeft, BookmarkPlus, Lock, Unlock, Eye, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Settings2 } from "lucide-react";
 
@@ -42,6 +42,7 @@ const STORAGE_KEY = "invoiceflow-builder-layout";
 export default function InvoiceBuilderPage() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
   const [pageSize, setPageSize] = useState<PagePresetKey>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -198,7 +199,6 @@ export default function InvoiceBuilderPage() {
     }
   }, [user, templateName, templateDesc, elements, canvasW, canvasH, pageSize, pageLocked]);
 
-  // Open props sheet on selection (mobile)
   const handleSelectElement = useCallback((id: string | null) => {
     setSelectedId(id);
     if (id && isMobile) setPropsOpen(true);
@@ -213,9 +213,28 @@ export default function InvoiceBuilderPage() {
             <Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link>
           </Button>
           <h1 className="text-sm font-semibold hidden sm:block">Invoice Builder</h1>
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full hidden sm:inline">
-            {elements.length} element{elements.length !== 1 ? "s" : ""}
-          </span>
+
+          {/* Editor / Preview toggle */}
+          <div className="flex items-center bg-muted rounded-md p-0.5">
+            <button
+              onClick={() => setActiveTab("editor")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                activeTab === "editor" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Pencil className="h-3 w-3" />
+              <span className="hidden sm:inline">Editor</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("preview")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                activeTab === "preview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Eye className="h-3 w-3" />
+              <span className="hidden sm:inline">Preview</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -253,11 +272,8 @@ export default function InvoiceBuilderPage() {
               {pageLocked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
             </Button>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7 sm:hidden" onClick={handleUndo} disabled={history.length === 0} title="Undo">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleUndo} disabled={history.length === 0} title="Undo">
             <Undo2 className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleUndo} disabled={history.length === 0}>
-            <Undo2 className="h-3.5 w-3.5" /> Undo
           </Button>
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleImportJSON}>
             <Upload className="h-3.5 w-3.5" /> Load
@@ -276,58 +292,68 @@ export default function InvoiceBuilderPage() {
 
       {/* Builder area */}
       <div className="flex flex-1 overflow-hidden">
-        <BuilderSidebar onDragStart={() => {}} />
-        <BuilderCanvas
-          elements={elements}
-          selectedId={selectedId}
-          onSelectElement={handleSelectElement}
-          onUpdateElement={handleUpdateElement}
-          onAddElement={handleAddElement}
-          onRemoveElement={handleRemoveElement}
-          canvasWidth={canvasW}
-          canvasHeight={canvasH}
-        />
-
-        {/* Desktop: inline properties panel */}
-        {!isMobile && (
-          <BuilderPropertiesPanel
-            element={selectedElement}
-            onUpdate={(updates) => {
-              if (selectedId) handleUpdateElement(selectedId, updates);
-            }}
-          />
-        )}
-
-        {/* Mobile: sheet-based properties panel */}
-        {isMobile && (
+        {activeTab === "editor" ? (
           <>
-            {selectedElement && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="fixed bottom-4 right-4 z-40 gap-1.5 shadow-lg text-xs"
-                onClick={() => setPropsOpen(true)}
-              >
-                <Settings2 className="h-3.5 w-3.5" /> Properties
-              </Button>
+            <BuilderSidebar onDragStart={() => {}} />
+            <BuilderCanvas
+              elements={elements}
+              selectedId={selectedId}
+              onSelectElement={handleSelectElement}
+              onUpdateElement={handleUpdateElement}
+              onAddElement={handleAddElement}
+              onRemoveElement={handleRemoveElement}
+              canvasWidth={canvasW}
+              canvasHeight={canvasH}
+            />
+
+            {/* Desktop: inline properties panel */}
+            {!isMobile && (
+              <BuilderPropertiesPanel
+                element={selectedElement}
+                onUpdate={(updates) => {
+                  if (selectedId) handleUpdateElement(selectedId, updates);
+                }}
+              />
             )}
-            <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
-              <SheetContent side="right" className="w-72 p-0">
-                <SheetHeader className="p-3 border-b">
-                  <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Properties</SheetTitle>
-                </SheetHeader>
-                <div className="overflow-y-auto h-[calc(100%-50px)]">
-                  <BuilderPropertiesPanel
-                    element={selectedElement}
-                    onUpdate={(updates) => {
-                      if (selectedId) handleUpdateElement(selectedId, updates);
-                    }}
-                    embedded
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
+
+            {/* Mobile: sheet-based properties panel */}
+            {isMobile && (
+              <>
+                {selectedElement && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="fixed bottom-4 right-4 z-40 gap-1.5 shadow-lg text-xs"
+                    onClick={() => setPropsOpen(true)}
+                  >
+                    <Settings2 className="h-3.5 w-3.5" /> Properties
+                  </Button>
+                )}
+                <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
+                  <SheetContent side="right" className="w-72 p-0">
+                    <SheetHeader className="p-3 border-b">
+                      <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Properties</SheetTitle>
+                    </SheetHeader>
+                    <div className="overflow-y-auto h-[calc(100%-50px)]">
+                      <BuilderPropertiesPanel
+                        element={selectedElement}
+                        onUpdate={(updates) => {
+                          if (selectedId) handleUpdateElement(selectedId, updates);
+                        }}
+                        embedded
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </>
+            )}
           </>
+        ) : (
+          <BuilderLivePreview
+            elements={elements}
+            canvasWidth={canvasW}
+            canvasHeight={canvasH}
+          />
         )}
       </div>
 
