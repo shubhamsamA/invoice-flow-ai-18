@@ -7,9 +7,15 @@
 @layer base {
   :root {
     --background: 220 20% 97%;
-    --foreground: 70 34% 70% --card: 0 0% 100%;
-    --card-foreground: 70 34% 70% --popover: 0 0% 100%;
-    --popover-foreground: 70 34% 70% --primary: 215 50% 23%;
+    --foreground: 215 50% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 50% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 50% 12%;
+
+    --primary: 215 50% 23%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 93%;
@@ -30,9 +36,10 @@
 
     --radius: 0.625rem;
 
-    --sidebar-background: 70 34% 70% --sidebar-foreground: 70 34% 70%;
+    --sidebar-background: 70 34% 70%;
+    --sidebar-foreground: 220 14% 80%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 70 34% 70%;
+    --sidebar-primary-foreground: 215 50% 12%;
     --sidebar-accent: 215 40% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 215 40% 20%;
