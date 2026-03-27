@@ -100,17 +100,18 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           </div>
         </div>
       );
-    case "items-table":
+    case "items-table": {
+      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
       return (
         <div className="p-3" style={{ fontSize: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
                 <th style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>#</th>
-                <th style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>Item</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>Qty</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>Price</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>Amount</th>
+                <th style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.description}</th>
+                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.qty}</th>
+                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.price}</th>
+                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.total}</th>
               </tr>
             </thead>
             <tbody>
@@ -130,6 +131,7 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           </table>
         </div>
       );
+    }
     case "total-summary":
       return (
         <div className="p-3 space-y-1" style={{ fontSize: 13 }}>
@@ -179,8 +181,8 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
     }
     case "divider":
       return (
-        <div className="h-full flex items-center px-4">
-          <hr style={{ width: "100%", border: "none", borderTop: `1px ${c.style || "solid"} #ddd` }} />
+        <div className="h-full flex items-center" style={{ padding: `0 16px`, marginTop: c.spacing || 0, marginBottom: c.spacing || 0 }}>
+          <hr style={{ width: "100%", border: "none", borderTop: `${c.thickness || 1}px ${c.style || "solid"} ${c.color || "#ddd"}` }} />
         </div>
       );
     default:

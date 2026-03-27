@@ -290,14 +290,15 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
         </tr>`,
         )
         .join("");
+      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
       return `<div style="${style}overflow:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead><tr>
             <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">#</th>
-            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Item</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Qty</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Price</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">Amount</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.description}</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.qty}</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.price}</th>
+            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.total}</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -319,8 +320,11 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       </div>`;
     }
     case "divider": {
-      const divStyle = el.content?.style || "solid";
-      return `<div style="${style}display:flex;align-items:center;"><hr style="width:100%;border:none;border-top:1px ${divStyle} #ddd;" /></div>`;
+      const divStyle = c.style || "solid";
+      const divColor = c.color || "#ddd";
+      const divThickness = c.thickness || 1;
+      const divSpacing = c.spacing || 0;
+      return `<div style="${style}display:flex;align-items:center;padding:0 16px;margin-top:${divSpacing}px;margin-bottom:${divSpacing}px;"><hr style="width:100%;border:none;border-top:${divThickness}px ${divStyle} ${divColor};" /></div>`;
     }
     case "stamp": {
       const url = data.stamp_url || el.content?.url;

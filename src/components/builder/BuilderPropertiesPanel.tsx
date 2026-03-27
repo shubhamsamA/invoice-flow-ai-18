@@ -163,17 +163,57 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       )}
 
       {element.type === "divider" && (
-        <div>
-          <Label className="text-[10px]">Style</Label>
-          <Select value={element.content.style || "solid"} onValueChange={(v) => updateContent("style", v)}>
-            <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="solid">Solid</SelectItem>
-              <SelectItem value="dashed">Dashed</SelectItem>
-              <SelectItem value="dotted">Dotted</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <>
+          <div>
+            <Label className="text-[10px]">Style</Label>
+            <Select value={element.content.style || "solid"} onValueChange={(v) => updateContent("style", v)}>
+              <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="solid">Solid</SelectItem>
+                <SelectItem value="dashed">Dashed</SelectItem>
+                <SelectItem value="dotted">Dotted</SelectItem>
+                <SelectItem value="double">Double</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-[10px]">Color</Label>
+            <div className="flex items-center gap-2 mt-1">
+              <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
+              <Input className="h-7 text-xs flex-1" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label className="text-[10px]">Thickness ({element.content.thickness || 1}px)</Label>
+            <Slider className="mt-1" min={1} max={8} step={1} value={[element.content.thickness || 1]} onValueChange={([v]) => updateContent("thickness", v)} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Spacing ({element.content.spacing || 0}px)</Label>
+            <Slider className="mt-1" min={0} max={40} step={2} value={[element.content.spacing || 0]} onValueChange={([v]) => updateContent("spacing", v)} />
+          </div>
+        </>
+      )}
+
+      {element.type === "items-table" && (
+        <>
+          <Label className="text-[10px] font-semibold">Column Headers</Label>
+          <div>
+            <Label className="text-[10px]">Description</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.description || "Description"} onChange={(e) => updateContent("columns", { ...element.content.columns, description: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Qty</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.qty || "Qty"} onChange={(e) => updateContent("columns", { ...element.content.columns, qty: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Price</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.price || "Price"} onChange={(e) => updateContent("columns", { ...element.content.columns, price: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-[10px]">Total</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.total || "Total"} onChange={(e) => updateContent("columns", { ...element.content.columns, total: e.target.value })} />
+          </div>
+        </>
       )}
 
       {element.type === "business-details" && (
