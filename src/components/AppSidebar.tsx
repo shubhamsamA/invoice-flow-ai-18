@@ -41,7 +41,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div>
-              <h1 className="text-sm font-semibold text-[#395a07]">InvoiceFlow</h1>
+              <h1 className="text-sm font-semibold text-[#395a07] uppercase">InvoiceFlow</h1>
               <p className="text-[11px] text-sidebar-foreground">Invoice Management</p>
             </div>
           )}
@@ -53,7 +53,7 @@ export function AppSidebar() {
           <div className="px-4 pb-2">
             <Button
               variant="outline"
-              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent"
+              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/70"
               asChild
             >
               <NavLink to="/invoices/new" activeClassName="">
