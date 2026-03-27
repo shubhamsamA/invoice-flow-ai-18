@@ -66,7 +66,9 @@ export default function AuthPage() {
         <form onSubmit={handleSubmit} className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
           {!isLogin && (
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs">Display Name</Label>
+              <Label htmlFor="name" className="text-xs">
+                Display Name
+              </Label>
               <Input
                 id="name"
                 value={displayName}
@@ -77,7 +79,9 @@ export default function AuthPage() {
             </div>
           )}
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs">Email</Label>
+            <Label htmlFor="email" className="text-xs">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -89,7 +93,9 @@ export default function AuthPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-xs">Password</Label>
+            <Label htmlFor="password" className="text-xs">
+              Password
+            </Label>
             <Input
               id="password"
               type="password"
@@ -102,7 +108,11 @@ export default function AuthPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full gap-2" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            disabled={loading}
+          >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLogin ? "Sign In" : "Sign Up"}
           </Button>

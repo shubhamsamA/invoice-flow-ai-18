@@ -85,14 +85,20 @@ export default function InvoicePreview() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   if (!invoice) {
     return (
       <div className="text-center py-24">
         <p className="text-muted-foreground">Invoice not found.</p>
-        <Button variant="outline" size="sm" className="mt-4" asChild><Link to="/invoices">Back to Invoices</Link></Button>
+        <Button variant="outline" size="sm" className="mt-4" asChild>
+          <Link to="/invoices">Back to Invoices</Link>
+        </Button>
       </div>
     );
   }
@@ -102,9 +108,18 @@ export default function InvoicePreview() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <motion.div className="flex items-center justify-between" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+      <motion.div
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link></Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+            <Link to="/invoices">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
           <div>
             <h1 className="text-2xl font-semibold">{invoice.invoice_number}</h1>
             <p className="text-sm text-muted-foreground">Invoice Preview</p>
@@ -112,15 +127,25 @@ export default function InvoicePreview() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="gap-2" asChild>
-            <Link to={`/invoices/${id}/edit`}><Edit className="h-4 w-4" /> Edit</Link>
+            <Link to={`/invoices/${id}/edit`}>
+              <Edit className="h-4 w-4" /> Edit
+            </Link>
           </Button>
-          <Button className="gap-2 shadow-sm" onClick={handleDownloadPDF}>
+          <Button
+            className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            onClick={handleDownloadPDF}
+          >
             <Download className="h-4 w-4" /> Download PDF
           </Button>
         </div>
       </motion.div>
 
-      <motion.div className="bg-white rounded-xl border shadow-sm overflow-hidden" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+      <motion.div
+        className="bg-white rounded-xl border shadow-sm overflow-hidden"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div dangerouslySetInnerHTML={{ __html: previewHTML }} />
       </motion.div>
     </div>

@@ -3,13 +3,7 @@ import { Plus, Search, MoreHorizontal, Mail, MapPin, Edit, Trash2, Users, Loader
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,10 +29,7 @@ export default function ClientsPage() {
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -49,9 +40,7 @@ export default function ClientsPage() {
   const { data: clientStats = {} } = useQuery({
     queryKey: ["client-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("invoices")
-        .select("client_id, total, id");
+      const { data, error } = await supabase.from("invoices").select("client_id, total, id");
       if (error) throw error;
       const stats: Record<string, { count: number; total: number }> = {};
       data?.forEach((inv) => {
@@ -88,12 +77,15 @@ export default function ClientsPage() {
   // Update client mutation
   const updateClient = useMutation({
     mutationFn: async ({ id, formData }: { id: string; formData: FormData }) => {
-      const { error } = await supabase.from("clients").update({
-        name: formData.get("name") as string,
-        email: (formData.get("email") as string) || null,
-        address: (formData.get("address") as string) || null,
-        gst_number: (formData.get("gst") as string) || null,
-      }).eq("id", id);
+      const { error } = await supabase
+        .from("clients")
+        .update({
+          name: formData.get("name") as string,
+          email: (formData.get("email") as string) || null,
+          address: (formData.get("address") as string) || null,
+          gst_number: (formData.get("gst") as string) || null,
+        })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -118,9 +110,10 @@ export default function ClientsPage() {
     onError: () => toast.error("Failed to delete client"),
   });
 
-  const filtered = clients.filter((c: any) =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.email || "").toLowerCase().includes(search.toLowerCase())
+  const filtered = clients.filter(
+    (c: any) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.email || "").toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -150,9 +143,15 @@ export default function ClientsPage() {
           <h1 className="text-2xl font-semibold">Clients</h1>
           <p className="text-sm text-muted-foreground mt-1">{clients.length} clients</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditingClient(null); }}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) setEditingClient(null);
+          }}
+        >
           <DialogTrigger asChild>
-            <Button className="gap-2 shadow-sm">
+            <Button className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70">
               <Plus className="h-4 w-4" /> Add Client
             </Button>
           </DialogTrigger>
@@ -163,11 +162,21 @@ export default function ClientsPage() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="space-y-1.5">
                 <Label className="text-xs">Name</Label>
-                <Input name="name" placeholder="Client or company name" required defaultValue={editingClient?.name || ""} />
+                <Input
+                  name="name"
+                  placeholder="Client or company name"
+                  required
+                  defaultValue={editingClient?.name || ""}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Email</Label>
-                <Input name="email" type="email" placeholder="billing@company.com" defaultValue={editingClient?.email || ""} />
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="billing@company.com"
+                  defaultValue={editingClient?.email || ""}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Address</Label>
@@ -177,7 +186,11 @@ export default function ClientsPage() {
                 <Label className="text-xs">GST Number</Label>
                 <Input name="gst" placeholder="e.g. 27AABCP1234A1ZA" defaultValue={editingClient?.gst_number || ""} />
               </div>
-              <Button type="submit" className="w-full" disabled={addClient.isPending || updateClient.isPending}>
+              <Button
+                type="submit"
+                className="w-full border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                disabled={addClient.isPending || updateClient.isPending}
+              >
                 {(addClient.isPending || updateClient.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {editingClient ? "Update Client" : "Add Client"}
               </Button>
@@ -193,7 +206,12 @@ export default function ClientsPage() {
         transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search clients..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input
+          placeholder="Search clients..."
+          className="pl-9"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </motion.div>
 
       {isLoading ? (
@@ -215,7 +233,11 @@ export default function ClientsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                      {client.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
+                      {client.name
+                        .split(" ")
+                        .map((w: string) => w[0])
+                        .join("")
+                        .slice(0, 2)}
                     </div>
                     <div>
                       <p className="font-semibold text-sm">{client.name}</p>
@@ -236,7 +258,10 @@ export default function ClientsPage() {
                       <DropdownMenuItem className="gap-2" onClick={() => openEdit(client)}>
                         <Edit className="h-3.5 w-3.5" /> Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteClient.mutate(client.id)}>
+                      <DropdownMenuItem
+                        className="gap-2 text-destructive"
+                        onClick={() => deleteClient.mutate(client.id)}
+                      >
                         <Trash2 className="h-3.5 w-3.5" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -249,9 +274,7 @@ export default function ClientsPage() {
                       <MapPin className="h-3 w-3" /> {client.address}
                     </div>
                   )}
-                  {client.gst_number && (
-                    <div className="font-mono text-[11px]">GST: {client.gst_number}</div>
-                  )}
+                  {client.gst_number && <div className="font-mono text-[11px]">GST: {client.gst_number}</div>}
                 </div>
 
                 <div className="mt-4 pt-3 border-t flex justify-between text-xs">

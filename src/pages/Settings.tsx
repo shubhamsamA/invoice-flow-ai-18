@@ -17,11 +17,7 @@ export default function SettingsPage() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user!.id)
-        .single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
       if (error) throw error;
       return data;
     },
@@ -54,10 +50,7 @@ export default function SettingsPage() {
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update(form)
-        .eq("user_id", user!.id);
+      const { error } = await supabase.from("profiles").update(form).eq("user_id", user!.id);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile saved");
@@ -71,9 +64,7 @@ export default function SettingsPage() {
   const uploadFile = async (file: File, folder: string): Promise<string | null> => {
     const ext = file.name.split(".").pop();
     const path = `${user!.id}/${folder}.${ext}`;
-    const { error } = await supabase.storage
-      .from("business-assets")
-      .upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from("business-assets").upload(path, file, { upsert: true });
     if (error) {
       toast.error(`Upload failed: ${error.message}`);
       return null;
@@ -85,7 +76,7 @@ export default function SettingsPage() {
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: "logo_url" | "stamp_url" | "signature_url",
-    folder: string
+    folder: string,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -95,14 +86,20 @@ export default function SettingsPage() {
     }
     const url = await uploadFile(file, folder);
     if (url) {
-      await supabase.from("profiles").update({ [field]: url }).eq("user_id", user!.id);
+      await supabase
+        .from("profiles")
+        .update({ [field]: url })
+        .eq("user_id", user!.id);
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Uploaded successfully");
     }
   };
 
   const handleRemoveImage = async (field: "logo_url" | "stamp_url" | "signature_url") => {
-    await supabase.from("profiles").update({ [field]: null }).eq("user_id", user!.id);
+    await supabase
+      .from("profiles")
+      .update({ [field]: null })
+      .eq("user_id", user!.id);
     queryClient.invalidateQueries({ queryKey: ["profile"] });
     toast.success("Removed");
   };
@@ -122,9 +119,27 @@ export default function SettingsPage() {
     icon: typeof Image;
     description: string;
   }[] = [
-    { label: "Business Logo", field: "logo_url", folder: "logo", icon: Image, description: "Appears on invoice headers" },
-    { label: "Company Stamp", field: "stamp_url", folder: "stamp", icon: Stamp, description: "Appears on invoice footer" },
-    { label: "Signature", field: "signature_url", folder: "signature", icon: PenTool, description: "Authorized signatory" },
+    {
+      label: "Business Logo",
+      field: "logo_url",
+      folder: "logo",
+      icon: Image,
+      description: "Appears on invoice headers",
+    },
+    {
+      label: "Company Stamp",
+      field: "stamp_url",
+      folder: "stamp",
+      icon: Stamp,
+      description: "Appears on invoice footer",
+    },
+    {
+      label: "Signature",
+      field: "signature_url",
+      folder: "signature",
+      icon: PenTool,
+      description: "Authorized signatory",
+    },
   ];
 
   return (
@@ -153,31 +168,61 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs">Display Name</Label>
-            <Input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} placeholder="Your name" />
+            <Input
+              value={form.display_name}
+              onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+              placeholder="Your name"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Business Name</Label>
-            <Input value={form.business_name} onChange={(e) => setForm({ ...form, business_name: e.target.value })} placeholder="Acme Corp" />
+            <Input
+              value={form.business_name}
+              onChange={(e) => setForm({ ...form, business_name: e.target.value })}
+              placeholder="Acme Corp"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Business Email</Label>
-            <Input type="email" value={form.business_email} onChange={(e) => setForm({ ...form, business_email: e.target.value })} placeholder="billing@acme.com" />
+            <Input
+              type="email"
+              value={form.business_email}
+              onChange={(e) => setForm({ ...form, business_email: e.target.value })}
+              placeholder="billing@acme.com"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Business Phone</Label>
-            <Input value={form.business_phone} onChange={(e) => setForm({ ...form, business_phone: e.target.value })} placeholder="+91 98765 43210" />
+            <Input
+              value={form.business_phone}
+              onChange={(e) => setForm({ ...form, business_phone: e.target.value })}
+              placeholder="+91 98765 43210"
+            />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label className="text-xs">Business Address</Label>
-            <Input value={form.business_address} onChange={(e) => setForm({ ...form, business_address: e.target.value })} placeholder="123 Main St, City" />
+            <Input
+              value={form.business_address}
+              onChange={(e) => setForm({ ...form, business_address: e.target.value })}
+              placeholder="123 Main St, City"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">GST Number</Label>
-            <Input value={form.gst_number} onChange={(e) => setForm({ ...form, gst_number: e.target.value })} placeholder="22AAAAA0000A1Z5" className="font-mono text-xs" />
+            <Input
+              value={form.gst_number}
+              onChange={(e) => setForm({ ...form, gst_number: e.target.value })}
+              placeholder="22AAAAA0000A1Z5"
+              className="font-mono text-xs"
+            />
           </div>
         </div>
 
-        <Button className="gap-2 shadow-sm" onClick={handleSaveProfile} disabled={saving}>
+        <Button
+          className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+          onClick={handleSaveProfile}
+          disabled={saving}
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save Details
         </Button>
@@ -191,7 +236,9 @@ export default function SettingsPage() {
         transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <h2 className="text-sm font-semibold">Branding Assets</h2>
-        <p className="text-xs text-muted-foreground">Upload your logo, company stamp, and signature. These will appear on your invoices.</p>
+        <p className="text-xs text-muted-foreground">
+          Upload your logo, company stamp, and signature. These will appear on your invoices.
+        </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {imageFields.map((img) => {
@@ -232,7 +279,9 @@ export default function SettingsPage() {
                     onChange={(e) => handleImageUpload(e, img.field, img.folder)}
                   />
                   <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs cursor-pointer" asChild>
-                    <span><Upload className="h-3 w-3" /> {currentUrl ? "Replace" : "Upload"}</span>
+                    <span>
+                      <Upload className="h-3 w-3" /> {currentUrl ? "Replace" : "Upload"}
+                    </span>
                   </Button>
                 </label>
               </div>

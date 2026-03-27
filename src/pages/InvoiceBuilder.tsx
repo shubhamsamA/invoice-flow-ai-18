@@ -10,31 +10,14 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PAGE_PRESETS, PagePresetKey, DEFAULT_PAGE_PRESET } from "@/lib/invoice-layout";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BuilderPropertiesPanel } from "@/components/builder/BuilderPropertiesPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Settings2 } from "lucide-react";
 
 const STORAGE_KEY = "invoiceflow-builder-layout";
@@ -88,22 +71,26 @@ export default function InvoiceBuilderPage() {
     setHistory((prev) => [...prev.slice(-20), elements]);
   }, [elements]);
 
-  const handleAddElement = useCallback((el: BuilderElement) => {
-    pushHistory();
-    setElements((prev) => [...prev, el]);
-  }, [pushHistory]);
+  const handleAddElement = useCallback(
+    (el: BuilderElement) => {
+      pushHistory();
+      setElements((prev) => [...prev, el]);
+    },
+    [pushHistory],
+  );
 
   const handleUpdateElement = useCallback((id: string, updates: Partial<BuilderElement>) => {
-    setElements((prev) =>
-      prev.map((el) => (el.id === id ? { ...el, ...updates } : el))
-    );
+    setElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...updates } : el)));
   }, []);
 
-  const handleRemoveElement = useCallback((id: string) => {
-    pushHistory();
-    setElements((prev) => prev.filter((el) => el.id !== id));
-    setSelectedId(null);
-  }, [pushHistory]);
+  const handleRemoveElement = useCallback(
+    (id: string) => {
+      pushHistory();
+      setElements((prev) => prev.filter((el) => el.id !== id));
+      setSelectedId(null);
+    },
+    [pushHistory],
+  );
 
   const handleUndo = useCallback(() => {
     if (history.length === 0) return;
@@ -199,10 +186,13 @@ export default function InvoiceBuilderPage() {
     }
   }, [user, templateName, templateDesc, elements, canvasW, canvasH, pageSize, pageLocked]);
 
-  const handleSelectElement = useCallback((id: string | null) => {
-    setSelectedId(id);
-    if (id && isMobile) setPropsOpen(true);
-  }, [isMobile]);
+  const handleSelectElement = useCallback(
+    (id: string | null) => {
+      setSelectedId(id);
+      if (id && isMobile) setPropsOpen(true);
+    },
+    [isMobile],
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)]">
@@ -210,7 +200,9 @@ export default function InvoiceBuilderPage() {
       <div className="flex items-center justify-between border-b bg-card px-2 sm:px-4 py-2 shrink-0 gap-2 overflow-x-auto">
         <div className="flex items-center gap-2 shrink-0">
           <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-            <Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link>
+            <Link to="/invoices">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <h1 className="text-sm font-semibold hidden sm:block">Invoice Builder</h1>
 
@@ -219,7 +211,9 @@ export default function InvoiceBuilderPage() {
             <button
               onClick={() => setActiveTab("editor")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                activeTab === "editor" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                activeTab === "editor"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Pencil className="h-3 w-3" />
@@ -228,7 +222,9 @@ export default function InvoiceBuilderPage() {
             <button
               onClick={() => setActiveTab("preview")}
               className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                activeTab === "preview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                activeTab === "preview"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Eye className="h-3 w-3" />
@@ -272,7 +268,14 @@ export default function InvoiceBuilderPage() {
               {pageLocked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
             </Button>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleUndo} disabled={history.length === 0} title="Undo">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleUndo}
+            disabled={history.length === 0}
+            title="Undo"
+          >
             <Undo2 className="h-3.5 w-3.5" />
           </Button>
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleImportJSON}>
@@ -281,10 +284,20 @@ export default function InvoiceBuilderPage() {
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleExportJSON}>
             <Download className="h-3.5 w-3.5" /> Export
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs hidden lg:flex" onClick={() => setSaveTemplateOpen(true)} disabled={elements.length === 0}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs hidden lg:flex"
+            onClick={() => setSaveTemplateOpen(true)}
+            disabled={elements.length === 0}
+          >
             <BookmarkPlus className="h-3.5 w-3.5" /> Save as Template
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs shadow-sm" onClick={handleSave}>
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            onClick={handleSave}
+          >
             <Save className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Save</span>
           </Button>
         </div>
@@ -332,7 +345,9 @@ export default function InvoiceBuilderPage() {
                 <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
                   <SheetContent side="right" className="w-72 p-0">
                     <SheetHeader className="p-3 border-b">
-                      <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Properties</SheetTitle>
+                      <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Properties
+                      </SheetTitle>
                     </SheetHeader>
                     <div className="overflow-y-auto h-[calc(100%-50px)]">
                       <BuilderPropertiesPanel
@@ -349,11 +364,7 @@ export default function InvoiceBuilderPage() {
             )}
           </>
         ) : (
-          <BuilderLivePreview
-            elements={elements}
-            canvasWidth={canvasW}
-            canvasHeight={canvasH}
-          />
+          <BuilderLivePreview elements={elements} canvasWidth={canvasW} canvasHeight={canvasH} />
         )}
       </div>
 
@@ -386,8 +397,14 @@ export default function InvoiceBuilderPage() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setSaveTemplateOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveAsTemplate} disabled={!templateName.trim() || saving}>
+            <Button variant="ghost" onClick={() => setSaveTemplateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveAsTemplate}
+              disabled={!templateName.trim() || saving}
+              className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            >
               {saving ? "Saving..." : "Save Template"}
             </Button>
           </DialogFooter>

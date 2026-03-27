@@ -6,20 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,24 +34,111 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
     id: "minimal",
     name: "Minimal",
     elements: [
-      { id: crypto.randomUUID(), type: "text", x: 32, y: 32, width: 320, height: 48, content: { text: "INVOICE", fontSize: 24, bold: true } },
-      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 96, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-      { id: crypto.randomUUID(), type: "divider", x: 32, y: 256, ...DEFAULT_SIZES["divider"], content: DEFAULT_CONTENT["divider"] },
-      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
-      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 528, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
-      { id: crypto.randomUUID(), type: "signature", x: 32, y: 736, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+      {
+        id: crypto.randomUUID(),
+        type: "text",
+        x: 32,
+        y: 32,
+        width: 320,
+        height: 48,
+        content: { text: "INVOICE", fontSize: 24, bold: true },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "client-details",
+        x: 32,
+        y: 96,
+        ...DEFAULT_SIZES["client-details"],
+        content: DEFAULT_CONTENT["client-details"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "divider",
+        x: 32,
+        y: 256,
+        ...DEFAULT_SIZES["divider"],
+        content: DEFAULT_CONTENT["divider"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "items-table",
+        x: 32,
+        y: 288,
+        ...DEFAULT_SIZES["items-table"],
+        content: DEFAULT_CONTENT["items-table"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "total-summary",
+        x: 320,
+        y: 528,
+        ...DEFAULT_SIZES["total-summary"],
+        content: DEFAULT_CONTENT["total-summary"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "signature",
+        x: 32,
+        y: 736,
+        ...DEFAULT_SIZES["signature"],
+        content: DEFAULT_CONTENT["signature"],
+      },
     ],
   },
   {
     id: "corporate",
     name: "Corporate",
     elements: [
-      { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-      { id: crypto.randomUUID(), type: "text", x: 208, y: 48, width: 400, height: 48, content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true } },
-      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 128, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, width: 576, height: 256, content: DEFAULT_CONTENT["items-table"] },
-      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 560, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
-      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+      {
+        id: crypto.randomUUID(),
+        type: "logo",
+        x: 32,
+        y: 32,
+        ...DEFAULT_SIZES["logo"],
+        content: DEFAULT_CONTENT["logo"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "text",
+        x: 208,
+        y: 48,
+        width: 400,
+        height: 48,
+        content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "client-details",
+        x: 32,
+        y: 128,
+        ...DEFAULT_SIZES["client-details"],
+        content: DEFAULT_CONTENT["client-details"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "items-table",
+        x: 32,
+        y: 288,
+        width: 576,
+        height: 256,
+        content: DEFAULT_CONTENT["items-table"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "total-summary",
+        x: 320,
+        y: 560,
+        ...DEFAULT_SIZES["total-summary"],
+        content: DEFAULT_CONTENT["total-summary"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "signature",
+        x: 32,
+        y: 768,
+        ...DEFAULT_SIZES["signature"],
+        content: DEFAULT_CONTENT["signature"],
+      },
     ],
   },
   {
@@ -71,24 +146,105 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
     name: "Modern Freelance",
     elements: [
       { id: crypto.randomUUID(), type: "divider", x: 32, y: 16, width: 576, height: 16, content: { style: "solid" } },
-      { id: crypto.randomUUID(), type: "logo", x: 32, y: 48, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-      { id: crypto.randomUUID(), type: "text", x: 32, y: 144, width: 400, height: 48, content: { text: "Invoice", fontSize: 28, bold: true } },
-      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 208, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 368, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
-      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 608, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+      {
+        id: crypto.randomUUID(),
+        type: "logo",
+        x: 32,
+        y: 48,
+        ...DEFAULT_SIZES["logo"],
+        content: DEFAULT_CONTENT["logo"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "text",
+        x: 32,
+        y: 144,
+        width: 400,
+        height: 48,
+        content: { text: "Invoice", fontSize: 28, bold: true },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "client-details",
+        x: 32,
+        y: 208,
+        ...DEFAULT_SIZES["client-details"],
+        content: DEFAULT_CONTENT["client-details"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "items-table",
+        x: 32,
+        y: 368,
+        ...DEFAULT_SIZES["items-table"],
+        content: DEFAULT_CONTENT["items-table"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "total-summary",
+        x: 320,
+        y: 608,
+        ...DEFAULT_SIZES["total-summary"],
+        content: DEFAULT_CONTENT["total-summary"],
+      },
     ],
   },
   {
     id: "gst",
     name: "Indian GST",
     elements: [
-      { id: crypto.randomUUID(), type: "text", x: 160, y: 32, width: 320, height: 48, content: { text: "TAX INVOICE", fontSize: 22, bold: true } },
+      {
+        id: crypto.randomUUID(),
+        type: "text",
+        x: 160,
+        y: 32,
+        width: 320,
+        height: 48,
+        content: { text: "TAX INVOICE", fontSize: 22, bold: true },
+      },
       { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, width: 112, height: 64, content: DEFAULT_CONTENT["logo"] },
-      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 112, ...DEFAULT_SIZES["client-details"], content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" } },
-      { id: crypto.randomUUID(), type: "divider", x: 32, y: 272, width: 576, height: 16, content: DEFAULT_CONTENT["divider"] },
-      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 304, width: 576, height: 256, content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] } },
-      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 576, ...DEFAULT_SIZES["total-summary"], content: { subtotal: 10000, gst: 18, discount: 0 } },
-      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+      {
+        id: crypto.randomUUID(),
+        type: "client-details",
+        x: 32,
+        y: 112,
+        ...DEFAULT_SIZES["client-details"],
+        content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "divider",
+        x: 32,
+        y: 272,
+        width: 576,
+        height: 16,
+        content: DEFAULT_CONTENT["divider"],
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "items-table",
+        x: 32,
+        y: 304,
+        width: 576,
+        height: 256,
+        content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "total-summary",
+        x: 320,
+        y: 576,
+        ...DEFAULT_SIZES["total-summary"],
+        content: { subtotal: 10000, gst: 18, discount: 0 },
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "signature",
+        x: 32,
+        y: 768,
+        ...DEFAULT_SIZES["signature"],
+        content: DEFAULT_CONTENT["signature"],
+      },
     ],
   },
 ];
@@ -254,7 +410,9 @@ export default function CreateInvoicePage() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-          <Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/invoices">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <div>
           <h1 className="text-2xl font-semibold">Create Invoice</h1>
@@ -290,9 +448,7 @@ export default function CreateInvoicePage() {
                   <div className="space-y-2 mt-3 max-h-[400px] overflow-y-auto">
                     <button
                       className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
-                        !selectedTemplate
-                          ? "ring-2 ring-primary bg-primary/5 border-primary"
-                          : "hover:bg-muted/50"
+                        !selectedTemplate ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"
                       }`}
                       onClick={() => {
                         setSelectedTemplate(null);
@@ -307,7 +463,9 @@ export default function CreateInvoicePage() {
                     </button>
 
                     {builtinTemplateOptions.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Prebuilt</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">
+                        Prebuilt
+                      </p>
                     )}
                     {builtinTemplateOptions.map((t) => (
                       <button
@@ -332,7 +490,9 @@ export default function CreateInvoicePage() {
                     ))}
 
                     {customTemplates.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Your Templates</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">
+                        Your Templates
+                      </p>
                     )}
                     {customTemplates.map((t: any) => (
                       <button
@@ -352,9 +512,6 @@ export default function CreateInvoicePage() {
                           <span className="font-medium">{t.name}</span>
                           {selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          {Array.isArray(t.layout_json) ? t.layout_json.length : 0} elements
-                        </span>
                       </button>
                     ))}
                   </div>
@@ -375,10 +532,14 @@ export default function CreateInvoicePage() {
               <div className="space-y-1.5">
                 <Label className="text-xs">Client</Label>
                 <Select value={clientId} onValueChange={setClientId}>
-                  <SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select client" />
+                  </SelectTrigger>
                   <SelectContent>
                     {clients.map((c: any) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -423,11 +584,36 @@ export default function CreateInvoicePage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.05, duration: 0.3 }}
                 >
-                  <Input className="col-span-5" placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
-                  <Input className="col-span-2 tabular-nums" type="number" min={1} value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)} />
-                  <Input className="col-span-3 tabular-nums" type="number" min={0} value={item.price} onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)} />
-                  <p className="col-span-1 text-right text-sm font-medium tabular-nums">{formatCurrency(item.quantity * item.price)}</p>
-                  <Button variant="ghost" size="icon" className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)} disabled={items.length === 1}>
+                  <Input
+                    className="col-span-5"
+                    placeholder="Item name"
+                    value={item.name}
+                    onChange={(e) => updateItem(item.id, "name", e.target.value)}
+                  />
+                  <Input
+                    className="col-span-2 tabular-nums"
+                    type="number"
+                    min={1}
+                    value={item.quantity}
+                    onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
+                  />
+                  <Input
+                    className="col-span-3 tabular-nums"
+                    type="number"
+                    min={0}
+                    value={item.price}
+                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                  />
+                  <p className="col-span-1 text-right text-sm font-medium tabular-nums">
+                    {formatCurrency(item.quantity * item.price)}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
+                    onClick={() => removeItem(item.id)}
+                    disabled={items.length === 1}
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </motion.div>
@@ -440,11 +626,21 @@ export default function CreateInvoicePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">GST Rate (%)</Label>
-                <Input type="number" value={gstRate} onChange={(e) => setGstRate(parseFloat(e.target.value) || 0)} className="tabular-nums" />
+                <Input
+                  type="number"
+                  value={gstRate}
+                  onChange={(e) => setGstRate(parseFloat(e.target.value) || 0)}
+                  className="tabular-nums"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Discount (%)</Label>
-                <Input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="tabular-nums" />
+                <Input
+                  type="number"
+                  value={discount}
+                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                  className="tabular-nums"
+                />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -479,7 +675,9 @@ export default function CreateInvoicePage() {
               {discount > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Discount ({discount}%)</span>
-                  <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                  <span className="font-medium text-[hsl(var(--success))] tabular-nums">
+                    -{formatCurrency(discountAmount)}
+                  </span>
                 </div>
               )}
               <div className="border-t pt-2.5 flex justify-between">
@@ -489,7 +687,11 @@ export default function CreateInvoicePage() {
             </div>
 
             <div className="space-y-2 pt-2">
-              <Button className="w-full gap-2 shadow-sm" onClick={handleSave} disabled={saving}>
+              <Button
+                className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                onClick={handleSave}
+                disabled={saving}
+              >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save Invoice
               </Button>

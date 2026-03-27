@@ -10,12 +10,7 @@ import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder"
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 /** Built-in template definitions (read-only presets) */
 const builtinTemplates = [
@@ -48,10 +43,19 @@ const builtinTemplates = [
       <div className="space-y-3">
         <div className="h-4 w-full rounded bg-blue-700" />
         <div className="flex gap-2">
-          <div className="flex-1 space-y-1"><div className="h-1 w-12 rounded bg-blue-300" /><div className="h-1 w-16 rounded bg-blue-200" /></div>
-          <div className="flex-1 space-y-1 text-right"><div className="h-1 w-12 rounded bg-blue-300 ml-auto" /><div className="h-1 w-16 rounded bg-blue-200 ml-auto" /></div>
+          <div className="flex-1 space-y-1">
+            <div className="h-1 w-12 rounded bg-blue-300" />
+            <div className="h-1 w-16 rounded bg-blue-200" />
+          </div>
+          <div className="flex-1 space-y-1 text-right">
+            <div className="h-1 w-12 rounded bg-blue-300 ml-auto" />
+            <div className="h-1 w-16 rounded bg-blue-200 ml-auto" />
+          </div>
         </div>
-        <div className="mt-2 space-y-1.5"><div className="h-1 w-full rounded bg-blue-100" /><div className="h-1 w-full rounded bg-blue-100" /></div>
+        <div className="mt-2 space-y-1.5">
+          <div className="h-1 w-full rounded bg-blue-100" />
+          <div className="h-1 w-full rounded bg-blue-100" />
+        </div>
         <div className="h-1.5 w-20 rounded bg-blue-700 ml-auto" />
       </div>
     ),
@@ -65,8 +69,15 @@ const builtinTemplates = [
     preview: (
       <div className="space-y-3">
         <div className="h-1 w-full rounded-full bg-amber-500" />
-        <div className="flex items-center gap-2"><div className="h-5 w-5 rounded-full bg-amber-400" /><div className="h-1.5 w-20 rounded bg-amber-800" /></div>
-        <div className="mt-3 space-y-1.5"><div className="h-1 w-full rounded-full bg-amber-200" /><div className="h-1 w-full rounded-full bg-amber-200" /><div className="h-1 w-2/3 rounded-full bg-amber-200" /></div>
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 rounded-full bg-amber-400" />
+          <div className="h-1.5 w-20 rounded bg-amber-800" />
+        </div>
+        <div className="mt-3 space-y-1.5">
+          <div className="h-1 w-full rounded-full bg-amber-200" />
+          <div className="h-1 w-full rounded-full bg-amber-200" />
+          <div className="h-1 w-2/3 rounded-full bg-amber-200" />
+        </div>
         <div className="mt-2 h-4 w-24 rounded-full bg-amber-600 ml-auto" />
       </div>
     ),
@@ -79,14 +90,33 @@ const builtinTemplates = [
     features: ["HSN/SAC codes", "CGST/SGST split", "Tax invoice format"],
     preview: (
       <div className="space-y-3">
-        <div className="text-center space-y-0.5"><div className="h-1.5 w-16 rounded bg-emerald-800 mx-auto" /><div className="h-0.5 w-10 rounded bg-emerald-300 mx-auto" /></div>
+        <div className="text-center space-y-0.5">
+          <div className="h-1.5 w-16 rounded bg-emerald-800 mx-auto" />
+          <div className="h-0.5 w-10 rounded bg-emerald-300 mx-auto" />
+        </div>
         <div className="border border-emerald-200 rounded p-1 space-y-1">
-          <div className="flex gap-1"><div className="h-1 flex-1 rounded bg-emerald-200" /><div className="h-1 w-6 rounded bg-emerald-200" /><div className="h-1 w-6 rounded bg-emerald-200" /><div className="h-1 w-6 rounded bg-emerald-200" /></div>
-          <div className="flex gap-1"><div className="h-1 flex-1 rounded bg-emerald-100" /><div className="h-1 w-6 rounded bg-emerald-100" /><div className="h-1 w-6 rounded bg-emerald-100" /><div className="h-1 w-6 rounded bg-emerald-100" /></div>
+          <div className="flex gap-1">
+            <div className="h-1 flex-1 rounded bg-emerald-200" />
+            <div className="h-1 w-6 rounded bg-emerald-200" />
+            <div className="h-1 w-6 rounded bg-emerald-200" />
+            <div className="h-1 w-6 rounded bg-emerald-200" />
+          </div>
+          <div className="flex gap-1">
+            <div className="h-1 flex-1 rounded bg-emerald-100" />
+            <div className="h-1 w-6 rounded bg-emerald-100" />
+            <div className="h-1 w-6 rounded bg-emerald-100" />
+            <div className="h-1 w-6 rounded bg-emerald-100" />
+          </div>
         </div>
         <div className="space-y-0.5 ml-auto w-24">
-          <div className="flex justify-between"><div className="h-0.5 w-8 rounded bg-emerald-300" /><div className="h-0.5 w-8 rounded bg-emerald-300" /></div>
-          <div className="flex justify-between"><div className="h-1 w-10 rounded bg-emerald-700" /><div className="h-1 w-10 rounded bg-emerald-700" /></div>
+          <div className="flex justify-between">
+            <div className="h-0.5 w-8 rounded bg-emerald-300" />
+            <div className="h-0.5 w-8 rounded bg-emerald-300" />
+          </div>
+          <div className="flex justify-between">
+            <div className="h-1 w-10 rounded bg-emerald-700" />
+            <div className="h-1 w-10 rounded bg-emerald-700" />
+          </div>
         </div>
       </div>
     ),
@@ -96,37 +126,191 @@ const builtinTemplates = [
 /** Prebuilt template layouts — maps template id to BuilderElement arrays */
 const templateLayouts: Record<string, BuilderElement[]> = {
   minimal: [
-    { id: crypto.randomUUID(), type: "text", x: 32, y: 32, width: 320, height: 48, content: { text: "INVOICE", fontSize: 24, bold: true } },
-    { id: crypto.randomUUID(), type: "client-details", x: 32, y: 96, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-    { id: crypto.randomUUID(), type: "divider", x: 32, y: 256, ...DEFAULT_SIZES["divider"], content: DEFAULT_CONTENT["divider"] },
-    { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
-    { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 528, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
-    { id: crypto.randomUUID(), type: "signature", x: 32, y: 736, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    {
+      id: crypto.randomUUID(),
+      type: "text",
+      x: 32,
+      y: 32,
+      width: 320,
+      height: 48,
+      content: { text: "INVOICE", fontSize: 24, bold: true },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "client-details",
+      x: 32,
+      y: 96,
+      ...DEFAULT_SIZES["client-details"],
+      content: DEFAULT_CONTENT["client-details"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "divider",
+      x: 32,
+      y: 256,
+      ...DEFAULT_SIZES["divider"],
+      content: DEFAULT_CONTENT["divider"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "items-table",
+      x: 32,
+      y: 288,
+      ...DEFAULT_SIZES["items-table"],
+      content: DEFAULT_CONTENT["items-table"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "total-summary",
+      x: 320,
+      y: 528,
+      ...DEFAULT_SIZES["total-summary"],
+      content: DEFAULT_CONTENT["total-summary"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "signature",
+      x: 32,
+      y: 736,
+      ...DEFAULT_SIZES["signature"],
+      content: DEFAULT_CONTENT["signature"],
+    },
   ],
   corporate: [
     { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-    { id: crypto.randomUUID(), type: "text", x: 208, y: 48, width: 400, height: 48, content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true } },
-    { id: crypto.randomUUID(), type: "client-details", x: 32, y: 128, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-    { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, width: 576, height: 256, content: DEFAULT_CONTENT["items-table"] },
-    { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 560, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
-    { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    {
+      id: crypto.randomUUID(),
+      type: "text",
+      x: 208,
+      y: 48,
+      width: 400,
+      height: 48,
+      content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "client-details",
+      x: 32,
+      y: 128,
+      ...DEFAULT_SIZES["client-details"],
+      content: DEFAULT_CONTENT["client-details"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "items-table",
+      x: 32,
+      y: 288,
+      width: 576,
+      height: 256,
+      content: DEFAULT_CONTENT["items-table"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "total-summary",
+      x: 320,
+      y: 560,
+      ...DEFAULT_SIZES["total-summary"],
+      content: DEFAULT_CONTENT["total-summary"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "signature",
+      x: 32,
+      y: 768,
+      ...DEFAULT_SIZES["signature"],
+      content: DEFAULT_CONTENT["signature"],
+    },
   ],
   freelance: [
     { id: crypto.randomUUID(), type: "divider", x: 32, y: 16, width: 576, height: 16, content: { style: "solid" } },
     { id: crypto.randomUUID(), type: "logo", x: 32, y: 48, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-    { id: crypto.randomUUID(), type: "text", x: 32, y: 144, width: 400, height: 48, content: { text: "Invoice", fontSize: 28, bold: true } },
-    { id: crypto.randomUUID(), type: "client-details", x: 32, y: 208, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
-    { id: crypto.randomUUID(), type: "items-table", x: 32, y: 368, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
-    { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 608, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+    {
+      id: crypto.randomUUID(),
+      type: "text",
+      x: 32,
+      y: 144,
+      width: 400,
+      height: 48,
+      content: { text: "Invoice", fontSize: 28, bold: true },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "client-details",
+      x: 32,
+      y: 208,
+      ...DEFAULT_SIZES["client-details"],
+      content: DEFAULT_CONTENT["client-details"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "items-table",
+      x: 32,
+      y: 368,
+      ...DEFAULT_SIZES["items-table"],
+      content: DEFAULT_CONTENT["items-table"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "total-summary",
+      x: 320,
+      y: 608,
+      ...DEFAULT_SIZES["total-summary"],
+      content: DEFAULT_CONTENT["total-summary"],
+    },
   ],
   gst: [
-    { id: crypto.randomUUID(), type: "text", x: 160, y: 32, width: 320, height: 48, content: { text: "TAX INVOICE", fontSize: 22, bold: true } },
+    {
+      id: crypto.randomUUID(),
+      type: "text",
+      x: 160,
+      y: 32,
+      width: 320,
+      height: 48,
+      content: { text: "TAX INVOICE", fontSize: 22, bold: true },
+    },
     { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, width: 112, height: 64, content: DEFAULT_CONTENT["logo"] },
-    { id: crypto.randomUUID(), type: "client-details", x: 32, y: 112, ...DEFAULT_SIZES["client-details"], content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" } },
-    { id: crypto.randomUUID(), type: "divider", x: 32, y: 272, width: 576, height: 16, content: DEFAULT_CONTENT["divider"] },
-    { id: crypto.randomUUID(), type: "items-table", x: 32, y: 304, width: 576, height: 256, content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] } },
-    { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 576, ...DEFAULT_SIZES["total-summary"], content: { subtotal: 10000, gst: 18, discount: 0 } },
-    { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
+    {
+      id: crypto.randomUUID(),
+      type: "client-details",
+      x: 32,
+      y: 112,
+      ...DEFAULT_SIZES["client-details"],
+      content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "divider",
+      x: 32,
+      y: 272,
+      width: 576,
+      height: 16,
+      content: DEFAULT_CONTENT["divider"],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "items-table",
+      x: 32,
+      y: 304,
+      width: 576,
+      height: 256,
+      content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "total-summary",
+      x: 320,
+      y: 576,
+      ...DEFAULT_SIZES["total-summary"],
+      content: { subtotal: 10000, gst: 18, discount: 0 },
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "signature",
+      x: 32,
+      y: 768,
+      ...DEFAULT_SIZES["signature"],
+      content: DEFAULT_CONTENT["signature"],
+    },
   ],
 };
 
@@ -141,10 +325,7 @@ export default function TemplatesPage() {
   const { data: customTemplates = [], isLoading } = useQuery({
     queryKey: ["custom-templates"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("templates")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("templates").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -244,7 +425,10 @@ export default function TemplatesPage() {
           <h1 className="text-2xl font-semibold">Invoice Templates</h1>
           <p className="text-sm text-muted-foreground mt-1">Choose a template or create your own.</p>
         </div>
-        <Button className="gap-2 shadow-sm" onClick={() => setSaveDialogOpen(true)}>
+        <Button
+          className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+          onClick={() => setSaveDialogOpen(true)}
+        >
           <Plus className="h-4 w-4" /> Save Current Layout as Template
         </Button>
       </motion.div>
@@ -265,7 +449,11 @@ export default function TemplatesPage() {
               <Label className="text-xs">Description (optional)</Label>
               <Input name="description" placeholder="Brief description..." />
             </div>
-            <Button type="submit" className="w-full" disabled={saveAsTemplate.isPending}>
+            <Button
+              type="submit"
+              className="w-full border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+              disabled={saveAsTemplate.isPending}
+            >
               {saveAsTemplate.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Save Template
             </Button>
@@ -275,7 +463,9 @@ export default function TemplatesPage() {
 
       {/* Builtin Templates */}
       <div>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Prebuilt Templates</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+          Prebuilt Templates
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {builtinTemplates.map((t, i) => (
             <motion.div
@@ -304,7 +494,9 @@ export default function TemplatesPage() {
                 <p className="text-xs text-muted-foreground mt-1">{t.description}</p>
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {t.features.map((f) => (
-                    <span key={f} className="text-[10px] bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{f}</span>
+                    <span key={f} className="text-[10px] bg-muted px-2 py-0.5 rounded-full text-muted-foreground">
+                      {f}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -350,15 +542,16 @@ export default function TemplatesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        onClick={(e) => { e.stopPropagation(); deleteTemplate.mutate(t.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteTemplate.mutate(t.id);
+                        }}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>{Array.isArray(t.layout_json) ? t.layout_json.length : 0} elements</span>
-                    <span>·</span>
                     <span>{new Date(t.created_at).toLocaleDateString()}</span>
                   </div>
                 </motion.div>
@@ -376,7 +569,11 @@ export default function TemplatesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Button size="lg" className="shadow-sm px-8" onClick={() => loadTemplate(selected)}>
+          <Button
+            size="lg"
+            className="shadow-sm px-8 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            onClick={() => loadTemplate(selected)}
+          >
             Use Template
           </Button>
         </motion.div>

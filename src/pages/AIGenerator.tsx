@@ -100,7 +100,11 @@ export default function AIGeneratorPage() {
               </button>
             ))}
           </div>
-          <Button className="gap-2 shadow-sm shrink-0" onClick={handleGenerate} disabled={loading || !prompt.trim()}>
+          <Button
+            className="gap-2 shadow-sm shrink-0 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            onClick={handleGenerate}
+            disabled={loading || !prompt.trim()}
+          >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
             {loading ? "Analyzing..." : "Generate"}
           </Button>
@@ -137,7 +141,10 @@ export default function AIGeneratorPage() {
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Items</span>
                 <div className="mt-2 space-y-2">
                   {result.items.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-2.5 text-sm">
+                    <div
+                      key={i}
+                      className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-2.5 text-sm"
+                    >
                       <span>{item.name}</span>
                       <span className="tabular-nums font-medium">
                         {item.qty} × {fmt(item.price)} = {fmt(item.qty * item.price)}
@@ -148,24 +155,34 @@ export default function AIGeneratorPage() {
               </div>
 
               <div className="border-t pt-3 space-y-1.5 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{fmt(subtotal)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">GST ({result.gst}%)</span><span className="tabular-nums">+{fmt(gstAmt)}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="tabular-nums">{fmt(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">GST ({result.gst}%)</span>
+                  <span className="tabular-nums">+{fmt(gstAmt)}</span>
+                </div>
                 {result.discount > 0 && (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Discount ({result.discount}%)</span><span className="tabular-nums text-[hsl(var(--success))]">-{fmt(discAmt)}</span></div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount ({result.discount}%)</span>
+                    <span className="tabular-nums text-[hsl(var(--success))]">-{fmt(discAmt)}</span>
+                  </div>
                 )}
                 <div className="flex justify-between font-semibold text-base pt-1.5 border-t">
-                  <span>Total</span><span className="tabular-nums">{fmt(total)}</span>
+                  <span>Total</span>
+                  <span className="tabular-nums">{fmt(total)}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <Button className="flex-1 gap-2 shadow-sm">
+              <Button className="flex-1 gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70">
                 <ArrowRight className="h-4 w-4" /> Use This Data to Create Invoice
               </Button>
               <Button
                 variant="outline"
-                className="gap-2"
+                className="gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
                 onClick={() => result && exportInvoicePDF(result)}
               >
                 <Download className="h-4 w-4" /> PDF
