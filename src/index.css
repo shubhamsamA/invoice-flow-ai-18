@@ -22,7 +22,7 @@
     --secondary-foreground: 120 15% 15%;
 
     --muted: 60 40% 85%;
-    --muted-foreground: 120 10% 40%;
+    --muted-foreground: 100 10% 40%;
 
     --accent: 36 80% 85%; /* #FBE8CE */
     --accent-foreground: 120 15% 15%;
@@ -32,13 +32,13 @@
 
     --border: 60 30% 80%;
     --input: 60 30% 80%;
-    --ring: 84 25% 55%;
+    --ring: 85 24% 58%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
     /* Sidebar */
     --sidebar-background: 85 24% 58%;
-    --sidebar-foreground: 60 40% 85%;
+    --sidebar-foreground: 60 40% 95%;
     --sidebar-primary: 85 24% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 84 20% 30%;
@@ -60,7 +60,7 @@
 
   .dark {
     --background: 84 20% 10%;
-    --foreground: 60 40% 85%;
+    --foreground: 60 30% 90%;
 
     --card: 84 20% 14%;
     --card-foreground: 60 40% 85%;
@@ -68,14 +68,14 @@
     --popover: 84 20% 14%;
     --popover-foreground: 60 40% 85%;
 
-    --primary: 84 25% 55%;
+    --primary: 85 24% 58%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 84 20% 25%;
     --secondary-foreground: 60 40% 85%;
 
     --muted: 84 20% 20%;
-    --muted-foreground: 60 30% 65%;
+    --muted-foreground: 60 20% 65%;
 
     --accent: 36 80% 70%;
     --accent-foreground: 0 0% 100%;
@@ -85,11 +85,11 @@
 
     --border: 84 20% 22%;
     --input: 84 20% 22%;
-    --ring: 84 25% 55%;
+    --ring: 85 24% 58%;
 
     --sidebar-background: 84 25% 8%;
     --sidebar-foreground: 60 30% 75%;
-    --sidebar-primary: 84 25% 55%;
+    --sidebar-primary: 85 24% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 84 20% 18%;
     --sidebar-accent-foreground: 60 40% 85%;
@@ -101,6 +101,7 @@
   }
 }
 
+/* Base styles */
 @layer base {
   * {
     @apply border-border;
@@ -121,7 +122,7 @@
   h4,
   h5,
   h6 {
-    @apply tracking-tight;
+    @apply tracking-tight font-semibold;
     text-wrap: balance;
   }
 
@@ -130,24 +131,32 @@
   }
 }
 
+/* Utilities */
 @layer utilities {
+  /* 🔥 Premium Card */
   .stat-card {
-    @apply bg-card rounded-xl p-6 shadow-sm border border-border/50;
-    transition:
-      box-shadow 0.2s ease-out,
-      transform 0.15s ease-out;
-  }
-  .stat-card:hover {
-    box-shadow: 0 4px 24px -4px hsl(var(--foreground) / 0.08);
+    @apply bg-card rounded-xl p-6 border border-border/50 shadow-lg transition-all duration-200;
   }
 
+  .stat-card:hover {
+    @apply shadow-xl -translate-y-1;
+  }
+
+  /* 🔘 Button style helper */
+  .btn-premium {
+    @apply px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5;
+  }
+
+  /* 📊 Status */
   .invoice-status-paid {
-    @apply bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))];
+    @apply bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] font-medium px-2 py-1 rounded-md;
   }
+
   .invoice-status-unpaid {
-    @apply bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))];
+    @apply bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] font-medium px-2 py-1 rounded-md;
   }
+
   .invoice-status-overdue {
-    @apply bg-[hsl(var(--destructive)/0.1)] text-destructive;
+    @apply bg-[hsl(var(--destructive)/0.1)] text-destructive font-medium px-2 py-1 rounded-md;
   }
 }
