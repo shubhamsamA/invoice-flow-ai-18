@@ -181,8 +181,8 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
     }
     case "divider":
       return (
-        <div className="h-full flex items-center px-4">
-          <hr style={{ width: "100%", border: "none", borderTop: `1px ${c.style || "solid"} #ddd` }} />
+        <div className="h-full flex items-center" style={{ padding: `0 16px`, marginTop: c.spacing || 0, marginBottom: c.spacing || 0 }}>
+          <hr style={{ width: "100%", border: "none", borderTop: `${c.thickness || 1}px ${c.style || "solid"} ${c.color || "#ddd"}` }} />
         </div>
       );
     default:
