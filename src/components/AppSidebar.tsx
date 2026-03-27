@@ -41,8 +41,8 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div>
-              <h1 className="text-sm font-semibold text-sidebar-primary">InvoiceFlow</h1>
-              <p className="text-[11px] text-sidebar-foreground/60">Invoice Management</p>
+              <h1 className="text-sm font-semibold text-[#FBE8CE]">InvoiceFlow</h1>
+              <p className="text-[11px] text-sidebar-foreground">Invoice Management</p>
             </div>
           )}
         </div>
@@ -53,7 +53,7 @@ export function AppSidebar() {
           <div className="px-4 pb-2">
             <Button
               variant="outline"
-              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80"
+              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/80"
               asChild
             >
               <NavLink to="/invoices/new" activeClassName="">
@@ -65,7 +65,7 @@ export function AppSidebar() {
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 text-[10px] uppercase tracking-widest">
+          <SidebarGroupLabel className="text-sidebar-foreground text-[10px] uppercase tracking-widest">
             Main
           </SidebarGroupLabel>
           <SidebarGroupContent>
