@@ -1,14 +1,4 @@
-import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  Palette,
-  Sparkles,
-  Settings,
-  Plus,
-  Zap,
-  PenTool,
-} from "lucide-react";
+import { LayoutDashboard, FileText, Users, Palette, Sparkles, Settings, Plus, Zap, PenTool } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -35,9 +25,7 @@ const mainNav = [
   { title: "AI Generator", url: "/ai-generator", icon: Sparkles },
 ];
 
-const secondaryNav = [
-  { title: "Settings", url: "/settings", icon: Settings },
-];
+const secondaryNav = [{ title: "Settings", url: "/settings", icon: Settings }];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -103,7 +91,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/40 text-[10px] uppercase tracking-widest">
-            System
+            Business Profile
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
