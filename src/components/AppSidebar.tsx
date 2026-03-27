@@ -53,7 +53,7 @@ export function AppSidebar() {
           <div className="px-4 pb-2">
             <Button
               variant="outline"
-              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/70"
+              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
               asChild
             >
               <NavLink to="/invoices/new" activeClassName="">
