@@ -320,8 +320,11 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       </div>`;
     }
     case "divider": {
-      const divStyle = el.content?.style || "solid";
-      return `<div style="${style}display:flex;align-items:center;"><hr style="width:100%;border:none;border-top:1px ${divStyle} #ddd;" /></div>`;
+      const divStyle = c.style || "solid";
+      const divColor = c.color || "#ddd";
+      const divThickness = c.thickness || 1;
+      const divSpacing = c.spacing || 0;
+      return `<div style="${style}display:flex;align-items:center;padding:0 16px;margin-top:${divSpacing}px;margin-bottom:${divSpacing}px;"><hr style="width:100%;border:none;border-top:${divThickness}px ${divStyle} ${divColor};" /></div>`;
     }
     case "stamp": {
       const url = data.stamp_url || el.content?.url;
