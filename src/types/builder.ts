@@ -71,7 +71,7 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   "items-table": { items: [{ name: "Item 1", qty: 1, price: 0 }], columns: { description: "Description", qty: "Qty", price: "Price", total: "Total" } },
   "total-summary": { subtotal: 0, gst: 18, discount: 0 },
   signature: { label: "Authorized Signature", signed: false },
-  divider: { style: "solid" },
+  divider: { style: "solid", color: "#dddddd", thickness: 1, spacing: 0 },
   stamp: { url: "", placeholder: true },
   "business-details": { name: "Your Business", email: "info@business.com", phone: "+91 00000 00000", address: "Business Address", gst: "GSTIN" },
   note: { text: "Thank you for your business!", fontSize: 12 },
