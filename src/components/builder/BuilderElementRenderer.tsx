@@ -150,7 +150,8 @@ export function BuilderElementRenderer({ element, selected }: Props) {
         </div>
       );
 
-    case "items-table":
+    case "items-table": {
+      const cols = content.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
       return (
         <div className="p-3 text-xs">
           <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
@@ -159,10 +160,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           </div>
           <div className="border rounded-md overflow-hidden">
             <div className="grid grid-cols-12 gap-px bg-muted text-[10px] uppercase tracking-wider font-medium px-2 py-1.5">
-              <span className="col-span-5">Description</span>
-              <span className="col-span-2 text-right">Qty</span>
-              <span className="col-span-3 text-right">Price</span>
-              <span className="col-span-2 text-right">Total</span>
+              <span className="col-span-5">{cols.description}</span>
+              <span className="col-span-2 text-right">{cols.qty}</span>
+              <span className="col-span-3 text-right">{cols.price}</span>
+              <span className="col-span-2 text-right">{cols.total}</span>
             </div>
             {(content.items || []).map((item: any, i: number) => (
               <div key={i} className="grid grid-cols-12 gap-px px-2 py-1.5 border-t text-[11px]">
@@ -175,6 +176,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           </div>
         </div>
       );
+    }
 
     case "total-summary":
       return (
