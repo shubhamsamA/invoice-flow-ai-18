@@ -211,8 +211,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
 
     case "divider":
       return (
-        <div className="h-full flex items-center px-4">
-          <div className="w-full border-t" style={{ borderStyle: content.style || "solid" }} />
+        <div className="h-full flex items-center" style={{ padding: `0 16px`, marginTop: content.spacing || 0, marginBottom: content.spacing || 0 }}>
+          <div className="w-full" style={{
+            borderTop: `${content.thickness || 1}px ${content.style || "solid"} ${content.color || "#ddd"}`,
+          }} />
         </div>
       );
 
