@@ -68,7 +68,7 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   text: { text: "Your text here", fontSize: 14, bold: false },
   logo: { url: "", placeholder: true },
   "client-details": { name: "Client Name", email: "client@example.com", address: "123 Main St", gst: "GSTIN" },
-  "items-table": { items: [{ name: "Item 1", qty: 1, price: 0 }] },
+  "items-table": { items: [{ name: "Item 1", qty: 1, price: 0 }], columns: { description: "Description", qty: "Qty", price: "Price", total: "Total" } },
   "total-summary": { subtotal: 0, gst: 18, discount: 0 },
   signature: { label: "Authorized Signature", signed: false },
   divider: { style: "solid" },
