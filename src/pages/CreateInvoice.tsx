@@ -264,6 +264,7 @@ export default function CreateInvoicePage() {
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
