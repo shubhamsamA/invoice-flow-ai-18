@@ -62,6 +62,7 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
   note: { width: 400, height: 80 },
   "invoice-number": { width: 280, height: 48 },
   "invoice-date": { width: 280, height: 48 },
+  "bank-details": { width: 320, height: 160 },
 };
 
 /** Default content for each element type */
