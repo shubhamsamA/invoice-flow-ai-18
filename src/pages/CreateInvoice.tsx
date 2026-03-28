@@ -267,6 +267,10 @@ export default function CreateInvoicePage() {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [aiApplied, setAiApplied] = useState(false);
+  const [bankDetails, setBankDetails] = useState({
+    account_name: "", account_number: "", ifsc: "", bank_name: "", branch: "", upi_id: "",
+  });
+  const [bankSynced, setBankSynced] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
