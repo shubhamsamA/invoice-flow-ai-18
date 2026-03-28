@@ -1,0 +1,7 @@
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS bank_account_name text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS bank_account_number text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS bank_ifsc text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS bank_name text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS bank_branch text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS bank_upi_id text DEFAULT NULL;
