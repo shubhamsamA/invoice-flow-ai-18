@@ -389,7 +389,7 @@ export default function CreateInvoicePage() {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       toast.success("Invoice saved");
-      navigate("/invoices");
+      navigate(`/invoices/${invoice.id}`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to save invoice");
