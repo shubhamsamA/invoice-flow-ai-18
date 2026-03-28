@@ -36,6 +36,7 @@ const components: ComponentItem[] = [
   { type: "stamp",             label: "Company Stamp",     icon: Stamp,         description: "Official company stamp" },
   { type: "note",              label: "Note",              icon: StickyNote,    description: "Payment terms, thank you" },
   { type: "divider",           label: "Divider",           icon: Minus,         description: "Horizontal separator line" },
+  { type: "bank-details",      label: "Bank Details",      icon: Landmark,      description: "Account, IFSC, UPI info" },
 ];
 
 interface BuilderSidebarProps {

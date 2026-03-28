@@ -185,6 +185,17 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           <hr style={{ width: "100%", border: "none", borderTop: `${c.thickness || 1}px ${c.style || "solid"} ${c.color || "#ddd"}` }} />
         </div>
       );
+    case "bank-details":
+      return (
+        <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
+          <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>Bank Details</div>
+          {c.accountName && <p style={{ fontWeight: 500, fontSize: 13 }}>A/C Name: {c.accountName}</p>}
+          {c.accountNumber && <p style={{ fontFamily: "monospace", fontSize: 11 }}>A/C No: {c.accountNumber}</p>}
+          {c.ifsc && <p style={{ color: "#666" }}>IFSC: {c.ifsc}</p>}
+          {c.bankName && <p style={{ color: "#666" }}>{c.bankName}{c.branch ? ` — ${c.branch}` : ""}</p>}
+          {c.upiId && <p style={{ color: "#666" }}>UPI: {c.upiId}</p>}
+        </div>
+      );
     default:
       return <div style={{ padding: 8, fontSize: 12, color: "#888" }}>Unknown</div>;
   }

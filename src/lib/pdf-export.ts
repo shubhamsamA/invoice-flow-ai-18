@@ -379,6 +379,16 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       }
       return `<div style="${style}">${dateHtml}</div>`;
     }
+    case "bank-details": {
+      return `<div style="${style}">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:4px;font-weight:600;">Bank Details</div>
+        ${c.accountName ? `<div style="font-size:13px;font-weight:500;margin-bottom:2px;">A/C Name: ${c.accountName}</div>` : ""}
+        ${c.accountNumber ? `<div style="font-size:11px;font-family:monospace;margin-bottom:2px;">A/C No: ${c.accountNumber}</div>` : ""}
+        ${c.ifsc ? `<div style="font-size:12px;color:#666;margin-bottom:2px;">IFSC: ${c.ifsc}</div>` : ""}
+        ${c.bankName ? `<div style="font-size:12px;color:#666;margin-bottom:2px;">${c.bankName}${c.branch ? ` — ${c.branch}` : ""}</div>` : ""}
+        ${c.upiId ? `<div style="font-size:12px;color:#666;">UPI: ${c.upiId}</div>` : ""}
+      </div>`;
+    }
     default:
       return "";
   }
