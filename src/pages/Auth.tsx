@@ -78,9 +78,39 @@ export default function AuthPage() {
           </div>
           <h1 className="text-xl font-semibold">InvoiceFlow</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLogin ? "Sign in to your account" : "Create your account"}
+            {isForgotPassword ? "Reset your password" : isLogin ? "Sign in to your account" : "Create your account"}
           </p>
         </div>
+
+        {isForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="reset-email" className="text-xs">Email</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="h-9 text-sm"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+              disabled={loading}
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Send Reset Link
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              <button type="button" onClick={() => setIsForgotPassword(false)} className="text-accent font-medium hover:underline inline-flex items-center gap-1">
+                <ArrowLeft className="h-3 w-3" /> Back to Sign In
+              </button>
+            </p>
+          </form>
+        ) : (
 
         <form onSubmit={handleSubmit} className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
           {!isLogin && (
