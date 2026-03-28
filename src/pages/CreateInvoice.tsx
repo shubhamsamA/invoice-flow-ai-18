@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
+import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 
 interface InvoiceItem {
   id: string;
