@@ -458,10 +458,6 @@ export default function CreateInvoicePage() {
 
       <div className={showPreview ? "grid grid-cols-1 xl:grid-cols-2 gap-6" : "grid grid-cols-1 lg:grid-cols-3 gap-6"}>
         <div className={showPreview ? "space-y-6" : "lg:col-span-2 space-y-6"}>
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
           {/* Template Selection */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
