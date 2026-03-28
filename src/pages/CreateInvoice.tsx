@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
+import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 
 interface InvoiceItem {
   id: string;
@@ -263,6 +264,7 @@ export default function CreateInvoicePage() {
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
@@ -387,7 +389,7 @@ export default function CreateInvoicePage() {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       toast.success("Invoice saved");
-      navigate("/invoices");
+      navigate(`/invoices/${invoice.id}`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to save invoice");
@@ -401,8 +403,38 @@ export default function CreateInvoicePage() {
     ...customTemplates.map((t: any) => ({ id: t.id, name: t.name, isCustom: true })),
   ];
 
+  // Build live preview data from current form state
+  const selectedClient = clients.find((c: any) => c.id === clientId);
+  const previewHTML = useMemo(() => {
+    const layoutJson = getSelectedLayoutJson();
+    const previewData = {
+      invoice_number: nextNumber,
+      issue_date: issueDate,
+      due_date: dueDate || null,
+      status: "unpaid" as const,
+      subtotal,
+      discount: discountAmount,
+      gst_rate: gstRate,
+      gst_amount: gstAmount,
+      total,
+      currency: "INR",
+      notes: notes || null,
+      client_name: selectedClient?.name || "",
+      client_email: "",
+      client_address: "",
+      items: items.filter(i => i.name.trim()).map(i => ({
+        name: i.name,
+        quantity: i.quantity,
+        unit_price: i.price,
+        amount: i.quantity * i.price,
+      })),
+      layout_json: layoutJson,
+    };
+    return generateInvoicePreviewHTML(previewData);
+  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className={showPreview ? "max-w-7xl mx-auto space-y-6" : "max-w-4xl mx-auto space-y-6"}>
       <motion.div
         className="flex items-center gap-3"
         initial={{ opacity: 0, y: 12 }}
@@ -414,19 +446,18 @@ export default function CreateInvoicePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-semibold">Create Invoice</h1>
           <p className="text-sm text-muted-foreground">Fill in the details below</p>
         </div>
+        <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setShowPreview(!showPreview)}>
+          {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+          {showPreview ? "Hide Preview" : "Live Preview"}
+        </Button>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div
-          className="lg:col-span-2 space-y-6"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
+      <div className={showPreview ? "grid grid-cols-1 xl:grid-cols-2 gap-6" : "grid grid-cols-1 lg:grid-cols-3 gap-6"}>
+        <div className={showPreview ? "space-y-6" : "lg:col-span-2 space-y-6"}>
           {/* Template Selection */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -651,42 +682,74 @@ export default function CreateInvoicePage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
               />
+           </div>
+          </div>
+        </div>
+
+        {showPreview ? (
+          <div className="space-y-4">
+            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
+              <h2 className="text-sm font-semibold">Summary</h2>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
+                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount ({discount}%)</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2.5 flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                </div>
+              </div>
+              <Button
+                className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save Invoice
+              </Button>
+            </div>
+            <div className="bg-white rounded-xl border shadow-sm overflow-hidden sticky top-[340px]">
+              <div className="px-4 py-2 border-b bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground">Live Preview</p>
+              </div>
+              <div className="overflow-auto max-h-[600px]" dangerouslySetInnerHTML={{ __html: previewHTML }} />
             </div>
           </div>
-        </motion.div>
-
-        <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
-            <h2 className="text-sm font-semibold">Summary</h2>
-            <div className="space-y-2.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">GST ({gstRate}%)</span>
-                <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-              </div>
-              {discount > 0 && (
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
+              <h2 className="text-sm font-semibold">Summary</h2>
+              <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Discount ({discount}%)</span>
-                  <span className="font-medium text-[hsl(var(--success))] tabular-nums">
-                    -{formatCurrency(discountAmount)}
-                  </span>
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-              )}
-              <div className="border-t pt-2.5 flex justify-between">
-                <span className="font-semibold">Total</span>
-                <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
+                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount ({discount}%)</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2.5 flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2 pt-2">
               <Button
                 className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
                 onClick={handleSave}
@@ -697,7 +760,7 @@ export default function CreateInvoicePage() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        )}
       </div>
     </div>
   );

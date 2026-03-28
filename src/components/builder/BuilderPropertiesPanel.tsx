@@ -235,6 +235,17 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
         </>
       )}
 
+      {element.type === "bank-details" && (
+        <>
+          <div><Label className="text-[10px]">Account Name</Label><Input className="h-7 text-xs mt-1" value={element.content.accountName || ""} onChange={(e) => updateContent("accountName", e.target.value)} /></div>
+          <div><Label className="text-[10px]">Account Number</Label><Input className="h-7 text-xs mt-1" value={element.content.accountNumber || ""} onChange={(e) => updateContent("accountNumber", e.target.value)} /></div>
+          <div><Label className="text-[10px]">IFSC Code</Label><Input className="h-7 text-xs mt-1" value={element.content.ifsc || ""} onChange={(e) => updateContent("ifsc", e.target.value)} /></div>
+          <div><Label className="text-[10px]">Bank Name</Label><Input className="h-7 text-xs mt-1" value={element.content.bankName || ""} onChange={(e) => updateContent("bankName", e.target.value)} /></div>
+          <div><Label className="text-[10px]">Branch</Label><Input className="h-7 text-xs mt-1" value={element.content.branch || ""} onChange={(e) => updateContent("branch", e.target.value)} /></div>
+          <div><Label className="text-[10px]">UPI ID</Label><Input className="h-7 text-xs mt-1" placeholder="name@upi" value={element.content.upiId || ""} onChange={(e) => updateContent("upiId", e.target.value)} /></div>
+        </>
+      )}
+
       {(element.type === "logo" || element.type === "stamp") && (
         <div>
           <Label className="text-[10px]">Image URL</Label>

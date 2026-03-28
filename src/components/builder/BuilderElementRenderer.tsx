@@ -1,5 +1,5 @@
 import { BuilderElement } from "@/types/builder";
-import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays } from "lucide-react";
+import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays, Landmark } from "lucide-react";
 import { getFontFamily } from "@/lib/invoice-layout";
 
 interface Props {
@@ -215,6 +215,21 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           <div className="w-full" style={{
             borderTop: `${content.thickness || 1}px ${content.style || "solid"} ${content.color || "#ddd"}`,
           }} />
+        </div>
+      );
+
+    case "bank-details":
+      return (
+        <div className="p-3 space-y-1 text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
+            <Landmark className="h-3 w-3" />
+            <span className="text-[10px] uppercase tracking-wider font-medium">Bank Details</span>
+          </div>
+          {content.accountName && <p className="text-muted-foreground">A/C: {content.accountName}</p>}
+          {content.accountNumber && <p className="font-mono text-[10px]">{content.accountNumber}</p>}
+          {content.ifsc && <p className="text-muted-foreground">IFSC: {content.ifsc}</p>}
+          {content.bankName && <p className="text-muted-foreground">{content.bankName}{content.branch ? ` — ${content.branch}` : ""}</p>}
+          {content.upiId && <p className="text-muted-foreground">UPI: {content.upiId}</p>}
         </div>
       );
 

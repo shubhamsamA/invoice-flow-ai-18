@@ -17,7 +17,8 @@ export type BuilderElementType =
   | "business-details"
   | "note"
   | "invoice-number"
-  | "invoice-date";
+  | "invoice-date"
+  | "bank-details";
 
 export interface BuilderElement {
   id: string;
@@ -61,6 +62,7 @@ export const DEFAULT_SIZES: Record<BuilderElementType, { width: number; height: 
   note: { width: 400, height: 80 },
   "invoice-number": { width: 280, height: 48 },
   "invoice-date": { width: 280, height: 48 },
+  "bank-details": { width: 320, height: 160 },
 };
 
 /** Default content for each element type */
@@ -77,4 +79,5 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   note: { text: "Thank you for your business!", fontSize: 12 },
   "invoice-number": { label: "Invoice #", value: "{{invoice_number}}" },
   "invoice-date": { label: "Date", showIssue: true, showDue: true },
+  "bank-details": { accountName: "Your Business Name", accountNumber: "1234567890", ifsc: "SBIN0001234", bankName: "State Bank of India", branch: "Main Branch", upiId: "" },
 };

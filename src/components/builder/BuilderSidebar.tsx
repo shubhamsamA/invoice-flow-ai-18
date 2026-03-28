@@ -2,7 +2,7 @@ import { useState } from "react";
 import { 
   Type, Image, Users, Table, Calculator, PenTool, Minus,
   GripVertical, Stamp, Building2, StickyNote, Hash, CalendarDays,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Landmark
 } from "lucide-react";
 import { BuilderElementType } from "@/types/builder";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,7 @@ const components: ComponentItem[] = [
   { type: "stamp",             label: "Company Stamp",     icon: Stamp,         description: "Official company stamp" },
   { type: "note",              label: "Note",              icon: StickyNote,    description: "Payment terms, thank you" },
   { type: "divider",           label: "Divider",           icon: Minus,         description: "Horizontal separator line" },
+  { type: "bank-details",      label: "Bank Details",      icon: Landmark,      description: "Account, IFSC, UPI info" },
 ];
 
 interface BuilderSidebarProps {
