@@ -2,7 +2,7 @@ import { useState } from "react";
 import { 
   Type, Image, Users, Table, Calculator, PenTool, Minus,
   GripVertical, Stamp, Building2, StickyNote, Hash, CalendarDays,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Landmark
 } from "lucide-react";
 import { BuilderElementType } from "@/types/builder";
 import { cn } from "@/lib/utils";
