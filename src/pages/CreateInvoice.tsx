@@ -403,6 +403,36 @@ export default function CreateInvoicePage() {
     ...customTemplates.map((t: any) => ({ id: t.id, name: t.name, isCustom: true })),
   ];
 
+  // Build live preview data from current form state
+  const selectedClient = clients.find((c: any) => c.id === clientId);
+  const previewHTML = useMemo(() => {
+    const layoutJson = getSelectedLayoutJson();
+    const previewData = {
+      invoice_number: nextNumber,
+      issue_date: issueDate,
+      due_date: dueDate || null,
+      status: "unpaid" as const,
+      subtotal,
+      discount: discountAmount,
+      gst_rate: gstRate,
+      gst_amount: gstAmount,
+      total,
+      currency: "INR",
+      notes: notes || null,
+      client_name: selectedClient?.name || "",
+      client_email: "",
+      client_address: "",
+      items: items.filter(i => i.name.trim()).map(i => ({
+        name: i.name,
+        quantity: i.quantity,
+        unit_price: i.price,
+        amount: i.quantity * i.price,
+      })),
+      layout_json: layoutJson,
+    };
+    return generateInvoicePreviewHTML(previewData);
+  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <motion.div
