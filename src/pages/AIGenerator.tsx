@@ -179,7 +179,14 @@ export default function AIGeneratorPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button className="flex-1 gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70">
+              <Button
+                className="flex-1 gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  params.set("ai_data", JSON.stringify(result));
+                  navigate(`/invoices/new?${params.toString()}`);
+                }}
+              >
                 <ArrowRight className="h-4 w-4" /> Use This Data to Create Invoice
               </Button>
               <Button
