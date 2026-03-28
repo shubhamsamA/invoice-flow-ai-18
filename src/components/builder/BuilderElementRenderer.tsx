@@ -1,5 +1,5 @@
 import { BuilderElement } from "@/types/builder";
-import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays } from "lucide-react";
+import { Type, Image, Users, Table, Calculator, PenTool, Stamp, Building2, StickyNote, Hash, CalendarDays, Landmark } from "lucide-react";
 import { getFontFamily } from "@/lib/invoice-layout";
 
 interface Props {
