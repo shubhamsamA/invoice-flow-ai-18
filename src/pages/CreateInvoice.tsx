@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
