@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
