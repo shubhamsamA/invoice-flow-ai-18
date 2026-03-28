@@ -25,6 +25,7 @@ export default function AIGeneratorPage() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ParsedData | null>(null);
+  const navigate = useNavigate();
 
   /**
    * Calls the parse-invoice edge function which uses Lovable AI
