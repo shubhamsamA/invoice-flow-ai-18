@@ -727,37 +727,29 @@ export default function CreateInvoicePage() {
             </div>
           </div>
         ) : (
-          className="space-y-4"
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
-            <h2 className="text-sm font-semibold">Summary</h2>
-            <div className="space-y-2.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">GST ({gstRate}%)</span>
-                <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-              </div>
-              {discount > 0 && (
+          <div className="space-y-4">
+            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
+              <h2 className="text-sm font-semibold">Summary</h2>
+              <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Discount ({discount}%)</span>
-                  <span className="font-medium text-[hsl(var(--success))] tabular-nums">
-                    -{formatCurrency(discountAmount)}
-                  </span>
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-              )}
-              <div className="border-t pt-2.5 flex justify-between">
-                <span className="font-semibold">Total</span>
-                <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
+                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount ({discount}%)</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2.5 flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2 pt-2">
               <Button
                 className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
                 onClick={handleSave}
@@ -768,7 +760,7 @@ export default function CreateInvoicePage() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        )}
       </div>
     </div>
   );
