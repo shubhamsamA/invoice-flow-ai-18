@@ -293,6 +293,45 @@ export default function CreateInvoicePage() {
     enabled: !!user,
   });
 
+  // Fetch saved bank details from profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Apply AI-generated data from URL params
+  useEffect(() => {
+    if (aiApplied) return;
+    const aiDataStr = searchParams.get("ai_data");
+    if (!aiDataStr) return;
+    try {
+      const aiData = JSON.parse(aiDataStr);
+      if (aiData.items && aiData.items.length > 0) {
+        setItems(aiData.items.map((item: any) => ({
+          id: crypto.randomUUID(),
+          name: item.name || "",
+          quantity: item.qty || 1,
+          price: item.price || 0,
+        })));
+      }
+      if (typeof aiData.gst === "number") setGstRate(aiData.gst);
+      if (typeof aiData.discount === "number") setDiscount(aiData.discount);
+      // Try to match client by name
+      if (aiData.client && clients.length > 0) {
+        const match = clients.find((c: any) => c.name.toLowerCase().includes(aiData.client.toLowerCase()));
+        if (match) setClientId(match.id);
+      }
+      setAiApplied(true);
+    } catch {
+      // ignore parse errors
+    }
+  }, [searchParams, clients, aiApplied]);
+
   // Generate next invoice number
   const { data: nextNumber = "INV-001" } = useQuery({
     queryKey: ["next-invoice-number"],
