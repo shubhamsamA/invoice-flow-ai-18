@@ -682,11 +682,51 @@ export default function CreateInvoicePage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
               />
+           </div>
+          </div>
+        </div>
+
+        {showPreview ? (
+          <div className="space-y-4">
+            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
+              <h2 className="text-sm font-semibold">Summary</h2>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
+                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount ({discount}%)</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2.5 flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                </div>
+              </div>
+              <Button
+                className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save Invoice
+              </Button>
+            </div>
+            <div className="bg-white rounded-xl border shadow-sm overflow-hidden sticky top-[340px]">
+              <div className="px-4 py-2 border-b bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground">Live Preview</p>
+              </div>
+              <div className="overflow-auto max-h-[600px]" dangerouslySetInnerHTML={{ __html: previewHTML }} />
             </div>
           </div>
-        </motion.div>
-
-        <motion.div
+        ) : (
           className="space-y-4"
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
