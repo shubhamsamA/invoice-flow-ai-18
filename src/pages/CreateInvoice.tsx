@@ -744,6 +744,38 @@ export default function CreateInvoicePage() {
                 rows={3}
               />
            </div>
+           </div>
+
+          {/* Bank Details */}
+          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <h2 className="text-sm font-semibold">Bank Details</h2>
+            <p className="text-xs text-muted-foreground">Pre-filled from your saved bank details. You can override per invoice.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Account Name</Label>
+                <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} placeholder="Account holder name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Account Number</Label>
+                <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} placeholder="1234567890" className="font-mono text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">IFSC Code</Label>
+                <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} placeholder="SBIN0001234" className="font-mono text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Bank Name</Label>
+                <Input value={bankDetails.bank_name} onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })} placeholder="State Bank of India" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Branch</Label>
+                <Input value={bankDetails.branch} onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })} placeholder="Main Branch" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">UPI ID</Label>
+                <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} placeholder="yourname@upi" className="font-mono text-xs" />
+              </div>
+            </div>
           </div>
         </div>
 
