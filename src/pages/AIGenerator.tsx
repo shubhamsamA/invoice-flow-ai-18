@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sparkles, ArrowRight, Zap, FileText, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,7 @@ export default function AIGeneratorPage() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ParsedData | null>(null);
+  const navigate = useNavigate();
 
   /**
    * Calls the parse-invoice edge function which uses Lovable AI
@@ -177,7 +179,14 @@ export default function AIGeneratorPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button className="flex-1 gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70">
+              <Button
+                className="flex-1 gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  params.set("ai_data", JSON.stringify(result));
+                  navigate(`/invoices/new?${params.toString()}`);
+                }}
+              >
                 <ArrowRight className="h-4 w-4" /> Use This Data to Create Invoice
               </Button>
               <Button

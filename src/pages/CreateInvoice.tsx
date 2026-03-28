@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -253,6 +253,7 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
 export default function CreateInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
   const [gstRate, setGstRate] = useState(18);
@@ -265,6 +266,11 @@ export default function CreateInvoicePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
+  const [bankDetails, setBankDetails] = useState({
+    account_name: "", account_number: "", ifsc: "", bank_name: "", branch: "", upi_id: "",
+  });
+  const [bankSynced, setBankSynced] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
@@ -290,6 +296,61 @@ export default function CreateInvoicePage() {
     },
     enabled: !!user,
   });
+
+  // Fetch saved bank details from profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Sync bank details from profile
+  if (profile && !bankSynced) {
+    const p = profile as any;
+    if (p.bank_account_name || p.bank_account_number) {
+      setBankDetails({
+        account_name: p.bank_account_name || "",
+        account_number: p.bank_account_number || "",
+        ifsc: p.bank_ifsc || "",
+        bank_name: p.bank_name || "",
+        branch: p.bank_branch || "",
+        upi_id: p.bank_upi_id || "",
+      });
+    }
+    setBankSynced(true);
+  }
+
+  // Apply AI-generated data from URL params
+  useEffect(() => {
+    if (aiApplied) return;
+    const aiDataStr = searchParams.get("ai_data");
+    if (!aiDataStr) return;
+    try {
+      const aiData = JSON.parse(aiDataStr);
+      if (aiData.items && aiData.items.length > 0) {
+        setItems(aiData.items.map((item: any) => ({
+          id: crypto.randomUUID(),
+          name: item.name || "",
+          quantity: item.qty || 1,
+          price: item.price || 0,
+        })));
+      }
+      if (typeof aiData.gst === "number") setGstRate(aiData.gst);
+      if (typeof aiData.discount === "number") setDiscount(aiData.discount);
+      // Try to match client by name
+      if (aiData.client && clients.length > 0) {
+        const match = clients.find((c: any) => c.name.toLowerCase().includes(aiData.client.toLowerCase()));
+        if (match) setClientId(match.id);
+      }
+      setAiApplied(true);
+    } catch {
+      // ignore parse errors
+    }
+  }, [searchParams, clients, aiApplied]);
 
   // Generate next invoice number
   const { data: nextNumber = "INV-001" } = useQuery({
@@ -683,6 +744,38 @@ export default function CreateInvoicePage() {
                 rows={3}
               />
            </div>
+           </div>
+
+          {/* Bank Details */}
+          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <h2 className="text-sm font-semibold">Bank Details</h2>
+            <p className="text-xs text-muted-foreground">Pre-filled from your saved bank details. You can override per invoice.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Account Name</Label>
+                <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} placeholder="Account holder name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Account Number</Label>
+                <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} placeholder="1234567890" className="font-mono text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">IFSC Code</Label>
+                <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} placeholder="SBIN0001234" className="font-mono text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Bank Name</Label>
+                <Input value={bankDetails.bank_name} onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })} placeholder="State Bank of India" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Branch</Label>
+                <Input value={bankDetails.branch} onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })} placeholder="Main Branch" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">UPI ID</Label>
+                <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} placeholder="yourname@upi" className="font-mono text-xs" />
+              </div>
+            </div>
           </div>
         </div>
 

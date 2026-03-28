@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Zap, Loader2 } from "lucide-react";
+import { Zap, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -45,6 +46,24 @@ export default function AuthPage() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset link sent! Check your email.");
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <motion.div
@@ -59,9 +78,39 @@ export default function AuthPage() {
           </div>
           <h1 className="text-xl font-semibold">InvoiceFlow</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLogin ? "Sign in to your account" : "Create your account"}
+            {isForgotPassword ? "Reset your password" : isLogin ? "Sign in to your account" : "Create your account"}
           </p>
         </div>
+
+        {isForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="reset-email" className="text-xs">Email</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="h-9 text-sm"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+              disabled={loading}
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Send Reset Link
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              <button type="button" onClick={() => setIsForgotPassword(false)} className="text-accent font-medium hover:underline inline-flex items-center gap-1">
+                <ArrowLeft className="h-3 w-3" /> Back to Sign In
+              </button>
+            </p>
+          </form>
+        ) : (
 
         <form onSubmit={handleSubmit} className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
           {!isLogin && (
@@ -108,6 +157,18 @@ export default function AuthPage() {
             />
           </div>
 
+          {isLogin && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setIsForgotPassword(true)}
+                className="text-xs text-accent font-medium hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
@@ -128,6 +189,7 @@ export default function AuthPage() {
             </button>
           </p>
         </form>
+        )}
       </motion.div>
     </div>
   );
