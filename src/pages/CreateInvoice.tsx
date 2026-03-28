@@ -253,6 +253,7 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
 export default function CreateInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
   const [gstRate, setGstRate] = useState(18);
@@ -265,6 +266,7 @@ export default function CreateInvoicePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
