@@ -157,6 +157,18 @@ export default function AuthPage() {
             />
           </div>
 
+          {isLogin && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setIsForgotPassword(true)}
+                className="text-xs text-accent font-medium hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
@@ -177,6 +189,7 @@ export default function AuthPage() {
             </button>
           </p>
         </form>
+        )}
       </motion.div>
     </div>
   );
