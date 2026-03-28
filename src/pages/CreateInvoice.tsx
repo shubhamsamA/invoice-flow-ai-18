@@ -308,6 +308,22 @@ export default function CreateInvoicePage() {
     enabled: !!user,
   });
 
+  // Sync bank details from profile
+  if (profile && !bankSynced) {
+    const p = profile as any;
+    if (p.bank_account_name || p.bank_account_number) {
+      setBankDetails({
+        account_name: p.bank_account_name || "",
+        account_number: p.bank_account_number || "",
+        ifsc: p.bank_ifsc || "",
+        bank_name: p.bank_name || "",
+        branch: p.bank_branch || "",
+        upi_id: p.bank_upi_id || "",
+      });
+    }
+    setBankSynced(true);
+  }
+
   // Apply AI-generated data from URL params
   useEffect(() => {
     if (aiApplied) return;
