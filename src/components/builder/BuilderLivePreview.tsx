@@ -140,9 +140,11 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
         </div>
       );
     }
-    case "total-summary":
+    case "total-summary": {
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 13;
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 13 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: fs, fontFamily: ff }}>
           <div className="flex justify-between py-1"><span style={{ color: "#666" }}>Subtotal</span><span>{fmt(data.subtotal, data.currency)}</span></div>
           {data.gst_rate > 0 && <div className="flex justify-between py-1"><span style={{ color: "#666" }}>GST ({data.gst_rate}%)</span><span>+{fmt(data.gst_amount, data.currency)}</span></div>}
           {data.discount > 0 && <div className="flex justify-between py-1"><span style={{ color: "#666" }}>Discount</span><span style={{ color: "#2e8b57" }}>-{fmt(data.discount, data.currency)}</span></div>}
