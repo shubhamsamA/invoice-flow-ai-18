@@ -51,16 +51,19 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           )}
         </div>
       );
-    case "business-details":
+    case "business-details": {
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 12;
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: fs, fontFamily: ff }}>
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>From</div>
-          <p style={{ fontWeight: 500, fontSize: 14 }}>{data.business_name || c.name}</p>
+          <p style={{ fontWeight: 500, fontSize: fs + 2 }}>{data.business_name || c.name}</p>
           <p style={{ color: "#666" }}>{data.business_email || c.email}</p>
           <p style={{ color: "#666" }}>{data.business_address || c.address}</p>
           {(data.business_gst || c.gst) && <p style={{ color: "#666", fontFamily: "monospace", fontSize: 10 }}>GST: {data.business_gst || c.gst}</p>}
         </div>
       );
+    }
     case "client-details":
       return (
         <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
