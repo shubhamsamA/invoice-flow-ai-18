@@ -490,9 +490,15 @@ export default function CreateInvoicePage() {
         amount: i.quantity * i.price,
       })),
       layout_json: layoutJson,
+      bank_account_name: bankDetails.account_name,
+      bank_account_number: bankDetails.account_number,
+      bank_ifsc: bankDetails.ifsc,
+      bank_name: bankDetails.bank_name,
+      bank_branch: bankDetails.branch,
+      bank_upi_id: bankDetails.upi_id,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, bankDetails]);
 
   return (
     <div className={showPreview ? "max-w-7xl mx-auto space-y-6" : "max-w-4xl mx-auto space-y-6"}>
