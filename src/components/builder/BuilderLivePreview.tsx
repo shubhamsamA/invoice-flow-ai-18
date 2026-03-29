@@ -51,26 +51,32 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           )}
         </div>
       );
-    case "business-details":
+    case "business-details": {
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 12;
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: fs, fontFamily: ff }}>
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>From</div>
-          <p style={{ fontWeight: 500, fontSize: 14 }}>{data.business_name || c.name}</p>
+          <p style={{ fontWeight: 500, fontSize: fs + 2 }}>{data.business_name || c.name}</p>
           <p style={{ color: "#666" }}>{data.business_email || c.email}</p>
           <p style={{ color: "#666" }}>{data.business_address || c.address}</p>
           {(data.business_gst || c.gst) && <p style={{ color: "#666", fontFamily: "monospace", fontSize: 10 }}>GST: {data.business_gst || c.gst}</p>}
         </div>
       );
-    case "client-details":
+    }
+    case "client-details": {
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 12;
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: fs, fontFamily: ff }}>
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>Bill To</div>
-          <p style={{ fontWeight: 500, fontSize: 14 }}>{data.client_name || c.name}</p>
+          <p style={{ fontWeight: 500, fontSize: fs + 2 }}>{data.client_name || c.name}</p>
           <p style={{ color: "#666" }}>{data.client_email || c.email}</p>
           <p style={{ color: "#666" }}>{data.client_address || c.address}</p>
           {(data.client_gst || c.gst) && <p style={{ color: "#666", fontFamily: "monospace", fontSize: 10 }}>GST: {data.client_gst || c.gst}</p>}
         </div>
       );
+    }
     case "invoice-number":
       return (
         <div className="h-full flex items-center px-3">
@@ -102,8 +108,10 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
       );
     case "items-table": {
       const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 12;
       return (
-        <div className="p-3" style={{ fontSize: 12 }}>
+        <div className="p-3" style={{ fontSize: fs, fontFamily: ff }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -132,9 +140,11 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
         </div>
       );
     }
-    case "total-summary":
+    case "total-summary": {
+      const ff = getFontFamily(c.fontFamily);
+      const fs = c.fontSize || 13;
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 13 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: fs, fontFamily: ff }}>
           <div className="flex justify-between py-1"><span style={{ color: "#666" }}>Subtotal</span><span>{fmt(data.subtotal, data.currency)}</span></div>
           {data.gst_rate > 0 && <div className="flex justify-between py-1"><span style={{ color: "#666" }}>GST ({data.gst_rate}%)</span><span>+{fmt(data.gst_amount, data.currency)}</span></div>}
           {data.discount > 0 && <div className="flex justify-between py-1"><span style={{ color: "#666" }}>Discount</span><span style={{ color: "#2e8b57" }}>-{fmt(data.discount, data.currency)}</span></div>}
@@ -143,6 +153,7 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           </div>
         </div>
       );
+    }
     case "signature":
       return (
         <div className="h-full flex flex-col items-center justify-end p-3">
@@ -185,17 +196,24 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           <hr style={{ width: "100%", border: "none", borderTop: `${c.thickness || 1}px ${c.style || "solid"} ${c.color || "#ddd"}` }} />
         </div>
       );
-    case "bank-details":
+    case "bank-details": {
+      const accName = c.accountName || data.bank_account_name || "";
+      const accNum = c.accountNumber || data.bank_account_number || "";
+      const ifsc = c.ifsc || data.bank_ifsc || "";
+      const bName = c.bankName || data.bank_name || "";
+      const branch = c.branch || data.bank_branch || "";
+      const upi = c.upiId || data.bank_upi_id || "";
       return (
-        <div className="p-3 space-y-1" style={{ fontSize: 12 }}>
+        <div className="p-3 space-y-1" style={{ fontSize: c.fontSize || 12, fontFamily: getFontFamily(c.fontFamily) }}>
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>Bank Details</div>
-          {c.accountName && <p style={{ fontWeight: 500, fontSize: 13 }}>A/C Name: {c.accountName}</p>}
-          {c.accountNumber && <p style={{ fontFamily: "monospace", fontSize: 11 }}>A/C No: {c.accountNumber}</p>}
-          {c.ifsc && <p style={{ color: "#666" }}>IFSC: {c.ifsc}</p>}
-          {c.bankName && <p style={{ color: "#666" }}>{c.bankName}{c.branch ? ` — ${c.branch}` : ""}</p>}
-          {c.upiId && <p style={{ color: "#666" }}>UPI: {c.upiId}</p>}
+          {accName && <p style={{ fontWeight: 500, fontSize: 13 }}>A/C Name: {accName}</p>}
+          {accNum && <p style={{ fontFamily: "monospace", fontSize: 11 }}>A/C No: {accNum}</p>}
+          {ifsc && <p style={{ color: "#666" }}>IFSC: {ifsc}</p>}
+          {bName && <p style={{ color: "#666" }}>{bName}{branch ? ` — ${branch}` : ""}</p>}
+          {upi && <p style={{ color: "#666" }}>UPI: {upi}</p>}
         </div>
       );
+    }
     default:
       return <div style={{ padding: 8, fontSize: 12, color: "#888" }}>Unknown</div>;
   }

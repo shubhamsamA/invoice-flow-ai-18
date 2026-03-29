@@ -74,6 +74,12 @@ export default function InvoicePreview() {
       logo_url: (profile as any)?.logo_url || undefined,
       stamp_url: (profile as any)?.stamp_url || undefined,
       signature_url: (profile as any)?.signature_url || undefined,
+      bank_account_name: profile?.bank_account_name || undefined,
+      bank_account_number: profile?.bank_account_number || undefined,
+      bank_ifsc: profile?.bank_ifsc || undefined,
+      bank_name: profile?.bank_name || undefined,
+      bank_branch: profile?.bank_branch || undefined,
+      bank_upi_id: profile?.bank_upi_id || undefined,
       // Layout
       layout_json: invoice.layout_json,
     };

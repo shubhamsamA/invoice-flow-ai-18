@@ -1,17 +1,23 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Outlet } from "react-router-dom";
-import { Bell, Search, LogOut } from "lucide-react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { Bell, LogOut, KeyRound, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Layout() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
-  const initials = user?.user_metadata?.display_name
-    ? user.user_metadata.display_name.charAt(0).toUpperCase()
-    : (user?.email?.charAt(0).toUpperCase() ?? "U");
+  const displayName = user?.user_metadata?.display_name || user?.email || "User";
+  const initials = displayName.charAt(0).toUpperCase();
 
   return (
     <SidebarProvider>
@@ -26,18 +32,37 @@ export function Layout() {
               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground"
-                onClick={signOut}
-                title="Sign out"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
-                {initials}
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 gap-2 px-2 text-sm font-medium">
+                    <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold shrink-0">
+                      {initials}
+                    </div>
+                    <span className="hidden sm:inline max-w-[120px] truncate text-foreground">{displayName}</span>
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-xs font-medium truncate">{displayName}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2 text-xs cursor-pointer">
+                    <User className="h-3.5 w-3.5" />
+                    Profile & Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings#password")} className="gap-2 text-xs cursor-pointer">
+                    <KeyRound className="h-3.5 w-3.5" />
+                    Change Password
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="gap-2 text-xs cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6">

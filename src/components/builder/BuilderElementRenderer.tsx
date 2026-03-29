@@ -7,31 +7,38 @@ interface Props {
   selected: boolean;
 }
 
+/** Build inline styles from content font props */
+function fontStyle(c: Record<string, any>, defaults: { fontSize?: number; fontWeight?: number; color?: string } = {}) {
+  const style: React.CSSProperties = {
+    fontFamily: getFontFamily(c.fontFamily),
+    fontSize: c.fontSize || defaults.fontSize,
+    fontWeight: c.fontWeight || (c.bold ? 700 : defaults.fontWeight || 400),
+    color: c.color || defaults.color,
+    fontStyle: c.italic ? "italic" : undefined,
+    textDecoration: c.underline ? "underline" : undefined,
+    textAlign: c.textAlign || undefined,
+    lineHeight: c.lineHeight || undefined,
+    letterSpacing: typeof c.letterSpacing === "number" ? `${c.letterSpacing}px` : undefined,
+    textTransform: c.textTransform || undefined,
+    backgroundColor: c.backgroundColor && c.backgroundColor !== "transparent" ? c.backgroundColor : undefined,
+  };
+  return style;
+}
+
 export function BuilderElementRenderer({ element, selected }: Props) {
   const { type, content } = element;
 
   switch (type) {
-    case "text":
-      const textStyle: React.CSSProperties = {
-        fontSize: content.fontSize || 14,
-        fontWeight: content.fontWeight || (content.bold ? 600 : 400),
-        color: content.color || undefined,
-        fontFamily: getFontFamily(content.fontFamily),
-        fontStyle: content.italic ? "italic" : undefined,
-        textDecoration: content.underline ? "underline" : undefined,
-        textAlign: content.textAlign || "left",
-        lineHeight: content.lineHeight || 1.4,
-        letterSpacing: typeof content.letterSpacing === "number" ? `${content.letterSpacing}px` : undefined,
-        textTransform: content.textTransform || undefined,
-        backgroundColor: content.backgroundColor && content.backgroundColor !== "transparent" ? content.backgroundColor : undefined,
-      };
+    case "text": {
+      const style = fontStyle(content, { fontSize: 14 });
       return (
-        <div className="h-full flex items-center px-3" style={{ backgroundColor: textStyle.backgroundColor }}>
-          <p className="w-full outline-none" style={{ ...textStyle, backgroundColor: undefined }}>
+        <div className="h-full flex items-center px-3" style={{ backgroundColor: style.backgroundColor }}>
+          <p className="w-full outline-none" style={{ ...style, backgroundColor: undefined }}>
             {content.text || "Text"}
           </p>
         </div>
       );
+    }
 
     case "logo":
       return (
@@ -61,9 +68,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
         </div>
       );
 
-    case "business-details":
+    case "business-details": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
-        <div className="p-3 space-y-1 text-xs">
+        <div className="p-3 space-y-1" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
             <Building2 className="h-3 w-3" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Business</span>
@@ -75,16 +83,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           <p className="text-muted-foreground font-mono text-[10px]">{content.gst}</p>
         </div>
       );
+    }
 
-    case "note":
-      const noteStyle: React.CSSProperties = {
-        fontSize: content.fontSize || 12,
-        color: content.color || undefined,
-        fontFamily: getFontFamily(content.fontFamily),
-        fontWeight: content.fontWeight || 400,
-        textAlign: content.textAlign || "left",
-        lineHeight: content.lineHeight || 1.4,
-      };
+    case "note": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
         <div className="h-full flex items-start px-3 py-2">
           <div className="w-full">
@@ -92,17 +94,19 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               <StickyNote className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">Note</span>
             </div>
-            <p className="text-xs" style={noteStyle}>
+            <p className="text-xs" style={style}>
               {content.text || "Add a note..."}
             </p>
           </div>
         </div>
       );
+    }
 
-    case "invoice-number":
+    case "invoice-number": {
+      const style = fontStyle(content, { fontSize: 14 });
       return (
         <div className="h-full flex items-center px-3">
-          <div className="w-full">
+          <div className="w-full" style={style}>
             <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
               <Hash className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">{content.label || "Invoice #"}</span>
@@ -111,11 +115,13 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           </div>
         </div>
       );
+    }
 
-    case "invoice-date":
+    case "invoice-date": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
         <div className="h-full flex items-start px-3 py-2">
-          <div className="w-full space-y-1.5">
+          <div className="w-full space-y-1.5" style={style}>
             <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
               <CalendarDays className="h-3 w-3" />
               <span className="text-[10px] uppercase tracking-wider font-medium">{content.label || "Date"}</span>
@@ -135,10 +141,12 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           </div>
         </div>
       );
+    }
 
-    case "client-details":
+    case "client-details": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
-        <div className="p-3 space-y-1 text-xs">
+        <div className="p-3 space-y-1" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
             <Users className="h-3 w-3" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Client</span>
@@ -149,11 +157,13 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           <p className="text-muted-foreground font-mono text-[10px]">{content.gst}</p>
         </div>
       );
+    }
 
     case "items-table": {
       const cols = content.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
+      const style = fontStyle(content, { fontSize: 11 });
       return (
-        <div className="p-3 text-xs">
+        <div className="p-3" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
             <Table className="h-3 w-3" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Items</span>
@@ -178,9 +188,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
       );
     }
 
-    case "total-summary":
+    case "total-summary": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
-        <div className="p-3 text-xs space-y-1.5">
+        <div className="p-3 space-y-1.5" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
             <Calculator className="h-3 w-3" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Summary</span>
@@ -196,18 +207,21 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           </div>
         </div>
       );
+    }
 
-    case "signature":
+    case "signature": {
+      const style = fontStyle(content, { fontSize: 10 });
       return (
         <div className="h-full flex flex-col items-center justify-end p-3">
           <div className="w-full border-t border-dashed border-muted-foreground/30 pt-2">
-            <div className="flex items-center gap-1.5 justify-center text-muted-foreground">
+            <div className="flex items-center gap-1.5 justify-center text-muted-foreground" style={style}>
               <PenTool className="h-3 w-3" />
               <span className="text-[10px]">{content.label || "Signature"}</span>
             </div>
           </div>
         </div>
       );
+    }
 
     case "divider":
       return (
@@ -218,9 +232,10 @@ export function BuilderElementRenderer({ element, selected }: Props) {
         </div>
       );
 
-    case "bank-details":
+    case "bank-details": {
+      const style = fontStyle(content, { fontSize: 12 });
       return (
-        <div className="p-3 space-y-1 text-xs">
+        <div className="p-3 space-y-1" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
             <Landmark className="h-3 w-3" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Bank Details</span>
@@ -232,6 +247,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
           {content.upiId && <p className="text-muted-foreground">UPI: {content.upiId}</p>}
         </div>
       );
+    }
 
     default:
       return <div className="p-2 text-xs text-muted-foreground">Unknown component</div>;
