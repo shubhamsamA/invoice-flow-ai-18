@@ -110,6 +110,8 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
       const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
       const ff = getFontFamily(c.fontFamily);
       const fs = c.fontSize || 12;
+      return (
+        <div className="p-3" style={{ fontSize: fs, fontFamily: ff }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
