@@ -390,13 +390,17 @@ export default function TemplatesPage() {
     // Check custom templates
     const custom = customTemplates.find((t: any) => t.id === templateId);
     if (custom) {
+      const lj = custom.layout_json as any;
+      const elems = Array.isArray(lj) ? lj : lj?.elements || [];
       const data = {
         id: crypto.randomUUID(),
         name: custom.name,
-        elements: custom.layout_json,
-        canvasWidth: custom.canvas_width,
-        canvasHeight: custom.canvas_height,
+        elements: elems,
+        canvasWidth: lj?.canvasWidth || custom.canvas_width,
+        canvasHeight: lj?.canvasHeight || custom.canvas_height,
         createdAt: new Date().toISOString(),
+        pageSize: lj?.pageSize || undefined,
+        pageLocked: lj?.pageLocked || false,
       };
       localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
       toast.success("Template loaded into builder");
