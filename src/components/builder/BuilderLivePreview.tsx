@@ -153,6 +153,7 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           </div>
         </div>
       );
+    }
     case "signature":
       return (
         <div className="h-full flex flex-col items-center justify-end p-3">
