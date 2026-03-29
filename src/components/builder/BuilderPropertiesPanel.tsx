@@ -7,13 +7,128 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
-import { cn } from "@/lib/utils";
 
 interface Props {
   element: BuilderElement | null;
   onUpdate: (updates: Partial<BuilderElement>) => void;
-  /** When true, skip the wrapper div sizing (used inside Sheet) */
   embedded?: boolean;
+}
+
+/** Reusable font style controls */
+function FontControls({
+  content,
+  updateContent,
+  showTextArea = false,
+  textKey = "text",
+  defaultFontSize = 14,
+}: {
+  content: Record<string, any>;
+  updateContent: (key: string, value: any) => void;
+  showTextArea?: boolean;
+  textKey?: string;
+  defaultFontSize?: number;
+}) {
+  return (
+    <>
+      {showTextArea && (
+        <div>
+          <Label className="text-[10px]">Text</Label>
+          <Textarea
+            className="text-xs min-h-[60px] mt-1"
+            value={content[textKey] || ""}
+            onChange={(e) => updateContent(textKey, e.target.value)}
+          />
+        </div>
+      )}
+      <div>
+        <Label className="text-[10px]">Font Family</Label>
+        <Select value={content.fontFamily || "sans"} onValueChange={(v) => updateContent("fontFamily", v)}>
+          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="sans">Sans (Inter)</SelectItem>
+            <SelectItem value="serif">Serif (Merriweather)</SelectItem>
+            <SelectItem value="mono">Mono (JetBrains)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-[10px]">Font Size ({content.fontSize || defaultFontSize}px)</Label>
+        <Slider className="mt-1" min={8} max={72} step={1} value={[content.fontSize || defaultFontSize]} onValueChange={([v]) => updateContent("fontSize", v)} />
+      </div>
+      <div>
+        <Label className="text-[10px]">Font Weight</Label>
+        <Select value={String(content.fontWeight || (content.bold ? 700 : 400))} onValueChange={(v) => { updateContent("fontWeight", Number(v)); updateContent("bold", Number(v) >= 600); }}>
+          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="300">Light</SelectItem>
+            <SelectItem value="400">Regular</SelectItem>
+            <SelectItem value="500">Medium</SelectItem>
+            <SelectItem value="600">Semibold</SelectItem>
+            <SelectItem value="700">Bold</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-[10px]">Style</Label>
+        <div className="flex gap-1 mt-1">
+          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.bold || (content.fontWeight || 0) >= 600} onPressedChange={(v) => { updateContent("bold", v); updateContent("fontWeight", v ? 700 : 400); }}>
+            <Bold className="h-3 w-3" />
+          </Toggle>
+          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.italic} onPressedChange={(v) => updateContent("italic", v)}>
+            <Italic className="h-3 w-3" />
+          </Toggle>
+          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.underline} onPressedChange={(v) => updateContent("underline", v)}>
+            <Underline className="h-3 w-3" />
+          </Toggle>
+        </div>
+      </div>
+      <div>
+        <Label className="text-[10px]">Alignment</Label>
+        <div className="flex gap-1 mt-1">
+          {([["left", AlignLeft], ["center", AlignCenter], ["right", AlignRight], ["justify", AlignJustify]] as const).map(([align, Icon]) => (
+            <Toggle key={align} size="sm" className="h-7 w-7 p-0" pressed={(content.textAlign || "left") === align} onPressedChange={(pressed) => { if (pressed) updateContent("textAlign", align); }}>
+              <Icon className="h-3 w-3" />
+            </Toggle>
+          ))}
+        </div>
+      </div>
+      <div>
+        <Label className="text-[10px]">Color</Label>
+        <div className="flex items-center gap-2 mt-1">
+          <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
+          <Input className="h-7 text-xs flex-1" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
+        </div>
+      </div>
+      <div>
+        <Label className="text-[10px]">Line Height ({content.lineHeight || 1.4})</Label>
+        <Slider className="mt-1" min={0.8} max={3} step={0.1} value={[content.lineHeight || 1.4]} onValueChange={([v]) => updateContent("lineHeight", v)} />
+      </div>
+      <div>
+        <Label className="text-[10px]">Letter Spacing ({content.letterSpacing || 0}px)</Label>
+        <Slider className="mt-1" min={-2} max={10} step={0.5} value={[content.letterSpacing || 0]} onValueChange={([v]) => updateContent("letterSpacing", v)} />
+      </div>
+      <div>
+        <Label className="text-[10px]">Transform</Label>
+        <Select value={content.textTransform || "none"} onValueChange={(v) => updateContent("textTransform", v)}>
+          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="uppercase">UPPERCASE</SelectItem>
+            <SelectItem value="lowercase">lowercase</SelectItem>
+            <SelectItem value="capitalize">Capitalize</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="text-[10px]">Background</Label>
+        <div className="flex items-center gap-2 mt-1">
+          <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={content.backgroundColor || "#ffffff"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+          <Input className="h-7 text-xs flex-1" value={content.backgroundColor || "transparent"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+          <button className="text-[9px] text-muted-foreground hover:text-foreground" onClick={() => updateContent("backgroundColor", "transparent")}>Clear</button>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
@@ -54,114 +169,23 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
         </div>
       </div>
 
-      {/* Text-based elements */}
+      {/* Text / Note — full font controls with textarea */}
       {(element.type === "text" || element.type === "note") && (
+        <FontControls content={element.content} updateContent={updateContent} showTextArea defaultFontSize={element.type === "note" ? 12 : 14} />
+      )}
+
+      {/* Signature */}
+      {element.type === "signature" && (
         <>
           <div>
-            <Label className="text-[10px]">Text</Label>
-            <Textarea
-              className="text-xs min-h-[60px] mt-1"
-              value={element.content.text || ""}
-              onChange={(e) => updateContent("text", e.target.value)}
-            />
+            <Label className="text-[10px]">Label</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
           </div>
-          <div>
-            <Label className="text-[10px]">Font Family</Label>
-            <Select value={element.content.fontFamily || "sans"} onValueChange={(v) => updateContent("fontFamily", v)}>
-              <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sans">Sans (Inter)</SelectItem>
-                <SelectItem value="serif">Serif (Merriweather)</SelectItem>
-                <SelectItem value="mono">Mono (JetBrains)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-[10px]">Font Size ({element.content.fontSize || 14}px)</Label>
-            <Slider className="mt-1" min={8} max={72} step={1} value={[element.content.fontSize || 14]} onValueChange={([v]) => updateContent("fontSize", v)} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Font Weight</Label>
-            <Select value={String(element.content.fontWeight || (element.content.bold ? 700 : 400))} onValueChange={(v) => { updateContent("fontWeight", Number(v)); updateContent("bold", Number(v) >= 600); }}>
-              <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="300">Light</SelectItem>
-                <SelectItem value="400">Regular</SelectItem>
-                <SelectItem value="500">Medium</SelectItem>
-                <SelectItem value="600">Semibold</SelectItem>
-                <SelectItem value="700">Bold</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-[10px]">Style</Label>
-            <div className="flex gap-1 mt-1">
-              <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.bold || (element.content.fontWeight || 0) >= 600} onPressedChange={(v) => { updateContent("bold", v); updateContent("fontWeight", v ? 700 : 400); }}>
-                <Bold className="h-3 w-3" />
-              </Toggle>
-              <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.italic} onPressedChange={(v) => updateContent("italic", v)}>
-                <Italic className="h-3 w-3" />
-              </Toggle>
-              <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!element.content.underline} onPressedChange={(v) => updateContent("underline", v)}>
-                <Underline className="h-3 w-3" />
-              </Toggle>
-            </div>
-          </div>
-          <div>
-            <Label className="text-[10px]">Alignment</Label>
-            <div className="flex gap-1 mt-1">
-              {([["left", AlignLeft], ["center", AlignCenter], ["right", AlignRight], ["justify", AlignJustify]] as const).map(([align, Icon]) => (
-                <Toggle key={align} size="sm" className="h-7 w-7 p-0" pressed={(element.content.textAlign || "left") === align} onPressedChange={(pressed) => { if (pressed) updateContent("textAlign", align); }}>
-                  <Icon className="h-3 w-3" />
-                </Toggle>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label className="text-[10px]">Color</Label>
-            <div className="flex items-center gap-2 mt-1">
-              <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={element.content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
-              <Input className="h-7 text-xs flex-1" value={element.content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <Label className="text-[10px]">Line Height ({element.content.lineHeight || 1.4})</Label>
-            <Slider className="mt-1" min={0.8} max={3} step={0.1} value={[element.content.lineHeight || 1.4]} onValueChange={([v]) => updateContent("lineHeight", v)} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Letter Spacing ({element.content.letterSpacing || 0}px)</Label>
-            <Slider className="mt-1" min={-2} max={10} step={0.5} value={[element.content.letterSpacing || 0]} onValueChange={([v]) => updateContent("letterSpacing", v)} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Transform</Label>
-            <Select value={element.content.textTransform || "none"} onValueChange={(v) => updateContent("textTransform", v)}>
-              <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="uppercase">UPPERCASE</SelectItem>
-                <SelectItem value="lowercase">lowercase</SelectItem>
-                <SelectItem value="capitalize">Capitalize</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-[10px]">Background</Label>
-            <div className="flex items-center gap-2 mt-1">
-              <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={element.content.backgroundColor || "#ffffff"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
-              <Input className="h-7 text-xs flex-1" value={element.content.backgroundColor || "transparent"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
-              <button className="text-[9px] text-muted-foreground hover:text-foreground" onClick={() => updateContent("backgroundColor", "transparent")}>Clear</button>
-            </div>
-          </div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={10} />
         </>
       )}
 
-      {element.type === "signature" && (
-        <div>
-          <Label className="text-[10px]">Label</Label>
-          <Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
-        </div>
-      )}
-
+      {/* Divider */}
       {element.type === "divider" && (
         <>
           <div>
@@ -194,6 +218,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
         </>
       )}
 
+      {/* Items Table */}
       {element.type === "items-table" && (
         <>
           <Label className="text-[10px] font-semibold">Column Headers</Label>
@@ -213,9 +238,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
             <Label className="text-[10px]">Total</Label>
             <Input className="h-7 text-xs mt-1" value={element.content.columns?.total || "Total"} onChange={(e) => updateContent("columns", { ...element.content.columns, total: e.target.value })} />
           </div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}
 
+      {/* Business Details */}
       {element.type === "business-details" && (
         <>
           <div><Label className="text-[10px]">Business Name</Label><Input className="h-7 text-xs mt-1" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
@@ -223,18 +250,22 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           <div><Label className="text-[10px]">Phone</Label><Input className="h-7 text-xs mt-1" value={element.content.phone || ""} onChange={(e) => updateContent("phone", e.target.value)} /></div>
           <div><Label className="text-[10px]">Address</Label><Input className="h-7 text-xs mt-1" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
           <div><Label className="text-[10px]">GST Number</Label><Input className="h-7 text-xs mt-1" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}
 
+      {/* Client Details */}
       {element.type === "client-details" && (
         <>
           <div><Label className="text-[10px]">Name</Label><Input className="h-7 text-xs mt-1" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
           <div><Label className="text-[10px]">Email</Label><Input className="h-7 text-xs mt-1" value={element.content.email || ""} onChange={(e) => updateContent("email", e.target.value)} /></div>
           <div><Label className="text-[10px]">Address</Label><Input className="h-7 text-xs mt-1" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
           <div><Label className="text-[10px]">GST</Label><Input className="h-7 text-xs mt-1" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}
 
+      {/* Bank Details */}
       {element.type === "bank-details" && (
         <>
           <div><Label className="text-[10px]">Account Name</Label><Input className="h-7 text-xs mt-1" value={element.content.accountName || ""} onChange={(e) => updateContent("accountName", e.target.value)} /></div>
@@ -243,9 +274,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           <div><Label className="text-[10px]">Bank Name</Label><Input className="h-7 text-xs mt-1" value={element.content.bankName || ""} onChange={(e) => updateContent("bankName", e.target.value)} /></div>
           <div><Label className="text-[10px]">Branch</Label><Input className="h-7 text-xs mt-1" value={element.content.branch || ""} onChange={(e) => updateContent("branch", e.target.value)} /></div>
           <div><Label className="text-[10px]">UPI ID</Label><Input className="h-7 text-xs mt-1" placeholder="name@upi" value={element.content.upiId || ""} onChange={(e) => updateContent("upiId", e.target.value)} /></div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}
 
+      {/* Logo / Stamp */}
       {(element.type === "logo" || element.type === "stamp") && (
         <div>
           <Label className="text-[10px]">Image URL</Label>
@@ -254,6 +287,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
         </div>
       )}
 
+      {/* Invoice Number */}
       {element.type === "invoice-number" && (
         <>
           <div><Label className="text-[10px]">Label</Label><Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
@@ -262,9 +296,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
             <Input className="h-7 text-xs mt-1" value={element.content.value || ""} onChange={(e) => updateContent("value", e.target.value)} />
             <p className="text-[10px] text-muted-foreground mt-1">Use {"{{invoice_number}}"} for auto-fill</p>
           </div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={14} />
         </>
       )}
 
+      {/* Invoice Date */}
       {element.type === "invoice-date" && (
         <>
           <div><Label className="text-[10px]">Label</Label><Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
@@ -276,7 +312,13 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
             <Label className="text-[10px]">Show Due Date</Label>
             <Switch checked={element.content.showDue !== false} onCheckedChange={(v) => updateContent("showDue", v)} />
           </div>
+          <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
+      )}
+
+      {/* Total Summary */}
+      {element.type === "total-summary" && (
+        <FontControls content={element.content} updateContent={updateContent} defaultFontSize={13} />
       )}
     </div>
   );
