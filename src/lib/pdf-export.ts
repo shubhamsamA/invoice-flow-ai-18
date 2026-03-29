@@ -35,6 +35,12 @@ interface FullInvoiceData {
   logo_url?: string;
   stamp_url?: string;
   signature_url?: string;
+  bank_account_name?: string;
+  bank_account_number?: string;
+  bank_ifsc?: string;
+  bank_name?: string;
+  bank_branch?: string;
+  bank_upi_id?: string;
   layout_json?: any;
 }
 
