@@ -838,10 +838,12 @@ export default function CreateInvoicePage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
-                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-                </div>
+                {gstAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">GST (per-item)</span>
+                    <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                  </div>
+                )}
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
