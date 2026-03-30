@@ -267,7 +267,6 @@ export default function CreateInvoicePage() {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
-  const [gstRate, setGstRate] = useState(18);
   const [discount, setDiscount] = useState(0);
   const [clientId, setClientId] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
