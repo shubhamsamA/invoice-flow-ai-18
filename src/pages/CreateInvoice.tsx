@@ -707,7 +707,7 @@ export default function CreateInvoicePage() {
 
             <div className="space-y-3">
               <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-                <div className="col-span-3">Description</div>
+                <div className="col-span-2">Description</div>
                 <div className="col-span-2">Qty</div>
                 <div className="col-span-2">Price</div>
                 <div className="col-span-2">GST Type</div>
@@ -721,13 +721,13 @@ export default function CreateInvoicePage() {
                 return (
                   <motion.div
                     key={item.id}
-                    className="grid grid-cols-12 gap-2 items-center"
+                    className="grid grid-cols-12 gap-1 items-center"
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05, duration: 0.3 }}
                   >
                     <Input
-                      className="col-span-3"
+                      className="col-span-2"
                       placeholder="Item name"
                       value={item.name}
                       onChange={(e) => updateItem(item.id, "name", e.target.value)}
