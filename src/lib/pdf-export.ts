@@ -528,6 +528,7 @@ export function generateInvoicePreviewHTML(data: FullInvoiceData): string {
       <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #1e3a5f;margin-top:4px;"><span>Total</span><span>${fmt(Number(data.total), data.currency)}</span></div>
     </div>
     ${data.notes ? `<div style="margin-top:24px;padding:12px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#555;"><div style="font-weight:600;margin-bottom:4px;font-size:11px;text-transform:uppercase;color:#888;">Notes</div>${data.notes}</div>` : ""}
+    ${bankDetailsSection(data)}
     ${footerHtml}
   </div>`;
 }
