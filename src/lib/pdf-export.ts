@@ -229,6 +229,8 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
 
   ${data.notes ? `<div class="notes"><div class="notes-label">Notes</div>${data.notes}</div>` : ""}
 
+  ${bankDetailsSection(data)}
+
   ${footerSection(data)}
   <script>window.onload = function() { window.print(); }</script>
 </body></html>`;
