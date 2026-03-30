@@ -342,14 +342,16 @@ export default function CreateInvoicePage() {
     try {
       const aiData = JSON.parse(aiDataStr);
       if (aiData.items && aiData.items.length > 0) {
+        const aiGst = typeof aiData.gst === "number" ? aiData.gst : 0;
         setItems(aiData.items.map((item: any) => ({
           id: crypto.randomUUID(),
           name: item.name || "",
           quantity: item.qty || 1,
           price: item.price || 0,
+          gst_type: aiGst > 0 ? "cgst_sgst" : "none",
+          gst_rate: aiGst,
         })));
       }
-      if (typeof aiData.gst === "number") setGstRate(aiData.gst);
       if (typeof aiData.discount === "number") setDiscount(aiData.discount);
       // Try to match client by name
       if (aiData.client && clients.length > 0) {
