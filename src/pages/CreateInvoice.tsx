@@ -278,7 +278,12 @@ export default function CreateInvoicePage() {
   const [showPreview, setShowPreview] = useState(false);
   const [aiApplied, setAiApplied] = useState(false);
   const [bankDetails, setBankDetails] = useState({
-    account_name: "", account_number: "", ifsc: "", bank_name: "", branch: "", upi_id: "",
+    account_name: "",
+    account_number: "",
+    ifsc: "",
+    bank_name: "",
+    branch: "",
+    upi_id: "",
   });
   const [bankSynced, setBankSynced] = useState(false);
 
@@ -343,14 +348,16 @@ export default function CreateInvoicePage() {
       const aiData = JSON.parse(aiDataStr);
       if (aiData.items && aiData.items.length > 0) {
         const aiGst = typeof aiData.gst === "number" ? aiData.gst : 0;
-        setItems(aiData.items.map((item: any) => ({
-          id: crypto.randomUUID(),
-          name: item.name || "",
-          quantity: item.qty || 1,
-          price: item.price || 0,
-          gst_type: aiGst > 0 ? "cgst_sgst" : "none",
-          gst_rate: aiGst,
-        })));
+        setItems(
+          aiData.items.map((item: any) => ({
+            id: crypto.randomUUID(),
+            name: item.name || "",
+            quantity: item.qty || 1,
+            price: item.price || 0,
+            gst_type: aiGst > 0 ? "cgst_sgst" : "none",
+            gst_rate: aiGst,
+          })),
+        );
       }
       if (typeof aiData.discount === "number") setDiscount(aiData.discount);
       // Try to match client by name
@@ -499,12 +506,14 @@ export default function CreateInvoicePage() {
       client_name: selectedClient?.name || "",
       client_email: "",
       client_address: "",
-      items: items.filter(i => i.name.trim()).map(i => ({
-        name: i.name,
-        quantity: i.quantity,
-        unit_price: i.price,
-        amount: i.quantity * i.price,
-      })),
+      items: items
+        .filter((i) => i.name.trim())
+        .map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          unit_price: i.price,
+          amount: i.quantity * i.price,
+        })),
       layout_json: layoutJson,
       bank_account_name: bankDetails.account_name,
       bank_account_number: bankDetails.account_number,
@@ -514,7 +523,22 @@ export default function CreateInvoicePage() {
       bank_upi_id: bankDetails.upi_id,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, bankDetails]);
+  }, [
+    nextNumber,
+    issueDate,
+    dueDate,
+    subtotal,
+    discountAmount,
+    gstRate,
+    gstAmount,
+    total,
+    notes,
+    items,
+    selectedTemplate,
+    clientId,
+    clients,
+    bankDetails,
+  ]);
 
   return (
     <div className={showPreview ? "max-w-7xl mx-auto space-y-6" : "max-w-4xl mx-auto space-y-6"}>
@@ -709,7 +733,7 @@ export default function CreateInvoicePage() {
                       onChange={(e) => updateItem(item.id, "name", e.target.value)}
                     />
                     <Input
-                      className="col-span-1 tabular-nums"
+                      className="col-span-2 tabular-nums"
                       type="number"
                       min={1}
                       value={item.quantity}
@@ -725,20 +749,26 @@ export default function CreateInvoicePage() {
                     <Select
                       value={item.gst_type}
                       onValueChange={(v) => {
-                        setItems(items.map(i => i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : (i.gst_rate || 18) } : i));
+                        setItems(
+                          items.map((i) =>
+                            i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : i.gst_rate || 18 } : i,
+                          ),
+                        );
                       }}
                     >
                       <SelectTrigger className="col-span-2 text-xs h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {GST_TYPES.map(g => (
-                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                        {GST_TYPES.map((g) => (
+                          <SelectItem key={g.value} value={g.value}>
+                            {g.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <Input
-                      className="col-span-1 tabular-nums"
+                      className="col-span-2 tabular-nums"
                       type="number"
                       min={0}
                       value={item.gst_rate}
@@ -768,11 +798,7 @@ export default function CreateInvoicePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">Effective GST</Label>
-                <Input
-                  value={`${gstRate.toFixed(1)}% (per-item)`}
-                  readOnly
-                  className="tabular-nums bg-muted/50"
-                />
+                <Input value={`${gstRate.toFixed(1)}% (per-item)`} readOnly className="tabular-nums bg-muted/50" />
                 <p className="text-[10px] text-muted-foreground">Set GST type per item in Line Items above</p>
               </div>
               <div className="space-y-1.5">
@@ -793,37 +819,66 @@ export default function CreateInvoicePage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
               />
-           </div>
-           </div>
+            </div>
+          </div>
 
           {/* Bank Details */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <h2 className="text-sm font-semibold">Bank Details</h2>
-            <p className="text-xs text-muted-foreground">Pre-filled from your saved bank details. You can override per invoice.</p>
+            <p className="text-xs text-muted-foreground">
+              Pre-filled from your saved bank details. You can override per invoice.
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">Account Name</Label>
-                <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} placeholder="Account holder name" />
+                <Input
+                  value={bankDetails.account_name}
+                  onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })}
+                  placeholder="Account holder name"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Account Number</Label>
-                <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} placeholder="1234567890" className="font-mono text-xs" />
+                <Input
+                  value={bankDetails.account_number}
+                  onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })}
+                  placeholder="1234567890"
+                  className="font-mono text-xs"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">IFSC Code</Label>
-                <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} placeholder="SBIN0001234" className="font-mono text-xs" />
+                <Input
+                  value={bankDetails.ifsc}
+                  onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })}
+                  placeholder="SBIN0001234"
+                  className="font-mono text-xs"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Bank Name</Label>
-                <Input value={bankDetails.bank_name} onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })} placeholder="State Bank of India" />
+                <Input
+                  value={bankDetails.bank_name}
+                  onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })}
+                  placeholder="State Bank of India"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Branch</Label>
-                <Input value={bankDetails.branch} onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })} placeholder="Main Branch" />
+                <Input
+                  value={bankDetails.branch}
+                  onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })}
+                  placeholder="Main Branch"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">UPI ID</Label>
-                <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} placeholder="yourname@upi" className="font-mono text-xs" />
+                <Input
+                  value={bankDetails.upi_id}
+                  onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })}
+                  placeholder="yourname@upi"
+                  className="font-mono text-xs"
+                />
               </div>
             </div>
           </div>
@@ -847,7 +902,9 @@ export default function CreateInvoicePage() {
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">
+                      -{formatCurrency(discountAmount)}
+                    </span>
                   </div>
                 )}
                 <div className="border-t pt-2.5 flex justify-between">
@@ -889,7 +946,9 @@ export default function CreateInvoicePage() {
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">
+                      -{formatCurrency(discountAmount)}
+                    </span>
                   </div>
                 )}
                 <div className="border-t pt-2.5 flex justify-between">
