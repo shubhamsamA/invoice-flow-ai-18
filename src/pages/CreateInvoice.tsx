@@ -20,13 +20,24 @@ interface InvoiceItem {
   name: string;
   quantity: number;
   price: number;
+  gst_type: string;
+  gst_rate: number;
 }
+
+const GST_TYPES = [
+  { value: "none", label: "No GST" },
+  { value: "cgst_sgst", label: "CGST + SGST" },
+  { value: "igst", label: "IGST" },
+  { value: "utgst", label: "CGST + UTGST" },
+];
 
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
   quantity: 1,
   price: 0,
+  gst_type: "none",
+  gst_rate: 0,
 });
 
 /** Builtin template layouts */
