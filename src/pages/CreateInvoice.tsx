@@ -708,10 +708,10 @@ export default function CreateInvoicePage() {
             <div className="space-y-3">
               <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
                 <div className="col-span-3">Description</div>
-                <div className="col-span-1">Qty</div>
+                <div className="col-span-2">Qty</div>
                 <div className="col-span-2">Price</div>
                 <div className="col-span-2">GST Type</div>
-                <div className="col-span-1">Rate%</div>
+                <div className="col-span-2">Rate%</div>
                 <div className="col-span-2 text-right">Total</div>
                 <div className="col-span-1"></div>
               </div>
