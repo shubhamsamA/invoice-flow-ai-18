@@ -682,54 +682,84 @@ export default function CreateInvoicePage() {
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-12 gap-3 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-                <div className="col-span-5">Description</div>
-                <div className="col-span-2">Qty</div>
-                <div className="col-span-3">Price</div>
-                <div className="col-span-1 text-right">Total</div>
+              <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
+                <div className="col-span-3">Description</div>
+                <div className="col-span-1">Qty</div>
+                <div className="col-span-2">Price</div>
+                <div className="col-span-2">GST Type</div>
+                <div className="col-span-1">Rate%</div>
+                <div className="col-span-2 text-right">Total</div>
                 <div className="col-span-1"></div>
               </div>
 
-              {items.map((item, idx) => (
-                <motion.div
-                  key={item.id}
-                  className="grid grid-cols-12 gap-3 items-center"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.3 }}
-                >
-                  <Input
-                    className="col-span-5"
-                    placeholder="Item name"
-                    value={item.name}
-                    onChange={(e) => updateItem(item.id, "name", e.target.value)}
-                  />
-                  <Input
-                    className="col-span-2 tabular-nums"
-                    type="number"
-                    min={1}
-                    value={item.quantity}
-                    onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                  />
-                  <Input
-                    className="col-span-3 tabular-nums"
-                    type="number"
-                    min={0}
-                    value={item.price}
-                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                  />
-                  <p className="col-span-1 text-right text-sm font-medium tabular-nums">
-                    {formatCurrency(item.quantity * item.price)}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeItem(item.id)}
-                    disabled={items.length === 1}
+              {items.map((item, idx) => {
+                const itemGst = item.gst_type !== "none" ? (item.quantity * item.price * item.gst_rate) / 100 : 0;
+                return (
+                  <motion.div
+                    key={item.id}
+                    className="grid grid-cols-12 gap-2 items-center"
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3 }}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                    <Input
+                      className="col-span-3"
+                      placeholder="Item name"
+                      value={item.name}
+                      onChange={(e) => updateItem(item.id, "name", e.target.value)}
+                    />
+                    <Input
+                      className="col-span-1 tabular-nums"
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
+                    />
+                    <Input
+                      className="col-span-2 tabular-nums"
+                      type="number"
+                      min={0}
+                      value={item.price}
+                      onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                    />
+                    <Select
+                      value={item.gst_type}
+                      onValueChange={(v) => {
+                        setItems(items.map(i => i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : (i.gst_rate || 18) } : i));
+                      }}
+                    >
+                      <SelectTrigger className="col-span-2 text-xs h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GST_TYPES.map(g => (
+                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="col-span-1 tabular-nums"
+                      type="number"
+                      min={0}
+                      value={item.gst_rate}
+                      onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
+                      disabled={item.gst_type === "none"}
+                    />
+                    <p className="col-span-2 text-right text-sm font-medium tabular-nums">
+                      {formatCurrency(item.quantity * item.price + itemGst)}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeItem(item.id)}
+                      disabled={items.length === 1}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </motion.div>
+                );
+              })}
                 </motion.div>
               ))}
             </div>
