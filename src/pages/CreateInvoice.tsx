@@ -759,7 +759,7 @@ export default function CreateInvoicePage() {
                     </Button>
                   </motion.div>
                 );
-            </div>
+              })}
             </div>
           </div>
 
