@@ -45,6 +45,7 @@ const App = () => (
               <Route path="/dashboard" element={<Index />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/new" element={<CreateInvoice />} />
+              <Route path="/invoices/bulk-upload" element={<BulkUpload />} />
               <Route path="/invoices/:id" element={<InvoicePreview />} />
               <Route path="/invoices/:id/edit" element={<EditInvoice />} />
               <Route path="/invoices/builder" element={<InvoiceBuilder />} />
