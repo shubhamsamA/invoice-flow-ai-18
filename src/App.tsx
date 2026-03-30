@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import BulkUpload from "./pages/BulkUpload";
 import EditInvoice from "./pages/EditInvoice";
 import InvoicePreview from "./pages/InvoicePreview";
 import Clients from "./pages/Clients";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/dashboard" element={<Index />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/new" element={<CreateInvoice />} />
+              <Route path="/invoices/bulk-upload" element={<BulkUpload />} />
               <Route path="/invoices/:id" element={<InvoicePreview />} />
               <Route path="/invoices/:id/edit" element={<EditInvoice />} />
               <Route path="/invoices/builder" element={<InvoiceBuilder />} />

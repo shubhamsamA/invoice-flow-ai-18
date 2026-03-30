@@ -20,13 +20,24 @@ interface InvoiceItem {
   name: string;
   quantity: number;
   price: number;
+  gst_type: string;
+  gst_rate: number;
 }
+
+const GST_TYPES = [
+  { value: "none", label: "No GST" },
+  { value: "cgst_sgst", label: "CGST + SGST" },
+  { value: "igst", label: "IGST" },
+  { value: "utgst", label: "CGST + UTGST" },
+];
 
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
   quantity: 1,
   price: 0,
+  gst_type: "none",
+  gst_rate: 0,
 });
 
 /** Builtin template layouts */
@@ -256,7 +267,6 @@ export default function CreateInvoicePage() {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
-  const [gstRate, setGstRate] = useState(18);
   const [discount, setDiscount] = useState(0);
   const [clientId, setClientId] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
@@ -332,14 +342,16 @@ export default function CreateInvoicePage() {
     try {
       const aiData = JSON.parse(aiDataStr);
       if (aiData.items && aiData.items.length > 0) {
+        const aiGst = typeof aiData.gst === "number" ? aiData.gst : 0;
         setItems(aiData.items.map((item: any) => ({
           id: crypto.randomUUID(),
           name: item.name || "",
           quantity: item.qty || 1,
           price: item.price || 0,
+          gst_type: aiGst > 0 ? "cgst_sgst" : "none",
+          gst_rate: aiGst,
         })));
       }
-      if (typeof aiData.gst === "number") setGstRate(aiData.gst);
       if (typeof aiData.discount === "number") setDiscount(aiData.discount);
       // Try to match client by name
       if (aiData.client && clients.length > 0) {
@@ -396,7 +408,11 @@ export default function CreateInvoicePage() {
   };
 
   const subtotal = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
-  const gstAmount = (subtotal * gstRate) / 100;
+  const gstAmount = items.reduce((sum, i) => {
+    if (i.gst_type === "none") return sum;
+    return sum + (i.quantity * i.price * i.gst_rate) / 100;
+  }, 0);
+  const gstRate = subtotal > 0 ? (gstAmount / subtotal) * 100 : 0;
   const discountAmount = (subtotal * discount) / 100;
   const total = subtotal + gstAmount - discountAmount;
 
@@ -666,56 +682,84 @@ export default function CreateInvoicePage() {
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-12 gap-3 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-                <div className="col-span-5">Description</div>
-                <div className="col-span-2">Qty</div>
-                <div className="col-span-3">Price</div>
-                <div className="col-span-1 text-right">Total</div>
+              <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
+                <div className="col-span-3">Description</div>
+                <div className="col-span-1">Qty</div>
+                <div className="col-span-2">Price</div>
+                <div className="col-span-2">GST Type</div>
+                <div className="col-span-1">Rate%</div>
+                <div className="col-span-2 text-right">Total</div>
                 <div className="col-span-1"></div>
               </div>
 
-              {items.map((item, idx) => (
-                <motion.div
-                  key={item.id}
-                  className="grid grid-cols-12 gap-3 items-center"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.3 }}
-                >
-                  <Input
-                    className="col-span-5"
-                    placeholder="Item name"
-                    value={item.name}
-                    onChange={(e) => updateItem(item.id, "name", e.target.value)}
-                  />
-                  <Input
-                    className="col-span-2 tabular-nums"
-                    type="number"
-                    min={1}
-                    value={item.quantity}
-                    onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                  />
-                  <Input
-                    className="col-span-3 tabular-nums"
-                    type="number"
-                    min={0}
-                    value={item.price}
-                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                  />
-                  <p className="col-span-1 text-right text-sm font-medium tabular-nums">
-                    {formatCurrency(item.quantity * item.price)}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeItem(item.id)}
-                    disabled={items.length === 1}
+              {items.map((item, idx) => {
+                const itemGst = item.gst_type !== "none" ? (item.quantity * item.price * item.gst_rate) / 100 : 0;
+                return (
+                  <motion.div
+                    key={item.id}
+                    className="grid grid-cols-12 gap-2 items-center"
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3 }}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </motion.div>
-              ))}
+                    <Input
+                      className="col-span-3"
+                      placeholder="Item name"
+                      value={item.name}
+                      onChange={(e) => updateItem(item.id, "name", e.target.value)}
+                    />
+                    <Input
+                      className="col-span-1 tabular-nums"
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
+                    />
+                    <Input
+                      className="col-span-2 tabular-nums"
+                      type="number"
+                      min={0}
+                      value={item.price}
+                      onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                    />
+                    <Select
+                      value={item.gst_type}
+                      onValueChange={(v) => {
+                        setItems(items.map(i => i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : (i.gst_rate || 18) } : i));
+                      }}
+                    >
+                      <SelectTrigger className="col-span-2 text-xs h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GST_TYPES.map(g => (
+                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="col-span-1 tabular-nums"
+                      type="number"
+                      min={0}
+                      value={item.gst_rate}
+                      onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
+                      disabled={item.gst_type === "none"}
+                    />
+                    <p className="col-span-2 text-right text-sm font-medium tabular-nums">
+                      {formatCurrency(item.quantity * item.price + itemGst)}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeItem(item.id)}
+                      disabled={items.length === 1}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
 
@@ -723,13 +767,13 @@ export default function CreateInvoicePage() {
             <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs">GST Rate (%)</Label>
+                <Label className="text-xs">Effective GST</Label>
                 <Input
-                  type="number"
-                  value={gstRate}
-                  onChange={(e) => setGstRate(parseFloat(e.target.value) || 0)}
-                  className="tabular-nums"
+                  value={`${gstRate.toFixed(1)}% (per-item)`}
+                  readOnly
+                  className="tabular-nums bg-muted/50"
                 />
+                <p className="text-[10px] text-muted-foreground">Set GST type per item in Line Items above</p>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Discount (%)</Label>
@@ -794,10 +838,12 @@ export default function CreateInvoicePage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
-                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-                </div>
+                {gstAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">GST (per-item)</span>
+                    <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                  </div>
+                )}
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
@@ -834,10 +880,12 @@ export default function CreateInvoicePage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">GST ({gstRate}%)</span>
-                  <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-                </div>
+                {gstAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">GST (per-item)</span>
+                    <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
+                  </div>
+                )}
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>

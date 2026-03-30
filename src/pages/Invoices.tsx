@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, MoreHorizontal, FileText, Download, Trash2, Loader2, Eye, Edit } from "lucide-react";
+import { Plus, Search, MoreHorizontal, FileText, Download, Trash2, Loader2, Eye, Edit, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -93,15 +93,23 @@ export default function InvoicesPage() {
           <h1 className="text-2xl font-semibold">Invoices</h1>
           <p className="text-sm text-muted-foreground mt-1">{invoices.length} total invoices</p>
         </div>
-        <Button
-          asChild
-          className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
-        >
-          <Link to="/invoices/new">
-            <Plus className="h-4 w-4" />
-            New Invoice
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild className="gap-2 text-sm">
+            <Link to="/invoices/bulk-upload">
+              <Upload className="h-4 w-4" />
+              Bulk Upload
+            </Link>
+          </Button>
+          <Button
+            asChild
+            className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+          >
+            <Link to="/invoices/new">
+              <Plus className="h-4 w-4" />
+              New Invoice
+            </Link>
+          </Button>
+        </div>
       </motion.div>
 
       <motion.div

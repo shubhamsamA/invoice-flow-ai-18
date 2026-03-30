@@ -197,12 +197,12 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
         </div>
       );
     case "bank-details": {
-      const accName = c.accountName || data.bank_account_name || "";
-      const accNum = c.accountNumber || data.bank_account_number || "";
-      const ifsc = c.ifsc || data.bank_ifsc || "";
-      const bName = c.bankName || data.bank_name || "";
-      const branch = c.branch || data.bank_branch || "";
-      const upi = c.upiId || data.bank_upi_id || "";
+      const accName = data.bank_account_name || c.accountName || "";
+      const accNum = data.bank_account_number || c.accountNumber || "";
+      const ifsc = data.bank_ifsc || c.ifsc || "";
+      const bName = data.bank_name || c.bankName || "";
+      const branch = data.bank_branch || c.branch || "";
+      const upi = data.bank_upi_id || c.upiId || "";
       return (
         <div className="p-3 space-y-1" style={{ fontSize: c.fontSize || 12, fontFamily: getFontFamily(c.fontFamily) }}>
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8899a6", marginBottom: 4, fontWeight: 600 }}>Bank Details</div>
