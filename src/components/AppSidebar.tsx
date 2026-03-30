@@ -28,7 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const mainNav = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Create Clients", url: "/clients", icon: Users },
   { title: "Builder", url: "/invoices/builder", icon: PenTool },

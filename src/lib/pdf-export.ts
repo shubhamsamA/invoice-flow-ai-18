@@ -115,6 +115,25 @@ const footerSection = (data: FullInvoiceData) => {
   return `<div class="footer">${parts.join("")}</div>`;
 };
 
+const bankDetailsSection = (data: FullInvoiceData) => {
+  const accName = data.bank_account_name;
+  const accNum = data.bank_account_number;
+  const ifsc = data.bank_ifsc;
+  const bName = data.bank_name;
+  const branch = data.bank_branch;
+  const upi = data.bank_upi_id;
+  if (!accName && !accNum && !ifsc && !bName && !upi) return "";
+  return `
+    <div style="margin-top:28px;padding:16px;background:#f8f9fa;border-radius:8px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8899a6;margin-bottom:8px;font-weight:600;">Bank Details</div>
+      ${accName ? `<div style="font-size:13px;font-weight:500;margin-bottom:2px;">A/C Name: ${accName}</div>` : ""}
+      ${accNum ? `<div style="font-size:11px;font-family:monospace;margin-bottom:2px;">A/C No: ${accNum}</div>` : ""}
+      ${ifsc ? `<div style="font-size:12px;color:#666;margin-bottom:2px;">IFSC: ${ifsc}</div>` : ""}
+      ${bName ? `<div style="font-size:12px;color:#666;margin-bottom:2px;">${bName}${branch ? ` — ${branch}` : ""}</div>` : ""}
+      ${upi ? `<div style="font-size:12px;color:#666;">UPI: ${upi}</div>` : ""}
+    </div>`;
+};
+
 const fromSection = (data: FullInvoiceData) => {
   if (!data.business_name && !data.business_email && !data.business_address) return "";
   return `
@@ -228,6 +247,8 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   </div>
 
   ${data.notes ? `<div class="notes"><div class="notes-label">Notes</div>${data.notes}</div>` : ""}
+
+  ${bankDetailsSection(data)}
 
   ${footerSection(data)}
   <script>window.onload = function() { window.print(); }</script>
@@ -528,6 +549,7 @@ export function generateInvoicePreviewHTML(data: FullInvoiceData): string {
       <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #1e3a5f;margin-top:4px;"><span>Total</span><span>${fmt(Number(data.total), data.currency)}</span></div>
     </div>
     ${data.notes ? `<div style="margin-top:24px;padding:12px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#555;"><div style="font-weight:600;margin-bottom:4px;font-size:11px;text-transform:uppercase;color:#888;">Notes</div>${data.notes}</div>` : ""}
+    ${bankDetailsSection(data)}
     ${footerHtml}
   </div>`;
 }
