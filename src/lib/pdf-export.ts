@@ -407,12 +407,12 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       return `<div style="${style}">${dateHtml}</div>`;
     }
     case "bank-details": {
-      const accName = c.accountName || data.bank_account_name || "";
-      const accNum = c.accountNumber || data.bank_account_number || "";
-      const ifsc = c.ifsc || data.bank_ifsc || "";
-      const bName = c.bankName || data.bank_name || "";
-      const branch = c.branch || data.bank_branch || "";
-      const upi = c.upiId || data.bank_upi_id || "";
+      const accName = data.bank_account_name || c.accountName || "";
+      const accNum = data.bank_account_number || c.accountNumber || "";
+      const ifsc = data.bank_ifsc || c.ifsc || "";
+      const bName = data.bank_name || c.bankName || "";
+      const branch = data.bank_branch || c.branch || "";
+      const upi = data.bank_upi_id || c.upiId || "";
       const ff = `font-family:${fontFamily};`;
       const fs = c.fontSize ? `font-size:${c.fontSize}px;` : "";
       return `<div style="${style}${ff}${fs}">
