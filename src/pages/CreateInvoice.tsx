@@ -739,13 +739,13 @@ export default function CreateInvoicePage() {
             <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs">GST Rate (%)</Label>
+                <Label className="text-xs">Effective GST</Label>
                 <Input
-                  type="number"
-                  value={gstRate}
-                  onChange={(e) => setGstRate(parseFloat(e.target.value) || 0)}
-                  className="tabular-nums"
+                  value={`${gstRate.toFixed(1)}% (per-item)`}
+                  readOnly
+                  className="tabular-nums bg-muted/50"
                 />
+                <p className="text-[10px] text-muted-foreground">Set GST type per item in Line Items above</p>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Discount (%)</Label>
