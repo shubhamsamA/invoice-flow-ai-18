@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import BulkUpload from "./pages/BulkUpload";
 import EditInvoice from "./pages/EditInvoice";
 import InvoicePreview from "./pages/InvoicePreview";
 import Clients from "./pages/Clients";
