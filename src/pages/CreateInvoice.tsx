@@ -406,7 +406,11 @@ export default function CreateInvoicePage() {
   };
 
   const subtotal = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
-  const gstAmount = (subtotal * gstRate) / 100;
+  const gstAmount = items.reduce((sum, i) => {
+    if (i.gst_type === "none") return sum;
+    return sum + (i.quantity * i.price * i.gst_rate) / 100;
+  }, 0);
+  const gstRate = subtotal > 0 ? (gstAmount / subtotal) * 100 : 0;
   const discountAmount = (subtotal * discount) / 100;
   const total = subtotal + gstAmount - discountAmount;
 
