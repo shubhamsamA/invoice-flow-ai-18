@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +19,7 @@ import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 interface InvoiceItem {
   id: string;
   name: string;
+  description: string;
   quantity: number;
   price: number;
   gst_type: string;
@@ -28,17 +30,37 @@ const GST_TYPES = [
   { value: "none", label: "No GST" },
   { value: "cgst_sgst", label: "CGST + SGST" },
   { value: "igst", label: "IGST" },
-  { value: "utgst", label: "CGST + UTGST" },
+  { value: "cgst_utgst", label: "CGST + UTGST" },
 ];
 
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
+  description: "",
   quantity: 1,
   price: 0,
   gst_type: "none",
   gst_rate: 0,
 });
+
+/** Compute GST breakdown for an item */
+function computeItemGST(item: InvoiceItem) {
+  const base = item.quantity * item.price;
+  if (item.gst_type === "none" || item.gst_rate <= 0) {
+    return { cgst: 0, sgst: 0, igst: 0, utgst: 0, total: 0 };
+  }
+  const tax = (base * item.gst_rate) / 100;
+  if (item.gst_type === "cgst_sgst") {
+    return { cgst: tax / 2, sgst: tax / 2, igst: 0, utgst: 0, total: tax };
+  }
+  if (item.gst_type === "igst") {
+    return { cgst: 0, sgst: 0, igst: tax, utgst: 0, total: tax };
+  }
+  if (item.gst_type === "cgst_utgst") {
+    return { cgst: tax / 2, sgst: 0, igst: 0, utgst: tax / 2, total: tax };
+  }
+  return { cgst: 0, sgst: 0, igst: 0, utgst: 0, total: 0 };
+}
 
 /** Builtin template layouts */
 const builtinTemplateOptions: { id: string; name: string; elements: BuilderElement[] }[] = [
@@ -46,111 +68,24 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
     id: "minimal",
     name: "Minimal",
     elements: [
-      {
-        id: crypto.randomUUID(),
-        type: "text",
-        x: 32,
-        y: 32,
-        width: 320,
-        height: 48,
-        content: { text: "INVOICE", fontSize: 24, bold: true },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "client-details",
-        x: 32,
-        y: 96,
-        ...DEFAULT_SIZES["client-details"],
-        content: DEFAULT_CONTENT["client-details"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "divider",
-        x: 32,
-        y: 256,
-        ...DEFAULT_SIZES["divider"],
-        content: DEFAULT_CONTENT["divider"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "items-table",
-        x: 32,
-        y: 288,
-        ...DEFAULT_SIZES["items-table"],
-        content: DEFAULT_CONTENT["items-table"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "total-summary",
-        x: 320,
-        y: 528,
-        ...DEFAULT_SIZES["total-summary"],
-        content: DEFAULT_CONTENT["total-summary"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "signature",
-        x: 32,
-        y: 736,
-        ...DEFAULT_SIZES["signature"],
-        content: DEFAULT_CONTENT["signature"],
-      },
+      { id: crypto.randomUUID(), type: "text", x: 32, y: 32, width: 320, height: 48, content: { text: "INVOICE", fontSize: 24, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 96, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "divider", x: 32, y: 256, ...DEFAULT_SIZES["divider"], content: DEFAULT_CONTENT["divider"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 528, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 736, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
     ],
   },
   {
     id: "corporate",
     name: "Corporate",
     elements: [
-      {
-        id: crypto.randomUUID(),
-        type: "logo",
-        x: 32,
-        y: 32,
-        ...DEFAULT_SIZES["logo"],
-        content: DEFAULT_CONTENT["logo"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "text",
-        x: 208,
-        y: 48,
-        width: 400,
-        height: 48,
-        content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "client-details",
-        x: 32,
-        y: 128,
-        ...DEFAULT_SIZES["client-details"],
-        content: DEFAULT_CONTENT["client-details"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "items-table",
-        x: 32,
-        y: 288,
-        width: 576,
-        height: 256,
-        content: DEFAULT_CONTENT["items-table"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "total-summary",
-        x: 320,
-        y: 560,
-        ...DEFAULT_SIZES["total-summary"],
-        content: DEFAULT_CONTENT["total-summary"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "signature",
-        x: 32,
-        y: 768,
-        ...DEFAULT_SIZES["signature"],
-        content: DEFAULT_CONTENT["signature"],
-      },
+      { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
+      { id: crypto.randomUUID(), type: "text", x: 208, y: 48, width: 400, height: 48, content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 128, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 288, width: 576, height: 256, content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 560, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
     ],
   },
   {
@@ -158,105 +93,24 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
     name: "Modern Freelance",
     elements: [
       { id: crypto.randomUUID(), type: "divider", x: 32, y: 16, width: 576, height: 16, content: { style: "solid" } },
-      {
-        id: crypto.randomUUID(),
-        type: "logo",
-        x: 32,
-        y: 48,
-        ...DEFAULT_SIZES["logo"],
-        content: DEFAULT_CONTENT["logo"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "text",
-        x: 32,
-        y: 144,
-        width: 400,
-        height: 48,
-        content: { text: "Invoice", fontSize: 28, bold: true },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "client-details",
-        x: 32,
-        y: 208,
-        ...DEFAULT_SIZES["client-details"],
-        content: DEFAULT_CONTENT["client-details"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "items-table",
-        x: 32,
-        y: 368,
-        ...DEFAULT_SIZES["items-table"],
-        content: DEFAULT_CONTENT["items-table"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "total-summary",
-        x: 320,
-        y: 608,
-        ...DEFAULT_SIZES["total-summary"],
-        content: DEFAULT_CONTENT["total-summary"],
-      },
+      { id: crypto.randomUUID(), type: "logo", x: 32, y: 48, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
+      { id: crypto.randomUUID(), type: "text", x: 32, y: 144, width: 400, height: 48, content: { text: "Invoice", fontSize: 28, bold: true } },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 208, ...DEFAULT_SIZES["client-details"], content: DEFAULT_CONTENT["client-details"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 368, ...DEFAULT_SIZES["items-table"], content: DEFAULT_CONTENT["items-table"] },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 608, ...DEFAULT_SIZES["total-summary"], content: DEFAULT_CONTENT["total-summary"] },
     ],
   },
   {
     id: "gst",
     name: "Indian GST",
     elements: [
-      {
-        id: crypto.randomUUID(),
-        type: "text",
-        x: 160,
-        y: 32,
-        width: 320,
-        height: 48,
-        content: { text: "TAX INVOICE", fontSize: 22, bold: true },
-      },
+      { id: crypto.randomUUID(), type: "text", x: 160, y: 32, width: 320, height: 48, content: { text: "TAX INVOICE", fontSize: 22, bold: true } },
       { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, width: 112, height: 64, content: DEFAULT_CONTENT["logo"] },
-      {
-        id: crypto.randomUUID(),
-        type: "client-details",
-        x: 32,
-        y: 112,
-        ...DEFAULT_SIZES["client-details"],
-        content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "divider",
-        x: 32,
-        y: 272,
-        width: 576,
-        height: 16,
-        content: DEFAULT_CONTENT["divider"],
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "items-table",
-        x: 32,
-        y: 304,
-        width: 576,
-        height: 256,
-        content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "total-summary",
-        x: 320,
-        y: 576,
-        ...DEFAULT_SIZES["total-summary"],
-        content: { subtotal: 10000, gst: 18, discount: 0 },
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "signature",
-        x: 32,
-        y: 768,
-        ...DEFAULT_SIZES["signature"],
-        content: DEFAULT_CONTENT["signature"],
-      },
+      { id: crypto.randomUUID(), type: "client-details", x: 32, y: 112, ...DEFAULT_SIZES["client-details"], content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" } },
+      { id: crypto.randomUUID(), type: "divider", x: 32, y: 272, width: 576, height: 16, content: DEFAULT_CONTENT["divider"] },
+      { id: crypto.randomUUID(), type: "items-table", x: 32, y: 304, width: 576, height: 256, content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] } },
+      { id: crypto.randomUUID(), type: "total-summary", x: 320, y: 576, ...DEFAULT_SIZES["total-summary"], content: { subtotal: 10000, gst: 18, discount: 0 } },
+      { id: crypto.randomUUID(), type: "signature", x: 32, y: 768, ...DEFAULT_SIZES["signature"], content: DEFAULT_CONTENT["signature"] },
     ],
   },
 ];
@@ -286,6 +140,20 @@ export default function CreateInvoicePage() {
     upi_id: "",
   });
   const [bankSynced, setBankSynced] = useState(false);
+  // Overall GST toggle
+  const [overallGstEnabled, setOverallGstEnabled] = useState(false);
+  const [overallGstRate, setOverallGstRate] = useState(18);
+  // Custom table columns
+  const [tableColumns, setTableColumns] = useState([
+    { key: "name", label: "Description" },
+    { key: "quantity", label: "Qty" },
+    { key: "price", label: "Price" },
+    { key: "gst_type", label: "GST Type" },
+    { key: "gst_rate", label: "Rate%" },
+    { key: "total", label: "Total" },
+  ]);
+  const [showTableSettings, setShowTableSettings] = useState(false);
+  const [customColumns, setCustomColumns] = useState<{ key: string; label: string }[]>([]);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
@@ -352,6 +220,7 @@ export default function CreateInvoicePage() {
           aiData.items.map((item: any) => ({
             id: crypto.randomUUID(),
             name: item.name || "",
+            description: "",
             quantity: item.qty || 1,
             price: item.price || 0,
             gst_type: aiGst > 0 ? "cgst_sgst" : "none",
@@ -360,14 +229,13 @@ export default function CreateInvoicePage() {
         );
       }
       if (typeof aiData.discount === "number") setDiscount(aiData.discount);
-      // Try to match client by name
       if (aiData.client && clients.length > 0) {
         const match = clients.find((c: any) => c.name.toLowerCase().includes(aiData.client.toLowerCase()));
         if (match) setClientId(match.id);
       }
       setAiApplied(true);
     } catch {
-      // ignore parse errors
+      // ignore
     }
   }, [searchParams, clients, aiApplied]);
 
@@ -389,7 +257,6 @@ export default function CreateInvoicePage() {
     enabled: !!user,
   });
 
-  /** Get layout_json for the selected template */
   const getSelectedLayoutJson = (): any[] | null => {
     if (!selectedTemplate) return null;
     const builtin = builtinTemplateOptions.find((t) => t.id === selectedTemplate);
@@ -414,11 +281,33 @@ export default function CreateInvoicePage() {
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
+  // Compute GST breakdown
+  const gstBreakdown = useMemo(() => {
+    let totalCgst = 0, totalSgst = 0, totalIgst = 0, totalUtgst = 0, totalGst = 0;
+
+    if (overallGstEnabled) {
+      // Overall GST applied uniformly
+      const sub = items.reduce((s, i) => s + i.quantity * i.price, 0);
+      const tax = (sub * overallGstRate) / 100;
+      totalCgst = tax / 2;
+      totalSgst = tax / 2;
+      totalGst = tax;
+    } else {
+      items.forEach((item) => {
+        const g = computeItemGST(item);
+        totalCgst += g.cgst;
+        totalSgst += g.sgst;
+        totalIgst += g.igst;
+        totalUtgst += g.utgst;
+        totalGst += g.total;
+      });
+    }
+
+    return { cgst: totalCgst, sgst: totalSgst, igst: totalIgst, utgst: totalUtgst, total: totalGst };
+  }, [items, overallGstEnabled, overallGstRate]);
+
   const subtotal = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
-  const gstAmount = items.reduce((sum, i) => {
-    if (i.gst_type === "none") return sum;
-    return sum + (i.quantity * i.price * i.gst_rate) / 100;
-  }, 0);
+  const gstAmount = gstBreakdown.total;
   const gstRate = subtotal > 0 ? (gstAmount / subtotal) * 100 : 0;
   const discountAmount = (subtotal * discount) / 100;
   const total = subtotal + gstAmount - discountAmount;
@@ -459,6 +348,7 @@ export default function CreateInvoicePage() {
         .map((item, idx) => ({
           invoice_id: invoice.id,
           name: item.name,
+          description: item.description || null,
           quantity: item.quantity,
           unit_price: item.price,
           amount: item.quantity * item.price,
@@ -487,7 +377,7 @@ export default function CreateInvoicePage() {
     ...customTemplates.map((t: any) => ({ id: t.id, name: t.name, isCustom: true })),
   ];
 
-  // Build live preview data from current form state
+  // Build live preview data
   const selectedClient = clients.find((c: any) => c.id === clientId);
   const previewHTML = useMemo(() => {
     const layoutJson = getSelectedLayoutJson();
@@ -510,6 +400,7 @@ export default function CreateInvoicePage() {
         .filter((i) => i.name.trim())
         .map((i) => ({
           name: i.name,
+          description: i.description,
           quantity: i.quantity,
           unit_price: i.price,
           amount: i.quantity * i.price,
@@ -523,22 +414,79 @@ export default function CreateInvoicePage() {
       bank_upi_id: bankDetails.upi_id,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [
-    nextNumber,
-    issueDate,
-    dueDate,
-    subtotal,
-    discountAmount,
-    gstRate,
-    gstAmount,
-    total,
-    notes,
-    items,
-    selectedTemplate,
-    clientId,
-    clients,
-    bankDetails,
-  ]);
+  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, bankDetails]);
+
+  // GST summary component
+  const GstSummary = () => (
+    <div className="space-y-1.5">
+      {gstBreakdown.cgst > 0 && (
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">CGST</span>
+          <span className="tabular-nums">+{formatCurrency(gstBreakdown.cgst)}</span>
+        </div>
+      )}
+      {gstBreakdown.sgst > 0 && (
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">SGST</span>
+          <span className="tabular-nums">+{formatCurrency(gstBreakdown.sgst)}</span>
+        </div>
+      )}
+      {gstBreakdown.igst > 0 && (
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">IGST</span>
+          <span className="tabular-nums">+{formatCurrency(gstBreakdown.igst)}</span>
+        </div>
+      )}
+      {gstBreakdown.utgst > 0 && (
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">UTGST</span>
+          <span className="tabular-nums">+{formatCurrency(gstBreakdown.utgst)}</span>
+        </div>
+      )}
+      {gstAmount > 0 && (
+        <div className="flex justify-between text-xs font-medium border-t border-dashed pt-1">
+          <span className="text-muted-foreground">Total GST</span>
+          <span className="tabular-nums">+{formatCurrency(gstAmount)}</span>
+        </div>
+      )}
+    </div>
+  );
+
+  // Per-item GST detail
+  const ItemGstDetail = () => {
+    const taxedItems = items.filter((i) => i.name.trim() && i.gst_type !== "none" && i.gst_rate > 0);
+    if (taxedItems.length === 0) return null;
+    return (
+      <div className="space-y-1">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Per-Item Tax Detail</p>
+        {taxedItems.map((item) => {
+          const g = computeItemGST(item);
+          return (
+            <div key={item.id} className="text-xs pl-2 border-l-2 border-muted py-0.5">
+              <span className="font-medium">{item.name}</span>
+              <span className="text-muted-foreground ml-1">
+                ({GST_TYPES.find((t) => t.value === item.gst_type)?.label} @ {item.gst_rate}%)
+              </span>
+              <div className="flex gap-3 text-muted-foreground">
+                {g.cgst > 0 && <span>CGST: {formatCurrency(g.cgst)}</span>}
+                {g.sgst > 0 && <span>SGST: {formatCurrency(g.sgst)}</span>}
+                {g.igst > 0 && <span>IGST: {formatCurrency(g.igst)}</span>}
+                {g.utgst > 0 && <span>UTGST: {formatCurrency(g.utgst)}</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const addCustomColumn = () => {
+    const key = `custom_${Date.now()}`;
+    setCustomColumns([...customColumns, { key, label: "Custom" }]);
+  };
+  const removeCustomColumn = (key: string) => {
+    setCustomColumns(customColumns.filter((c) => c.key !== key));
+  };
 
   return (
     <div className={showPreview ? "max-w-7xl mx-auto space-y-6" : "max-w-4xl mx-auto space-y-6"}>
@@ -585,13 +533,8 @@ export default function CreateInvoicePage() {
                   </p>
                   <div className="space-y-2 mt-3 max-h-[400px] overflow-y-auto">
                     <button
-                      className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
-                        !selectedTemplate ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"
-                      }`}
-                      onClick={() => {
-                        setSelectedTemplate(null);
-                        setTemplateDialogOpen(false);
-                      }}
+                      className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${!selectedTemplate ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
+                      onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium">No Template (Default)</span>
@@ -599,25 +542,14 @@ export default function CreateInvoicePage() {
                       </div>
                       <span className="text-xs text-muted-foreground">Standard invoice without custom layout</span>
                     </button>
-
                     {builtinTemplateOptions.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">
-                        Prebuilt
-                      </p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Prebuilt</p>
                     )}
                     {builtinTemplateOptions.map((t) => (
                       <button
                         key={t.id}
-                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
-                          selectedTemplate === t.id
-                            ? "ring-2 ring-primary bg-primary/5 border-primary"
-                            : "hover:bg-muted/50"
-                        }`}
-                        onClick={() => {
-                          setSelectedTemplate(t.id);
-                          setTemplateDialogOpen(false);
-                          toast.success(`Template "${t.name}" selected`);
-                        }}
+                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
+                        onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); toast.success(`Template "${t.name}" selected`); }}
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{t.name}</span>
@@ -626,25 +558,14 @@ export default function CreateInvoicePage() {
                         <span className="text-xs text-muted-foreground">{t.elements.length} elements</span>
                       </button>
                     ))}
-
                     {customTemplates.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">
-                        Your Templates
-                      </p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Your Templates</p>
                     )}
                     {customTemplates.map((t: any) => (
                       <button
                         key={t.id}
-                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${
-                          selectedTemplate === t.id
-                            ? "ring-2 ring-primary bg-primary/5 border-primary"
-                            : "hover:bg-muted/50"
-                        }`}
-                        onClick={() => {
-                          setSelectedTemplate(t.id);
-                          setTemplateDialogOpen(false);
-                          toast.success(`Template "${t.name}" selected`);
-                        }}
+                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
+                        onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); toast.success(`Template "${t.name}" selected`); }}
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{t.name}</span>
@@ -664,20 +585,17 @@ export default function CreateInvoicePage() {
             )}
           </div>
 
+          {/* Invoice Details */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <h2 className="text-sm font-semibold">Invoice Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">Client</Label>
                 <Select value={clientId} onValueChange={setClientId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select client" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger>
                   <SelectContent>
                     {clients.map((c: any) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -697,91 +615,147 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
+          {/* Line Items */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold">Line Items</h2>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addItem}>
-                <Plus className="h-3.5 w-3.5" /> Add Item
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowTableSettings(!showTableSettings)}>
+                  {showTableSettings ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  Table Settings
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addItem}>
+                  <Plus className="h-3.5 w-3.5" /> Add Row
+                </Button>
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-                <div className="col-span-2">Description</div>
-                <div className="col-span-2">Qty</div>
-                <div className="col-span-2">Price</div>
-                <div className="col-span-2">GST Type</div>
-                <div className="col-span-2">Rate%</div>
-                <div className="col-span-2 text-right">Total</div>
-                <div className="col-span-1"></div>
+            {/* Table Settings - Custom Columns */}
+            {showTableSettings && (
+              <div className="bg-muted/30 rounded-lg p-4 space-y-3 border border-dashed">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium">Custom Columns</p>
+                  <Button variant="outline" size="sm" className="text-xs gap-1" onClick={addCustomColumn}>
+                    <Plus className="h-3 w-3" /> Add Column
+                  </Button>
+                </div>
+                {customColumns.length === 0 && (
+                  <p className="text-xs text-muted-foreground">No custom columns added. Click "Add Column" to extend the table.</p>
+                )}
+                {customColumns.map((col) => (
+                  <div key={col.key} className="flex items-center gap-2">
+                    <Input
+                      className="h-8 text-xs flex-1"
+                      value={col.label}
+                      onChange={(e) =>
+                        setCustomColumns(customColumns.map((c) => c.key === col.key ? { ...c, label: e.target.value } : c))
+                      }
+                      placeholder="Column name"
+                    />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeCustomColumn(col.key)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-3 overflow-x-auto">
+              {/* Header */}
+              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1"
+                style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}
+              >
+                <div>Description</div>
+                <div>Qty</div>
+                <div>Price</div>
+                <div>GST Type</div>
+                <div>Rate%</div>
+                {customColumns.map((col) => <div key={col.key}>{col.label}</div>)}
+                <div className="text-right">Total</div>
+                <div></div>
               </div>
 
               {items.map((item, idx) => {
-                const itemGst = item.gst_type !== "none" ? (item.quantity * item.price * item.gst_rate) / 100 : 0;
+                const itemGst = overallGstEnabled
+                  ? (item.quantity * item.price * overallGstRate) / 100
+                  : computeItemGST(item).total;
+                const g = computeItemGST(item);
                 return (
                   <motion.div
                     key={item.id}
-                    className="grid grid-cols-12 gap-1 items-center"
+                    className="grid gap-1 items-center"
+                    style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05, duration: 0.3 }}
+                    transition={{ delay: idx * 0.03, duration: 0.3 }}
                   >
                     <Input
-                      className="col-span-2"
                       placeholder="Item name"
                       value={item.name}
                       onChange={(e) => updateItem(item.id, "name", e.target.value)}
                     />
                     <Input
-                      className="col-span-2 tabular-nums"
+                      className="tabular-nums"
                       type="number"
                       min={1}
                       value={item.quantity}
                       onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
                     />
                     <Input
-                      className="col-span-2 tabular-nums"
+                      className="tabular-nums"
                       type="number"
                       min={0}
                       value={item.price}
                       onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
                     />
                     <Select
-                      value={item.gst_type}
+                      value={overallGstEnabled ? "overall" : item.gst_type}
                       onValueChange={(v) => {
-                        setItems(
-                          items.map((i) =>
-                            i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : i.gst_rate || 18 } : i,
-                          ),
-                        );
+                        if (!overallGstEnabled) {
+                          setItems(items.map((i) =>
+                            i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : i.gst_rate || 18 } : i
+                          ));
+                        }
                       }}
+                      disabled={overallGstEnabled}
                     >
-                      <SelectTrigger className="col-span-2 text-xs h-9">
-                        <SelectValue />
+                      <SelectTrigger className="text-xs h-9">
+                        <SelectValue>{overallGstEnabled ? "Overall" : GST_TYPES.find((t) => t.value === item.gst_type)?.label}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {GST_TYPES.map((g) => (
-                          <SelectItem key={g.value} value={g.value}>
-                            {g.label}
-                          </SelectItem>
+                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <Input
-                      className="col-span-2 tabular-nums"
+                      className="tabular-nums"
                       type="number"
                       min={0}
-                      value={item.gst_rate}
-                      onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
-                      disabled={item.gst_type === "none"}
+                      value={overallGstEnabled ? overallGstRate : item.gst_rate}
+                      onChange={(e) => {
+                        if (!overallGstEnabled) updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0);
+                      }}
+                      disabled={overallGstEnabled || item.gst_type === "none"}
                     />
-                    <p className="col-span-2 text-right text-sm font-medium tabular-nums">
-                      {formatCurrency(item.quantity * item.price + itemGst)}
-                    </p>
+                    {customColumns.map((col) => (
+                      <Input key={col.key} className="text-xs" placeholder={col.label} />
+                    ))}
+                    <div className="text-right">
+                      <p className="text-sm font-medium tabular-nums">{formatCurrency(item.quantity * item.price + itemGst)}</p>
+                      {!overallGstEnabled && item.gst_type !== "none" && item.gst_rate > 0 && (
+                        <p className="text-[10px] text-muted-foreground">
+                          {g.cgst > 0 && `C:${formatCurrency(g.cgst)} `}
+                          {g.sgst > 0 && `S:${formatCurrency(g.sgst)} `}
+                          {g.igst > 0 && `I:${formatCurrency(g.igst)} `}
+                          {g.utgst > 0 && `U:${formatCurrency(g.utgst)}`}
+                        </p>
+                      )}
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="col-span-1 h-8 w-8 text-muted-foreground hover:text-destructive"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       onClick={() => removeItem(item.id)}
                       disabled={items.length === 1}
                     >
@@ -793,14 +767,34 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
+          {/* Tax, Discount & Notes */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Effective GST</Label>
-                <Input value={`${gstRate.toFixed(1)}% (per-item)`} readOnly className="tabular-nums bg-muted/50" />
-                <p className="text-[10px] text-muted-foreground">Set GST type per item in Line Items above</p>
+
+            {/* Overall GST Toggle */}
+            <div className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-3 border border-dashed">
+              <div>
+                <p className="text-xs font-medium">Overall GST</p>
+                <p className="text-[10px] text-muted-foreground">Apply a single GST rate to entire invoice (overrides per-item)</p>
               </div>
+              <div className="flex items-center gap-3">
+                {overallGstEnabled && (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      className="w-16 h-8 text-xs tabular-nums"
+                      value={overallGstRate}
+                      onChange={(e) => setOverallGstRate(parseFloat(e.target.value) || 0)}
+                      min={0}
+                    />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
+                )}
+                <Switch checked={overallGstEnabled} onCheckedChange={setOverallGstEnabled} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">Discount (%)</Label>
                 <Input
@@ -814,7 +808,7 @@ export default function CreateInvoicePage() {
             <div className="space-y-1.5">
               <Label className="text-xs">Notes</Label>
               <Textarea
-                placeholder="Payment terms, thank you message, bank details..."
+                placeholder="Payment terms, thank you message..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
@@ -825,65 +819,37 @@ export default function CreateInvoicePage() {
           {/* Bank Details */}
           <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
             <h2 className="text-sm font-semibold">Bank Details</h2>
-            <p className="text-xs text-muted-foreground">
-              Pre-filled from your saved bank details. You can override per invoice.
-            </p>
+            <p className="text-xs text-muted-foreground">Pre-filled from your saved bank details. You can override per invoice.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">Account Name</Label>
-                <Input
-                  value={bankDetails.account_name}
-                  onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })}
-                  placeholder="Account holder name"
-                />
+                <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} placeholder="Account holder name" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Account Number</Label>
-                <Input
-                  value={bankDetails.account_number}
-                  onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })}
-                  placeholder="1234567890"
-                  className="font-mono text-xs"
-                />
+                <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} placeholder="1234567890" className="font-mono text-xs" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">IFSC Code</Label>
-                <Input
-                  value={bankDetails.ifsc}
-                  onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })}
-                  placeholder="SBIN0001234"
-                  className="font-mono text-xs"
-                />
+                <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} placeholder="SBIN0001234" className="font-mono text-xs" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Bank Name</Label>
-                <Input
-                  value={bankDetails.bank_name}
-                  onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })}
-                  placeholder="State Bank of India"
-                />
+                <Input value={bankDetails.bank_name} onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })} placeholder="State Bank of India" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Branch</Label>
-                <Input
-                  value={bankDetails.branch}
-                  onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })}
-                  placeholder="Main Branch"
-                />
+                <Input value={bankDetails.branch} onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })} placeholder="Main Branch" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">UPI ID</Label>
-                <Input
-                  value={bankDetails.upi_id}
-                  onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })}
-                  placeholder="yourname@upi"
-                  className="font-mono text-xs"
-                />
+                <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} placeholder="yourname@upi" className="font-mono text-xs" />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Summary Panel */}
         {showPreview ? (
           <div className="space-y-4">
             <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
@@ -893,18 +859,12 @@ export default function CreateInvoicePage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-                {gstAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">GST (per-item)</span>
-                    <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-                  </div>
-                )}
+                <GstSummary />
+                {!overallGstEnabled && <ItemGstDetail />}
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">
-                      -{formatCurrency(discountAmount)}
-                    </span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
                 <div className="border-t pt-2.5 flex justify-between">
@@ -937,18 +897,12 @@ export default function CreateInvoicePage() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
                 </div>
-                {gstAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">GST (per-item)</span>
-                    <span className="font-medium tabular-nums">+{formatCurrency(gstAmount)}</span>
-                  </div>
-                )}
+                <GstSummary />
+                {!overallGstEnabled && <ItemGstDetail />}
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">
-                      -{formatCurrency(discountAmount)}
-                    </span>
+                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
                 <div className="border-t pt-2.5 flex justify-between">
