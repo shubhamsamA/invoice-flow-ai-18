@@ -1,11 +1,16 @@
 import { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+import { 
+  ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
+  Check, Eye, EyeOff, ChevronDown, ChevronUp, 
+  FileText, User, Calendar, CreditCard, Receipt, 
+  Settings2, Info, Sparkles
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
@@ -372,10 +378,7 @@ export default function CreateInvoicePage() {
     }
   };
 
-  const allTemplates = [
-    ...builtinTemplateOptions.map((t) => ({ id: t.id, name: t.name, isCustom: false })),
-    ...customTemplates.map((t: any) => ({ id: t.id, name: t.name, isCustom: true })),
-  ];
+
 
   // Build live preview data
   const selectedClient = clients.find((c: any) => c.id === clientId);
@@ -489,438 +492,601 @@ export default function CreateInvoicePage() {
   };
 
   return (
-    <div className={showPreview ? "max-w-7xl mx-auto space-y-6" : "max-w-4xl mx-auto space-y-6"}>
+    <div className={cn("max-w-7xl mx-auto pb-20", showPreview ? "" : "max-w-5xl")}>
+      {/* Header Section */}
       <motion.div
-        className="flex items-center gap-3"
-        initial={{ opacity: 0, y: 12 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5 }}
       >
-        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-          <Link to="/invoices">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-semibold">Create Invoice</h1>
-          <p className="text-sm text-muted-foreground">Fill in the details below</p>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="rounded-full h-10 w-10 border-border" asChild>
+            <Link to="/invoices">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">Create New Invoice</h1>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono">
+              <span className="bg-muted px-2 py-0.5 rounded uppercase">{nextNumber}</span>
+              <span>•</span>
+              <span>Draft Mode</span>
+            </div>
+          </div>
         </div>
-        <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setShowPreview(!showPreview)}>
-          {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-          {showPreview ? "Hide Preview" : "Live Preview"}
-        </Button>
+
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={cn(
+              "gap-2 font-medium transition-all duration-300",
+              showPreview ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90" : "bg-card border-border"
+            )}
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPreview ? "Hide Preview" : "Live Preview"}
+          </Button>
+          <Button 
+            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save Invoice
+          </Button>
+        </div>
       </motion.div>
 
-      <div className={showPreview ? "grid grid-cols-1 xl:grid-cols-2 gap-6" : "grid grid-cols-1 lg:grid-cols-3 gap-6"}>
-        <div className={showPreview ? "space-y-6" : "lg:col-span-2 space-y-6"}>
-          {/* Template Selection */}
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold">Template</h2>
-              <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                    <LayoutTemplate className="h-3.5 w-3.5" />
-                    {selectedTemplate ? "Change Template" : "Choose Template"}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Select a Template</DialogTitle>
-                  </DialogHeader>
-                  <p className="text-xs text-muted-foreground">
-                    The template layout will be saved with this invoice for PDF rendering.
-                  </p>
-                  <div className="space-y-2 mt-3 max-h-[400px] overflow-y-auto">
-                    <button
-                      className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${!selectedTemplate ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
-                      onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">No Template (Default)</span>
-                        {!selectedTemplate && <Check className="h-4 w-4 text-primary" />}
-                      </div>
-                      <span className="text-xs text-muted-foreground">Standard invoice without custom layout</span>
-                    </button>
-                    {builtinTemplateOptions.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Prebuilt</p>
-                    )}
-                    {builtinTemplateOptions.map((t) => (
-                      <button
-                        key={t.id}
-                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
-                        onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); toast.success(`Template "${t.name}" selected`); }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{t.name}</span>
-                          {selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}
-                        </div>
-                        <span className="text-xs text-muted-foreground">{t.elements.length} elements</span>
-                      </button>
-                    ))}
-                    {customTemplates.length > 0 && (
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Your Templates</p>
-                    )}
-                    {customTemplates.map((t: any) => (
-                      <button
-                        key={t.id}
-                        className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`}
-                        onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); toast.success(`Template "${t.name}" selected`); }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{t.name}</span>
-                          {selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}
-                        </div>
-                      </button>
-                    ))}
+      <div className={cn("grid gap-8", showPreview ? "grid-cols-1 xl:grid-cols-[1fr,400px]" : "grid-cols-1")}>
+        <div className="space-y-8">
+          {/* Main Configuration Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Client & Date Info */}
+            <motion.div 
+              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Client & Schedule</h2>
+              </div>
+              <div className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-foreground">Select Client</Label>
+                  <Select value={clientId} onValueChange={setClientId}>
+                    <SelectTrigger className="bg-muted/50 border-border focus:ring-primary">
+                      <SelectValue placeholder="Choose a client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-foreground">Issue Date</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
+                      <Input 
+                        type="date" 
+                        value={issueDate} 
+                        onChange={(e) => setIssueDate(e.target.value)} 
+                        className="pl-9 bg-muted/50 border-border"
+                      />
+                    </div>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-            {selectedTemplate && (
-              <div className="flex items-center gap-2 bg-primary/5 text-primary rounded-lg px-3 py-2 text-xs font-medium">
-                <LayoutTemplate className="h-3.5 w-3.5" />
-                Using: {getSelectedTemplateName()}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-foreground">Due Date</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
+                      <Input 
+                        type="date" 
+                        value={dueDate} 
+                        onChange={(e) => setDueDate(e.target.value)} 
+                        className="pl-9 bg-muted/50 border-border"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+            </motion.div>
+
+            {/* Template & Visuals */}
+            <motion.div 
+              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <LayoutTemplate className="h-4 w-4 text-primary" />
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Visual Template</h2>
+                </div>
+                {selectedTemplate && (
+                  <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-tight">
+                    Active
+                  </span>
+                )}
+              </div>
+              <div className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-foreground">Design Layout</Label>
+                  <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between bg-muted/50 border-border hover:bg-muted">
+                        <span className="flex items-center gap-2">
+                          <LayoutTemplate className="h-4 w-4 text-muted-foreground/70" />
+                          {selectedTemplate ? getSelectedTemplateName() : "Standard Default"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground/70" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold">Select Invoice Template</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-2 gap-4 mt-4 max-h-[60vh] overflow-y-auto p-1">
+                        <button
+                          className={cn(
+                            "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                            !selectedTemplate ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
+                          )}
+                          onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}
+                        >
+                          <div className="h-32 w-full bg-muted rounded-lg mb-3 flex items-center justify-center">
+                            <FileText className="h-8 w-8 text-muted-foreground/30" />
+                          </div>
+                          <span className="font-bold text-foreground">No Template</span>
+                          <span className="text-xs text-muted-foreground">Standard minimalist layout</span>
+                        </button>
+                        {builtinTemplateOptions.map((t) => (
+                          <button
+                            key={t.id}
+                            className={cn(
+                              "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                              selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
+                            )}
+                            onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}
+                          >
+                            <div className="h-32 w-full bg-muted/80 rounded-lg mb-3 flex items-center justify-center">
+                              <Sparkles className="h-8 w-8 text-primary/40" />
+                            </div>
+                            <span className="font-bold text-foreground">{t.name}</span>
+                            <span className="text-xs text-muted-foreground">{t.elements.length} components</span>
+                          </button>
+                        ))}
+
+                        {customTemplates.length > 0 && (
+                          <div className="col-span-2 mt-6 mb-2">
+                            <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Your Custom Templates</h3>
+                          </div>
+                        )}
+
+                        {customTemplates.map((t: any) => (
+                          <button
+                            key={t.id}
+                            className={cn(
+                              "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                              selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
+                            )}
+                            onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}
+                          >
+                            <div className="h-32 w-full bg-primary/5 rounded-lg mb-3 flex items-center justify-center">
+                              <LayoutTemplate className="h-8 w-8 text-primary/40" />
+                            </div>
+                            <span className="font-bold text-foreground">{t.name}</span>
+                            <span className="text-xs text-muted-foreground">Custom Layout</span>
+                          </button>
+                        ))}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 flex items-start gap-3">
+                  <Info className="h-4 w-4 text-primary mt-0.5" />
+                  <p className="text-[11px] text-primary/80 leading-relaxed">
+                    The selected template defines how your PDF will look. You can customize these in the <Link to="/templates" className="font-bold underline">Template Builder</Link>.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Invoice Details */}
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
-            <h2 className="text-sm font-semibold">Invoice Details</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Client</Label>
-                <Select value={clientId} onValueChange={setClientId}>
-                  <SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger>
-                  <SelectContent>
-                    {clients.map((c: any) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          {/* Line Items Table */}
+          <motion.div 
+            className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Receipt className="h-4 w-4 text-primary" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Line Items</h2>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Invoice Number</Label>
-                <Input value={nextNumber} readOnly className="bg-muted/50" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Issue Date</Label>
-                <Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Due Date</Label>
-                <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-              </div>
-            </div>
-          </div>
-
-          {/* Line Items */}
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold">Line Items</h2>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowTableSettings(!showTableSettings)}>
-                  {showTableSettings ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 hover:text-primary"
+                  onClick={() => setShowTableSettings(!showTableSettings)}
+                >
+                  <Settings2 className="h-3.5 w-3.5 mr-1.5" />
                   Table Settings
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addItem}>
-                  <Plus className="h-3.5 w-3.5" /> Add Row
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 text-xs font-bold"
+                  onClick={addItem}
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1.5" />
+                  Add Item
                 </Button>
               </div>
             </div>
 
-            {/* Table Settings - Custom Columns */}
-            {showTableSettings && (
-              <div className="bg-muted/30 rounded-lg p-4 space-y-3 border border-dashed">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium">Custom Columns</p>
-                  <Button variant="outline" size="sm" className="text-xs gap-1" onClick={addCustomColumn}>
-                    <Plus className="h-3 w-3" /> Add Column
-                  </Button>
-                </div>
-                {customColumns.length === 0 && (
-                  <p className="text-xs text-muted-foreground">No custom columns added. Click "Add Column" to extend the table.</p>
-                )}
-                {customColumns.map((col) => (
-                  <div key={col.key} className="flex items-center gap-2">
-                    <Input
-                      className="h-8 text-xs flex-1"
-                      value={col.label}
-                      onChange={(e) =>
-                        setCustomColumns(customColumns.map((c) => c.key === col.key ? { ...c, label: e.target.value } : c))
-                      }
-                      placeholder="Column name"
-                    />
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeCustomColumn(col.key)}>
-                      <Trash2 className="h-3 w-3" />
+            <AnimatePresence>
+              {showTableSettings && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="border-b border-border/50 bg-muted/20 p-6 overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-bold text-foreground uppercase tracking-tight">Custom Columns</h3>
+                    <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={addCustomColumn}>
+                      <Plus className="h-3 w-3 mr-1" /> New Column
                     </Button>
                   </div>
-                ))}
-              </div>
-            )}
-
-            <div className="space-y-3 overflow-x-auto">
-              {/* Header */}
-              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1"
-                style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}
-              >
-                <div>Description</div>
-                <div>Qty</div>
-                <div>Price</div>
-                <div>GST Type</div>
-                <div>Rate%</div>
-                {customColumns.map((col) => <div key={col.key}>{col.label}</div>)}
-                <div className="text-right">Total</div>
-                <div></div>
-              </div>
-
-              {items.map((item, idx) => {
-                const itemGst = overallGstEnabled
-                  ? (item.quantity * item.price * overallGstRate) / 100
-                  : computeItemGST(item).total;
-                const g = computeItemGST(item);
-                return (
-                  <motion.div
-                    key={item.id}
-                    className="grid gap-1 items-center"
-                    style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.03, duration: 0.3 }}
-                  >
-                    <Input
-                      placeholder="Item name"
-                      value={item.name}
-                      onChange={(e) => updateItem(item.id, "name", e.target.value)}
-                    />
-                    <Input
-                      className="tabular-nums"
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                    />
-                    <Input
-                      className="tabular-nums"
-                      type="number"
-                      min={0}
-                      value={item.price}
-                      onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                    />
-                    <Select
-                      value={overallGstEnabled ? "overall" : item.gst_type}
-                      onValueChange={(v) => {
-                        if (!overallGstEnabled) {
-                          setItems(items.map((i) =>
-                            i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : i.gst_rate || 18 } : i
-                          ));
-                        }
-                      }}
-                      disabled={overallGstEnabled}
-                    >
-                      <SelectTrigger className="text-xs h-9">
-                        <SelectValue>{overallGstEnabled ? "Overall" : GST_TYPES.find((t) => t.value === item.gst_type)?.label}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GST_TYPES.map((g) => (
-                          <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      className="tabular-nums"
-                      type="number"
-                      min={0}
-                      value={overallGstEnabled ? overallGstRate : item.gst_rate}
-                      onChange={(e) => {
-                        if (!overallGstEnabled) updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0);
-                      }}
-                      disabled={overallGstEnabled || item.gst_type === "none"}
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {customColumns.map((col) => (
-                      <Input key={col.key} className="text-xs" placeholder={col.label} />
+                      <div key={col.key} className="flex items-center gap-2 bg-background p-2 rounded-lg border border-border">
+                        <Input 
+                          className="h-7 text-xs border-none focus-visible:ring-0" 
+                          value={col.label}
+                          onChange={(e) => setCustomColumns(customColumns.map(c => c.key === col.key ? { ...c, label: e.target.value } : c))}
+                        />
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-destructive" onClick={() => removeCustomColumn(col.key)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     ))}
-                    <div className="text-right">
-                      <p className="text-sm font-medium tabular-nums">{formatCurrency(item.quantity * item.price + itemGst)}</p>
-                      {!overallGstEnabled && item.gst_type !== "none" && item.gst_rate > 0 && (
-                        <p className="text-[10px] text-muted-foreground">
-                          {g.cgst > 0 && `C:${formatCurrency(g.cgst)} `}
-                          {g.sgst > 0 && `S:${formatCurrency(g.sgst)} `}
-                          {g.igst > 0 && `I:${formatCurrency(g.igst)} `}
-                          {g.utgst > 0 && `U:${formatCurrency(g.utgst)}`}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => removeItem(item.id)}
-                      disabled={items.length === 1}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </motion.div>
-                );
-              })}
+                    {customColumns.length === 0 && (
+                      <p className="text-[11px] text-muted-foreground/60 italic">No custom columns added yet.</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted/30 border-b border-border/50">
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[35%]">Description</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Qty</th>
+                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Price</th>
+                    {!overallGstEnabled && (
+                      <>
+                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">GST Type</th>
+                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Rate%</th>
+                      </>
+                    )}
+                    {customColumns.map((col) => (
+                      <th key={col.key} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{col.label}</th>
+                    ))}
+                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Total</th>
+                    <th className="px-4 py-3 w-[50px]"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {items.map((item, idx) => {
+                    const itemGst = overallGstEnabled
+                      ? (item.quantity * item.price * overallGstRate) / 100
+                      : computeItemGST(item).total;
+                    const g = computeItemGST(item);
+                    return (
+                      <motion.tr 
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="group hover:bg-muted/20 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <Input 
+                            value={item.name} 
+                            onChange={(e) => updateItem(item.id, "name", e.target.value)}
+                            placeholder="Item name or service description"
+                            className="border-transparent bg-transparent hover:border-border focus:bg-background transition-all text-sm font-medium"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <Input 
+                            type="number" 
+                            value={item.quantity} 
+                            onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
+                            className="text-center font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background"
+                          />
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-xs">₹</span>
+                            <Input 
+                              type="number" 
+                              value={item.price} 
+                              onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                              className="text-right pl-6 font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background"
+                            />
+                          </div>
+                        </td>
+                        {!overallGstEnabled && (
+                          <>
+                            <td className="px-4 py-4">
+                              <Select 
+                                value={item.gst_type} 
+                                onValueChange={(v) => updateItem(item.id, "gst_type", v)}
+                              >
+                                <SelectTrigger className="h-9 text-xs border-transparent bg-transparent hover:border-border focus:bg-background">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {GST_TYPES.map((g) => (
+                                    <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </td>
+                            <td className="px-4 py-4">
+                              <Input 
+                                type="number" 
+                                value={item.gst_rate} 
+                                onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
+                                disabled={item.gst_type === "none"}
+                                className="text-center font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
+                              />
+                            </td>
+                          </>
+                        )}
+                        {customColumns.map((col) => (
+                          <td key={col.key} className="px-4 py-4">
+                            <Input className="text-xs border-transparent bg-transparent hover:border-border focus:bg-background" />
+                          </td>
+                        ))}
+                        <td className="px-6 py-4 text-right">
+                          <div className="font-mono font-bold text-foreground text-sm">
+                            {formatCurrency(item.quantity * item.price + itemGst)}
+                          </div>
+                          {!overallGstEnabled && item.gst_type !== "none" && item.gst_rate > 0 && (
+                            <div className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-tighter mt-1">
+                              Tax: {formatCurrency(itemGst)}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-4">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-muted-foreground/30 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
+                            onClick={() => removeItem(item.id)}
+                            disabled={items.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          </div>
-
-          {/* Tax, Discount & Notes */}
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
-            <h2 className="text-sm font-semibold">Tax, Discount & Notes</h2>
-
-            {/* Overall GST Toggle */}
-            <div className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-3 border border-dashed">
-              <div>
-                <p className="text-xs font-medium">Overall GST</p>
-                <p className="text-[10px] text-muted-foreground">Apply a single GST rate to entire invoice (overrides per-item)</p>
-              </div>
-              <div className="flex items-center gap-3">
+            
+            <div className="p-6 bg-muted/20 border-t border-border/50 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Switch checked={overallGstEnabled} onCheckedChange={setOverallGstEnabled} />
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-tight">Apply Overall GST</Label>
+                </div>
                 {overallGstEnabled && (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="number"
-                      className="w-16 h-8 text-xs tabular-nums"
-                      value={overallGstRate}
+                  <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-1.5">
+                    <span className="text-[10px] font-bold text-muted-foreground/50 uppercase">Rate</span>
+                    <Input 
+                      type="number" 
+                      value={overallGstRate} 
                       onChange={(e) => setOverallGstRate(parseFloat(e.target.value) || 0)}
-                      min={0}
+                      className="w-12 h-6 p-0 border-none text-center font-mono text-xs focus-visible:ring-0"
                     />
-                    <span className="text-xs text-muted-foreground">%</span>
+                    <span className="text-xs text-muted-foreground/50">%</span>
                   </div>
                 )}
-                <Switch checked={overallGstEnabled} onCheckedChange={setOverallGstEnabled} />
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest block mb-1">Subtotal</span>
+                <span className="text-xl font-mono font-bold text-foreground">{formatCurrency(subtotal)}</span>
               </div>
             </div>
+          </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Discount (%)</Label>
-                <Input
-                  type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                  className="tabular-nums"
-                />
+          {/* Additional Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div 
+              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-primary" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Bank & Payment</h2>
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Notes</Label>
-              <Textarea
-                placeholder="Payment terms, thank you message..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">Account Name</Label>
+                    <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} className="h-9 text-xs bg-muted/50 border-border" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">Account Number</Label>
+                    <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} className="h-9 text-xs font-mono bg-muted/50 border-border" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">IFSC Code</Label>
+                    <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} className="h-9 text-xs font-mono bg-muted/50 border-border" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">UPI ID</Label>
+                    <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} className="h-9 text-xs font-mono bg-muted/50 border-border" />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
-          {/* Bank Details */}
-          <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
-            <h2 className="text-sm font-semibold">Bank Details</h2>
-            <p className="text-xs text-muted-foreground">Pre-filled from your saved bank details. You can override per invoice.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Account Name</Label>
-                <Input value={bankDetails.account_name} onChange={(e) => setBankDetails({ ...bankDetails, account_name: e.target.value })} placeholder="Account holder name" />
+            <motion.div 
+              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center gap-2">
+                <Info className="h-4 w-4 text-primary" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Notes & Terms</h2>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Account Number</Label>
-                <Input value={bankDetails.account_number} onChange={(e) => setBankDetails({ ...bankDetails, account_number: e.target.value })} placeholder="1234567890" className="font-mono text-xs" />
+              <div className="p-6 space-y-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">Discount Percentage</Label>
+                  <div className="relative">
+                    <Input 
+                      type="number" 
+                      value={discount} 
+                      onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                      className="h-9 text-xs font-mono bg-muted/50 border-border pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-xs">%</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-bold uppercase text-muted-foreground/70">Internal Notes</Label>
+                  <Textarea 
+                    value={notes} 
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Add payment terms or a thank you note..."
+                    className="text-xs bg-muted/50 border-border resize-none"
+                    rows={3}
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">IFSC Code</Label>
-                <Input value={bankDetails.ifsc} onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })} placeholder="SBIN0001234" className="font-mono text-xs" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Bank Name</Label>
-                <Input value={bankDetails.bank_name} onChange={(e) => setBankDetails({ ...bankDetails, bank_name: e.target.value })} placeholder="State Bank of India" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Branch</Label>
-                <Input value={bankDetails.branch} onChange={(e) => setBankDetails({ ...bankDetails, branch: e.target.value })} placeholder="Main Branch" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">UPI ID</Label>
-                <Input value={bankDetails.upi_id} onChange={(e) => setBankDetails({ ...bankDetails, upi_id: e.target.value })} placeholder="yourname@upi" className="font-mono text-xs" />
-              </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* Summary Panel */}
-        {showPreview ? (
-          <div className="space-y-4">
-            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
-              <h2 className="text-sm font-semibold">Summary</h2>
-              <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
-                </div>
-                <GstSummary />
-                {!overallGstEnabled && <ItemGstDetail />}
-                {discount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+        {/* Sidebar Summary & Preview */}
+        <div className="space-y-6">
+          <motion.div 
+            className="bg-primary rounded-2xl p-6 text-primary-foreground shadow-xl shadow-primary/10 sticky top-6"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground/70 mb-6">Invoice Summary</h2>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-primary-foreground/70">Subtotal</span>
+                <span className="text-sm font-mono">{formatCurrency(subtotal)}</span>
+              </div>
+              
+              <div className="space-y-2 py-3 border-y border-primary-foreground/20">
+                {gstBreakdown.cgst > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-primary-foreground/60">CGST</span>
+                    <span className="font-mono text-primary-foreground/80">+{formatCurrency(gstBreakdown.cgst)}</span>
                   </div>
                 )}
-                <div className="border-t pt-2.5 flex justify-between">
-                  <span className="font-semibold">Total</span>
-                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
-                </div>
-              </div>
-              <Button
-                className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save Invoice
-              </Button>
-            </div>
-            <div className="bg-white rounded-xl border shadow-sm overflow-hidden sticky top-[340px]">
-              <div className="px-4 py-2 border-b bg-muted/30">
-                <p className="text-xs font-medium text-muted-foreground">Live Preview</p>
-              </div>
-              <div className="overflow-auto max-h-[600px]" dangerouslySetInnerHTML={{ __html: previewHTML }} />
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4 sticky top-6">
-              <h2 className="text-sm font-semibold">Summary</h2>
-              <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium tabular-nums">{formatCurrency(subtotal)}</span>
-                </div>
-                <GstSummary />
-                {!overallGstEnabled && <ItemGstDetail />}
-                {discount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Discount ({discount}%)</span>
-                    <span className="font-medium text-[hsl(var(--success))] tabular-nums">-{formatCurrency(discountAmount)}</span>
+                {gstBreakdown.sgst > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-primary-foreground/60">SGST</span>
+                    <span className="font-mono text-primary-foreground/80">+{formatCurrency(gstBreakdown.sgst)}</span>
                   </div>
                 )}
-                <div className="border-t pt-2.5 flex justify-between">
-                  <span className="font-semibold">Total</span>
-                  <span className="text-lg font-bold tabular-nums">{formatCurrency(total)}</span>
+                {gstBreakdown.igst > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-primary-foreground/60">IGST</span>
+                    <span className="font-mono text-primary-foreground/80">+{formatCurrency(gstBreakdown.igst)}</span>
+                  </div>
+                )}
+                {gstAmount > 0 && (
+                  <div className="flex justify-between items-center pt-1">
+                    <span className="text-xs font-bold text-accent-foreground">Total Tax</span>
+                    <span className="text-xs font-mono font-bold text-accent-foreground">+{formatCurrency(gstAmount)}</span>
+                  </div>
+                )}
+              </div>
+
+              {discount > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-accent-foreground">Discount ({discount}%)</span>
+                  <span className="text-sm font-mono text-accent-foreground">-{formatCurrency(discountAmount)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-8">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-foreground/50 block mb-1">Grand Total</span>
+              <div className="text-4xl font-mono font-bold tracking-tighter">
+                {formatCurrency(total)}
+              </div>
+            </div>
+
+            <Button 
+              className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-xl transition-all duration-300 shadow-lg shadow-primary/20"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
+              Finalize & Save
+            </Button>
+          </motion.div>
+
+          {showPreview && (
+            <motion.div 
+              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden sticky top-[480px]"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="px-4 py-2 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full bg-destructive/40" />
+                  <div className="w-2 h-2 rounded-full bg-warning/40" />
+                  <div className="w-2 h-2 rounded-full bg-success/40" />
                 </div>
               </div>
-              <Button
-                className="w-full gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save Invoice
-              </Button>
-            </div>
-          </div>
-        )}
+              <div className="h-[500px] overflow-auto bg-white p-4">
+               <iframe
+                  srcDoc={previewHTML}
+                  className="w-full h-full border-none  "
+                  title="Invoice Preview"
+                />
+               
+              </div>
+            </motion.div>
+          )}
+        </div>
       </div>
     </div>
   );
