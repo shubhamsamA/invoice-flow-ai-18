@@ -334,7 +334,7 @@ export default function LandingPage() {
         <div className="max-w-[1600px] mx-auto px-6 md:px-12">
           <div className="flex flex-col lg:flex-row items-end justify-between gap-12 mb-24">
             <div className="max-w-2xl">
-              <h2 className="text-5xl lg:text-7xl editorial-title font-bold tracking-tighter uppercase mb-8">
+              <h2 className="text-5xl lg:text-7xl font-display font-bold tracking-tighter uppercase mb-8">
                 The Core <br />{" "}
                 <span className="text-primary italic font-serif lowercase tracking-normal">Infrastructure.</span>
               </h2>
