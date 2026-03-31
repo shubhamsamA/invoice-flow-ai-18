@@ -140,8 +140,10 @@ export default function ClientsPage() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <div>
-          <h1 className="text-2xl font-semibold">Clients</h1>
-          <p className="text-sm text-muted-foreground mt-1">{clients.length} clients</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-mono">CLIENTS</h1>
+          <p className="text-muted-foreground flex items-center gap-2 font-mono text-xs uppercase tracking-widest mt-1">
+            Total Records: {clients.length}
+          </p>
         </div>
         <Dialog
           open={dialogOpen}
@@ -151,44 +153,46 @@ export default function ClientsPage() {
           }}
         >
           <DialogTrigger asChild>
-            <Button className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70">
+            <Button className="gap-2 font-mono uppercase hover:bg-foreground hover:text-background text-xs">
               <Plus className="h-4 w-4" /> Add Client
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="font-mono">
             <DialogHeader>
-              <DialogTitle>{editingClient ? "Edit Client" : "Add New Client"}</DialogTitle>
+              <DialogTitle className="font-mono uppercase text-sm">{editingClient ? "Edit Client" : "Add New Client"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="space-y-1.5">
-                <Label className="text-xs">Name</Label>
+                <Label className="text-xs uppercase">Name</Label>
                 <Input
                   name="name"
                   placeholder="Client or company name"
                   required
                   defaultValue={editingClient?.name || ""}
+                  className="font-mono text-xs"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Email</Label>
+                <Label className="text-xs uppercase">Email</Label>
                 <Input
                   name="email"
                   type="email"
                   placeholder="billing@company.com"
                   defaultValue={editingClient?.email || ""}
+                  className="font-mono text-xs"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Address</Label>
-                <Input name="address" placeholder="City, State" defaultValue={editingClient?.address || ""} />
+                <Label className="text-xs uppercase">Address</Label>
+                <Input name="address" placeholder="City, State" defaultValue={editingClient?.address || ""} className="font-mono text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">GST Number</Label>
-                <Input name="gst" placeholder="e.g. 27AABCP1234A1ZA" defaultValue={editingClient?.gst_number || ""} />
+                <Label className="text-xs uppercase">GST Number</Label>
+                <Input name="gst" placeholder="e.g. 27AABCP1234A1ZA" defaultValue={editingClient?.gst_number || ""} className="font-mono text-xs" />
               </div>
               <Button
                 type="submit"
-                className="w-full border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+                className="w-full font-mono uppercase text-xs"
                 disabled={addClient.isPending || updateClient.isPending}
               >
                 {(addClient.isPending || updateClient.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -207,8 +211,8 @@ export default function ClientsPage() {
       >
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search clients..."
-          className="pl-9"
+          placeholder="Search Clients..."
+          className="pl-9 font-mono text-xs"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -225,14 +229,14 @@ export default function ClientsPage() {
             return (
               <motion.div
                 key={client.id}
-                className="bg-card rounded-xl border shadow-sm p-5 hover:shadow-md transition-shadow"
+                className="bg-card border border-border/50 rounded-lg p-5 hover:bg-foreground hover:text-background transition-colors"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 + i * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                    <div className="h-10 w-10 rounded-none bg-primary/10 flex items-center justify-center text-[10px] font-bold font-mono text-primary">
                       {client.name
                         .split(" ")
                         .map((w: string) => w[0])
@@ -240,9 +244,9 @@ export default function ClientsPage() {
                         .slice(0, 2)}
                     </div>
                     <div>
-                      <p className="font-semibold text-sm">{client.name}</p>
+                      <p className="font-bold text-xs font-mono">{client.name}</p>
                       {client.email && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <p className="text-[10px]  flex items-center gap-1 font-mono">
                           <Mail className="h-3 w-3" /> {client.email}
                         </p>
                       )}
@@ -254,32 +258,32 @@ export default function ClientsPage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="font-mono text-xs">
                       <DropdownMenuItem className="gap-2" onClick={() => openEdit(client)}>
-                        <Edit className="h-3.5 w-3.5" /> Edit
+                        <Edit className="h-3 w-3" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="gap-2 text-destructive"
                         onClick={() => deleteClient.mutate(client.id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
+                        <Trash2 className="h-3 w-3" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
 
-                <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+                <div className="mt-4 space-y-2 text-[10px]  font-mono">
                   {client.address && (
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3" /> {client.address}
                     </div>
                   )}
-                  {client.gst_number && <div className="font-mono text-[11px]">GST: {client.gst_number}</div>}
+                  {client.gst_number && <div>GST: {client.gst_number}</div>}
                 </div>
 
-                <div className="mt-4 pt-3 border-t flex justify-between text-xs">
-                  <span className="text-muted-foreground">{stats.count} invoices</span>
-                  <span className="font-semibold tabular-nums">{formatCurrency(stats.total)}</span>
+                <div className="mt-4 pt-3 border-t border-border/50 flex justify-between text-[10px] font-mono">
+                  <span >{stats.count} Invoices</span>
+                  <span className="font-bold tabular-nums">{formatCurrency(stats.total)}</span>
                 </div>
               </motion.div>
             );

@@ -90,11 +90,13 @@ export default function InvoicesPage() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <div>
-          <h1 className="text-2xl font-semibold">Invoices</h1>
-          <p className="text-sm text-muted-foreground mt-1">{invoices.length} total invoices</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-mono">INVOICES</h1>
+          <p className="text-muted-foreground flex items-center gap-2 font-mono text-xs uppercase tracking-widest mt-1">
+            Total Records: {invoices.length}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" asChild className="gap-2 text-sm">
+          <Button variant="outline" asChild className="gap-2 font-mono uppercase text-xs">
             <Link to="/invoices/bulk-upload">
               <Upload className="h-4 w-4" />
               Bulk Upload
@@ -102,11 +104,11 @@ export default function InvoicesPage() {
           </Button>
           <Button
             asChild
-            className="gap-2 shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            className="gap-2 font-mono uppercase hover:bg-foreground hover:text-background text-xs"
           >
             <Link to="/invoices/new">
               <Plus className="h-4 w-4" />
-              New Invoice
+              Initialize Invoice
             </Link>
           </Button>
         </div>
@@ -121,8 +123,8 @@ export default function InvoicesPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by client or invoice number..."
-            className="pl-9"
+            placeholder="Search Invoices..."
+            className="pl-9 font-mono text-xs"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -133,17 +135,17 @@ export default function InvoicesPage() {
               key={s}
               variant={filter === s ? "default" : "outline"}
               size="sm"
-              className="capitalize text-xs"
+              className="capitalize text-xs font-mono"
               onClick={() => setFilter(s)}
             >
-              {s === "all" ? "All" : s}
+              {s}
             </Button>
           ))}
         </div>
       </motion.div>
 
       <motion.div
-        className="bg-card rounded-xl border shadow-sm overflow-hidden"
+        className="bg-card border border-border/50 rounded-lg overflow-hidden"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -154,25 +156,25 @@ export default function InvoicesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                    Invoice
+                <tr className="border-b border-border/50 bg-muted/20">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
+                    Invoice ID
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
                     Client
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">
                     Date
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                     Due
                   </th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="text-center px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                  <th className="text-center px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-4 py-3 w-10"></th>
@@ -192,13 +194,13 @@ export default function InvoicesPage() {
                         to={`/invoices/${inv.id}`}
                         className="flex items-center gap-2 hover:text-primary transition-colors"
                       >
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <FileText className="h-3 w-3 text-muted-foreground" />
                         <span className="font-medium">{inv.invoice_number}</span>
                       </Link>
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="font-medium">{inv.clients?.name || "—"}</p>
-                      <p className="text-xs text-muted-foreground">{inv.clients?.email || ""}</p>
+                      <p className="text-[10px] text-muted-foreground">{inv.clients?.email || ""}</p>
                     </td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden md:table-cell">{inv.issue_date}</td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden lg:table-cell">{inv.due_date || "—"}</td>
@@ -207,7 +209,7 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       <button
-                        className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full capitalize cursor-pointer ${statusClasses[inv.status]}`}
+                        className={`inline-block text-[9px] font-bold px-2 py-0.5 border rounded-none uppercase cursor-pointer ${statusClasses[inv.status]}`}
                         onClick={() => {
                           const next = inv.status === "paid" ? "unpaid" : "paid";
                           updateStatus.mutate({ id: inv.id, status: next });
@@ -224,22 +226,22 @@ export default function InvoicesPage() {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="font-mono text-xs">
                           <DropdownMenuItem className="gap-2" asChild>
                             <Link to={`/invoices/${inv.id}`}>
-                              <Eye className="h-3.5 w-3.5" /> Preview
+                              <Eye className="h-3 w-3" /> Preview
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" asChild>
                             <Link to={`/invoices/${inv.id}/edit`}>
-                              <Edit className="h-3.5 w-3.5" /> Edit
+                              <Edit className="h-3 w-3" /> Edit
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="gap-2 text-destructive"
                             onClick={() => deleteInvoice.mutate(inv.id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                            <Trash2 className="h-3 w-3" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

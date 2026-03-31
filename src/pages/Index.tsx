@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import {
   AreaChart,
   Area,
@@ -146,29 +147,25 @@ export default function DashboardPage() {
 
   return (
     <motion.div
-      className="max-w-7xl mx-auto space-y-10 pb-12"
+      className="max-w-7xl mx-auto space-y-6 pb-12"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       {/* Header Section */}
-      <motion.div className="flex flex-col md:flex-row md:items-end justify-between gap-6" variants={itemVariants}>
+      <motion.div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-6" variants={itemVariants}>
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Overview</h1>
-          <p className="text-muted-foreground flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground font-mono">OVERVIEW</h1>
+          <p className="text-muted-foreground flex items-center gap-2 font-mono text-xs uppercase tracking-widest">
             <Activity className="h-4 w-4 text-primary" />
-            Your business performance at a glance.
+           System is stable
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="hidden sm:flex gap-2 border-border/50">
-            <Calendar className="h-4 w-4" />
-            Last 30 Days
-          </Button>
-          <Button asChild className="gap-2 shadow-lg shadow-primary/20">
+          <Button asChild className="gap-2 font-mono uppercase hover:bg-foreground hover:text-background text-xs">
             <Link to="/invoices/new">
               <Plus className="h-4 w-4" />
-              Create Invoice
+              Initialize Invoice
             </Link>
           </Button>
         </div>
@@ -177,101 +174,84 @@ export default function DashboardPage() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-32 space-y-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary/50" />
-          <p className="text-sm text-muted-foreground animate-pulse">Syncing your data...</p>
+          <p className="text-sm text-muted-foreground animate-pulse font-mono">Syncing Data...</p>
         </div>
       ) : (
         <>
           {/* Stats Grid */}
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" variants={itemVariants}>
-            {stats.map((stat) => (
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-border/50 rounded-lg overflow-hidden" variants={itemVariants}>
+            {stats.map((stat, i) => (
               <div
                 key={stat.label}
-                className="group relative overflow-hidden bg-card border border-border/50 rounded-2xl p-6 hover:border-primary/30 transition-all duration-300"
+                className={cn(
+                  "group relative overflow-hidden bg-card p-6 transition-all duration-300",
+                  i !== stats.length - 1 && "border-r border-border/50"
+                )}
               >
-                <div className="flex items-start justify-between">
-                  <div className={`${stat.bgColor} rounded-xl p-3 transition-transform group-hover:scale-110 duration-300`}>
-                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="rounded-full p-2 bg-primary/10">
+                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
                   </div>
-                  <div className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-emerald-500" : "text-amber-500"}`}>
+                  <div className={`flex items-center gap-1 text-[10px] font-mono font-medium ${stat.up ? "text-emerald-500" : "text-amber-500"}`}>
                     {stat.trend}
-                    {stat.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                   </div>
                 </div>
-                <div className="mt-5 space-y-1">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</h3>
-                  <p className="text-3xl font-bold tracking-tight">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground/80">{stat.subtext}</p>
+                <div className="space-y-1">
+                  <h3 className="font-serif italic text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</h3>
+                  <p className="text-2xl font-bold tracking-tight font-mono">{stat.value}</p>
                 </div>
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             ))}
           </motion.div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Chart Section */}
-            <motion.div className="lg:col-span-8 space-y-4" variants={itemVariants}>
-              <div className="bg-card border border-border/50 rounded-2xl p-6 h-full">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h2 className="text-lg font-semibold">Revenue Flow</h2>
-                    <p className="text-xs text-muted-foreground">Historical invoice amounts</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Amount</span>
-                    </div>
-                  </div>
+            <motion.div className="lg:col-span-8" variants={itemVariants}>
+              <div className="bg-card border border-border/50 rounded-lg p-6 h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-serif italic text-lg text-muted-foreground">Revenue Flow</h2>
                 </div>
 
                 <div className="h-[300px] w-full">
                   {chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={chartData}>
-                        <defs>
-                          <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border)/0.3)" />
                         <XAxis
                           dataKey="name"
                           axisLine={false}
                           tickLine={false}
-                          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))", fontFamily: "monospace" }}
                           dy={10}
                         />
                         <YAxis
                           axisLine={false}
                           tickLine={false}
-                          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))", fontFamily: "monospace" }}
                           tickFormatter={(value) => `₹${value / 1000}k`}
                         />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "hsl(var(--card))",
                             borderColor: "hsl(var(--border))",
-                            borderRadius: "12px",
+                            borderRadius: "0px",
                             fontSize: "12px",
+                            fontFamily: "monospace",
                           }}
-                          cursor={{ stroke: "hsl(var(--primary))", strokeWidth: 1 }}
                         />
                         <Area
                           type="monotone"
                           dataKey="amount"
                           stroke="hsl(var(--primary))"
                           strokeWidth={2}
-                          fillOpacity={1}
-                          fill="url(#colorAmount)"
-                          animationDuration={1500}
+                          fill="hsl(var(--primary)/0.1)"
                         />
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-full flex items-center justify-center border-2 border-dashed border-border/50 rounded-xl">
-                      <p className="text-sm text-muted-foreground">No data available for chart</p>
+                    <div className="h-full flex items-center justify-center border border-dashed border-border/50">
+                      <p className="text-xs text-muted-foreground font-mono">No_Data</p>
                     </div>
                   )}
                 </div>
@@ -279,70 +259,38 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* Recent Invoices Section */}
-            <motion.div className="lg:col-span-4 space-y-4" variants={itemVariants}>
-              <div className="bg-card border border-border/50 rounded-2xl p-6 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold">Recent Activity</h2>
-                  <Button variant="ghost" size="sm" className="text-xs hover:bg-primary/5" asChild>
-                    <Link to="/invoices">
-                      View All <ChevronRight className="ml-1 h-3 w-3" />
-                    </Link>
+            <motion.div className="lg:col-span-4" variants={itemVariants}>
+              <div className="bg-card border border-border/50 rounded-lg h-full flex flex-col">
+                <div className="p-4 border-b border-border/50 flex items-center justify-between">
+                  <h2 className="font-serif italic text-lg text-muted-foreground">Recent Activity</h2>
+                  <Button variant="ghost" size="sm" className="text-[10px] uppercase font-mono hover:bg-primary/5" asChild>
+                    <Link to="/invoices">View All</Link>
                   </Button>
                 </div>
 
-                <div className="flex-1 space-y-4">
+                <div className="flex-1">
                   {recentInvoices.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
-                      <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                        <FileText className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-sm font-medium">No invoices found</p>
-                      <p className="text-xs text-muted-foreground">Start by creating your first invoice.</p>
+                    <div className="h-full flex items-center justify-center text-center p-6">
+                      <p className="text-xs text-muted-foreground font-mono">No Activity</p>
                     </div>
                   ) : (
                     recentInvoices.map((inv: any) => (
                       <div
                         key={inv.id}
-                        className="group flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
+                        className="group flex items-center justify-between px-4 py-3 border-b border-border/30 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors cursor-pointer"
                       >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FileText className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold truncate">{inv.clients?.name || "Unknown Client"}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                              {inv.invoice_number} · {inv.issue_date}
-                            </p>
-                          </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold truncate font-mono">{inv.clients?.name || "Unknown"}</p>
+                          <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-mono">
+                            {inv.invoice_number}
+                          </p>
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-bold tabular-nums">{formatCurrency(Number(inv.total))}</p>
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter border ${
-                              statusClasses[inv.status] || "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {inv.status}
-                          </span>
+                        <div className="text-right">
+                          <p className="text-xs font-bold tabular-nums font-mono">{formatCurrency(Number(inv.total))}</p>
                         </div>
                       </div>
                     ))
                   )}
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-border/50">
-                  <div className="bg-primary/5 rounded-xl p-4 flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-primary uppercase tracking-wider">Quick Action</p>
-                      <p className="text-sm font-bold">Generate AI Invoice</p>
-                    </div>
-                    <Button size="icon" variant="ghost" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90" asChild>
-                      <Link to="/ai-generator">
-                        <Plus className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
                 </div>
               </div>
             </motion.div>

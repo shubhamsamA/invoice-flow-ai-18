@@ -1076,7 +1076,7 @@ export default function CreateInvoicePage() {
                   <div className="w-2 h-2 rounded-full bg-success/40" />
                 </div>
               </div>
-              <div className="h-[500px] overflow-auto bg-white p-4">
+              <div className="h-[500px] overflow-auto bg-whitep-4">
                <iframe
                   srcDoc={previewHTML}
                   className="w-full h-full border-none  "

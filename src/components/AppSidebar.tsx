@@ -7,7 +7,6 @@ import {
   Sparkles,
   Settings,
   Plus,
-  Zap,
   PenTool,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -24,8 +23,10 @@ import {
   SidebarHeader,
   SidebarFooter,
   useSidebar,
+   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -39,59 +40,80 @@ const mainNav = [
 const secondaryNav = [{ title: "Business Profile ", url: "/settings", icon: Settings }];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
 
+  const handleLinkClick = () => {
+    if (state === "expanded") {
+      setOpen(false);
+    }
+  };
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 ">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-ring">
-            <ReceiptText color="#395a07" />
+        <div className={cn(
+          "flex items-center gap-3",
+          !collapsed && "border-b border-sidebar-border/50 pb-4"
+        )}>
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center border border-sidebar-border bg-sidebar-accent/20">
+            <ReceiptText className="h-5 w-5 text-sidebar-ring" />
           </div>
           {!collapsed && (
-            <div>
-              <h1 className="text-sm font-semibold text-[#395a07] uppercase">InvoiceBuild</h1>
-              <p className="text-[11px] text-sidebar-foreground">Invoice Management</p>
+            <div className="flex flex-col">
+              <h1 className="text-[11px] font-mono font-bold tracking-[0.2em] text-sidebar-accentforeground uppercase">
+                Invoice_Build
+              </h1>
+            
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="custom-scrollbar">
         {!collapsed && (
-          <div className="px-4 pb-2">
+          <div className="px-4 py-4">
             <Button
               variant="outline"
-              className="w-full justify-start gap-2 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+              className="w-full justify-start gap-3 rounded-none border-sidebar-border bg-sidebar-accent/10 text-[10px] font-mono  font-bold uppercase tracking-widest text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all"
               asChild
+              onClick={handleLinkClick}
             >
               <NavLink to="/invoices/new" activeClassName="">
-                <Plus className="h-4 w-4" />
-                New Invoice
+                <Plus className="h-3.5 w-3.5" />
+                New_Invoice
               </NavLink>
             </Button>
           </div>
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-accent-foreground text-[10px] uppercase tracking-widest">
-            Main
+          <SidebarGroupLabel className="px-4 text-[10px] font-mono uppercase tracking-widest text-sidebar-foreground/90 mb-2">
+            navigation_main
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNav.map((item) => (
+            <SidebarMenu className="gap-0.5">
+              {mainNav.map((item, idx) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="h-auto p-0 hover:bg-transparent">
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="text-white hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      onClick={handleLinkClick}
+                      className="group relative flex w-full items-center gap-3 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider text-sidebar-foreground/90 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-ring"
                     >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && (
+                        <span className="w-4 opacity-20 group-hover:opacity-100 transition-opacity text-[8px]">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                      )}
+                      <item.icon className={cn("h-4 w-4 shrink-0", collapsed && "mx-auto")} />
+                      {!collapsed && <span>{item.title.replace(" ", "_")}</span>}
+                      
+                      {/* Hover indicator */}
+                      <div className="absolute right-0 top-0 bottom-0 w-0 group-hover:w-1 bg-sidebar-ring transition-all" />
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -100,22 +122,24 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-accent-foreground text-[10px] uppercase tracking-widest">
-            Profile
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className="px-4 text-[10px] font-mono uppercase tracking-widest text-sidebar-foreground/90 mb-2">
+            system_profile
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {secondaryNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="h-auto p-0 hover:bg-transparent">
                     <NavLink
                       to={item.url}
-                      className="text-white hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      onClick={handleLinkClick}
+                      className="group relative flex w-full items-center gap-3 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider  font-bold  text-sidebar-foreground/90 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-ring"
                     >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className={cn("h-4 w-4 shrink-0", collapsed && "mx-auto")} />
+                      {!collapsed && <span>{item.title.trim().replace(" ", "_")}</span>}
+                      <div className="absolute right-0 top-0 bottom-0 w-0 group-hover:w-1 bg-sidebar-ring transition-all" />
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -125,16 +149,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        {!collapsed && (
-          <div className="rounded-lg bg-sidebar-accent p-3">
-            <p className="text-[11px] font-medium text-sidebar-accent-foreground">Free Plan</p>
-            <p className="text-[10px] text-sidebar-foreground/50">3 of 5 invoices used</p>
-            <div className="mt-2 h-1 rounded-full bg-sidebar-border">
-              <div className="h-1 w-3/5 rounded-full bg-sidebar-ring" />
-            </div>
-          </div>
-        )}
+      <SidebarFooter className="p-4 border-t border-sidebar-border/50">
+        <div className="flex justify-center">
+           <SidebarTrigger className="text-muted-foreground" />
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

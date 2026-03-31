@@ -171,4 +171,15 @@
   .invoice-status-overdue {
     @apply bg-[hsl(var(--destructive)/0.1)] text-destructive font-medium px-2 py-1 rounded-md;
   }
+
+  /* 📜 Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--sidebar-background));
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--sidebar-ring));
+  }
 }

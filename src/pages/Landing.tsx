@@ -174,25 +174,54 @@ export default function LandingPage() {
                 <span className="editorial-subtitle block mt-4 text-foreground/80">Crafted with Intelligence.</span>
               </h1>
 
-              <div className="flex flex-col sm:flex-row items-start gap-12">
-                <p className="text-xl text-muted-foreground max-w-md leading-relaxed font-medium">
-                  The world's most sophisticated invoicing platform. Design, automate, and manage your professional
-                  invoices in one high-performance interface.
-                </p>
-                <div className="flex flex-col gap-4">
-                  <Button
-                    size="lg"
-                    className="h-16 px-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-none text-xl font-display font-bold uppercase tracking-widest group"
-                    asChild
-                  >
-                    <Link to="/auth">
-                      Create Invoice
-                      <Plus className="ml-4 group-hover:rotate-90 transition-transform" />
-                    </Link>
-                  </Button>
-                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                    <span>100% Free. No hidden fees.</span>
+              <div className="flex flex-col items-start gap-12">
+                <div className="border-l-2 border-primary/20 pl-6 py-2">
+                  <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium max-w-md">
+                    The world's most sophisticated invoicing platform. Design, automate, and manage your professional
+                    invoices in one high-performance interface.
+                  </p>
+                </div>
+                
+                <div className="flex flex-col gap-6">
+                  <div className="relative group">
+                    <div className="absolute -inset-4 bg-primary/5 rounded-2xl scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 -z-10" />
+                    
+                    <Button
+                      size="lg"
+                      className="h-16 md:h-20 w-full md:w-auto px-10 md:px-14 bg-primary text-primary-foreground hover:bg-primary/90 rounded-none text-xl font-display font-bold uppercase tracking-[0.15em] group/btn overflow-hidden"
+                      asChild
+                    >
+                      <Link to="/auth">
+                        <span className="relative z-10 flex items-center">
+                          Create Invoice
+                          <Plus className="ml-4 group-hover/btn:rotate-90 transition-transform duration-500" />
+                        </span>
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-4 px-1">
+                    <div className="flex -space-x-3">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="h-8 w-8 rounded-full border-2 border-background bg-muted ring-1 ring-border/50 overflow-hidden shadow-sm">
+                          <img 
+                            src={`https://picsum.photos/seed/avatar${i}/64/64`} 
+                            alt="User" 
+                            className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-300"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-foreground">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                        <span>100% Free Forever</span>
+                      </div>
+                      <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold opacity-60">
+                        Join 12k+ active designers
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -331,13 +360,13 @@ export default function LandingPage() {
       {/* Bento Features */}
       <section id="features" className="py-12 lg:py-20 border-b border-border/40">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-          <div className="flex flex-col lg:flex-row items-end justify-between gap-12 mb-24">
+          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 md:gap-12 mb-16 md:mb-24">
             <div className="max-w-2xl">
-              <h2 className="text-7xl font-display font-bold tracking-tighter uppercase mb-12 leading-[0.9]">
+              <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tighter uppercase mb-8 md:mb-12 leading-[0.9]">
                 The Core <br />{" "}
                 <span className="text-primary italic font-serif lowercase tracking-normal">Infrastructure.</span>
               </h2>
-              <p className="text-xl text-muted-foreground font-medium">
+              <p className="text-lg md:text-xl text-muted-foreground font-medium leading-relaxed">
                 Every tool you need to design and manage professional invoices, built into a single, cohesive interface.
               </p>
             </div>
@@ -584,14 +613,14 @@ export default function LandingPage() {
                   Final Call to Action
                 </span>
               </div>
-              <h2 className="text-7xl md:text-[10vw] font-display font-bold tracking-tighter uppercase leading-[0.85] mb-16">
+              <h2 className="text-5xl md:text-7xl lg:text-[10vw] font-display font-bold tracking-tighter uppercase leading-[0.85] mb-12 md:mb-16">
                 The Future <br />
                 <span className="text-primary italic font-serif lowercase tracking-normal">is Flow.</span>
               </h2>
-              <div className="flex flex-col sm:flex-row items-center gap-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
                 <Button
                   size="lg"
-                  className="h-24 px-16 bg-primary text-primary-foreground hover:bg-primary/90 rounded-none text-2xl font-display font-bold uppercase tracking-widest group shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)]"
+                  className="h-20 md:h-24 w-full sm:w-auto px-10 md:px-16 bg-primary text-primary-foreground hover:bg-primary/90 rounded-none text-xl md:text-2xl font-display font-bold uppercase tracking-widest group shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)]"
                   asChild
                 >
                   <Link to="/auth">
@@ -599,9 +628,9 @@ export default function LandingPage() {
                     <Zap className="ml-4 group-hover:scale-125 transition-transform" />
                   </Link>
                 </Button>
-                <div className="text-left">
+                <div className="text-left px-1">
                   <div className="text-[10px] uppercase tracking-widest font-black opacity-40 mb-2">Instant Access</div>
-                  <div className="text-lg font-display font-bold italic font-serif">No credit card required.</div>
+                  <div className="text-base md:text-lg font-display font-bold italic font-serif">No credit card required.</div>
                 </div>
               </div>
             </motion.div>
@@ -632,23 +661,24 @@ export default function LandingPage() {
       {/* Dramatic Editorial Footer */}
       <footer className="py-12 lg:py-20 border-t border-border/40 bg-background relative overflow-hidden">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-          <div className="grid lg:grid-cols-2 gap-32 lg:gap-64 mb-40">
-            <div className="space-y-16">
+          <div className="grid lg:grid-cols-2 gap-20 md:gap-32 lg:gap-64 mb-24 md:mb-40">
+            <div className="space-y-10 md:space-y-16">
               <Link to="/" className="flex items-center gap-4 group">
-                <div className="h-16 w-16 bg-primary rounded-full flex items-center justify-center shadow-2xl shadow-primary/20 group-hover:rotate-12 transition-transform">
-                  <FileText className="h-8 w-8 text-primary-foreground" />
+                <div className="h-12 w-12 md:h-16 md:w-16 bg-primary rounded-full flex items-center justify-center shadow-2xl shadow-primary/20 group-hover:rotate-12 transition-transform">
+                  <FileText className="h-6 w-6 md:h-8 md:w-8 text-primary-foreground" />
                 </div>
-                <span className="text-5xl font-display font-bold tracking-tight">FLOW.</span>
+                <span className="text-3xl md:text-5xl font-display font-bold tracking-tight">FLOW.</span>
               </Link>
 
-              <h3 className="text-6xl md:text-8xl font-display font-bold tracking-tighter uppercase leading-[0.8] max-w-xl">
+              <h3 className="text-5xl md:text-8xl font-display font-bold tracking-tighter uppercase leading-[0.8] max-w-xl">
                 The New <br />
                 <span className="text-primary italic font-serif lowercase tracking-normal">Standard.</span>
               </h3>
 
-              <div className="flex items-center gap-12">
-                <div className="h-px w-24 bg-primary" />
-                <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-sm">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12">
+                <div className="h-px w-16 md:w-24 bg-primary hidden md:block" />
+                <div className="h-12 w-px bg-primary md:hidden" />
+                <p className="text-base md:text-lg text-muted-foreground font-medium leading-relaxed max-w-sm">
                   Precision-engineered for the modern professional. Design with absolute freedom.
                 </p>
               </div>
