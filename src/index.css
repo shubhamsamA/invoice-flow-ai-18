@@ -133,8 +133,17 @@
 
 /* Utilities */
 @layer utilities {
-  /* 🔥 Premium Card */
+  .editorial-title {
+    @apply font-display text-5xl md:text-8xl lg:text-[10vw] leading-[0.85] tracking-[-0.04em] uppercase font-bold;
+  }
 
+  .editorial-subtitle {
+    @apply font-serif italic text-2xl lg:text-4xl tracking-tight text-primary;
+  }
+
+  .grid-border {
+    @apply border border-border/40;
+  }
   .stat-card {
     @apply bg-card rounded-xl p-6 border border-border/50 shadow-lg transition-all duration-200;
   }
