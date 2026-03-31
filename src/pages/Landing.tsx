@@ -20,36 +20,31 @@ const features = [
     icon: Zap,
     title: "AI Generation",
     desc: "Describe your invoice in plain text and let AI fill in everything for you.",
-    color: "bg-amber-500/10 text-amber-500",
-    size: "col-span-2 row-span-2",
+    color: "bg-primary/10 text-primary",
   },
   {
     icon: FileText,
     title: "Pro Invoices",
     desc: "Polished, branded invoices in seconds.",
-    color: "bg-blue-500/10 text-blue-500",
-    size: "col-span-1 row-span-1",
+    color: "bg-primary/10 text-primary",
   },
   {
     icon: Palette,
     title: "Custom Themes",
     desc: "Full font and color control.",
-    color: "bg-purple-500/10 text-purple-500",
-    size: "col-span-1 row-span-1",
+    color: "bg-primary/10 text-primary",
   },
   {
     icon: Shield,
     title: "GST Ready",
     desc: "Auto-fill bank and tax details.",
-    color: "bg-emerald-500/10 text-emerald-500",
-    size: "col-span-1 row-span-2",
+    color: "bg-primary/10 text-primary",
   },
   {
     icon: BarChart3,
     title: "Analytics",
     desc: "Track your invoice history and activity at a glance.",
-    color: "bg-rose-500/10 text-rose-500",
-    size: "col-span-2 row-span-1",
+    color: "bg-primary/10 text-primary",
   },
 ];
 
@@ -371,10 +366,8 @@ export default function LandingPage() {
                   </div>
 
                   <div className="flex items-start gap-6 relative z-10">
-                    <div
-                      className={`h-14 w-14 shrink-0 rounded-2xl ${f.color} flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg shadow-black/5`}
-                    >
-                      <f.icon className="h-7 w-7" />
+                    <div className="h-14 w-14 shrink-0 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl shadow-primary/20">
+                      <f.icon className="h-6 w-6 text-primary-foreground" />
                     </div>
                     <div className="space-y-2">
                       <h3 className="text-xl font-display font-bold tracking-tight uppercase group-hover:text-primary transition-colors">
