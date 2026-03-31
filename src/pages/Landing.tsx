@@ -120,8 +120,7 @@ export default function LandingPage() {
 
           <nav className="hidden lg:flex items-center gap-16">
             {[
-              { label: "Capabilities", href: "#features" },
-              { label: "Process", href: "#how-it-works" },
+              { label: "Capabilities", href: "#features" }, 
             ].map((link) => (
               <a
                 key={link.label}
