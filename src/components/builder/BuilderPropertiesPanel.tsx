@@ -222,35 +222,43 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       {/* Items Table */}
       {element.type === "items-table" && (
         <>
-          <Label className="text-[10px] font-semibold">Column Headers</Label>
-          <div>
-            <Label className="text-[10px]">Description</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.description || "Description"} onChange={(e) => updateContent("columns", { ...element.content.columns, description: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Qty</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.qty || "Qty"} onChange={(e) => updateContent("columns", { ...element.content.columns, qty: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Price</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.price || "Price"} onChange={(e) => updateContent("columns", { ...element.content.columns, price: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">GST Type</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstType || "GST Type"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstType: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">GST Rate%</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstRate || "GST%"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstRate: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">GST Amount</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstAmt || "GST Amt"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstAmt: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Total</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.total || "Total"} onChange={(e) => updateContent("columns", { ...element.content.columns, total: e.target.value })} />
-          </div>
+          <Label className="text-[10px] font-semibold">Show / Hide Columns</Label>
+          {[
+            { key: "slNo", label: "Sl. No" },
+            { key: "description", label: "Description" },
+            { key: "qty", label: "Quantity" },
+            { key: "price", label: "Price" },
+            { key: "gstType", label: "GST Type" },
+            { key: "gstRate", label: "GST Rate %" },
+            { key: "gstAmt", label: "GST Amount" },
+            { key: "total", label: "Total" },
+          ].map(col => {
+            const vis = element.content.visibleColumns || {};
+            const isVisible = vis[col.key] !== false;
+            return (
+              <div key={col.key} className="flex items-center justify-between">
+                <Label className="text-[10px]">{col.label}</Label>
+                <Switch checked={isVisible} onCheckedChange={(v) => updateContent("visibleColumns", { ...vis, [col.key]: v })} />
+              </div>
+            );
+          })}
+
+          <Label className="text-[10px] font-semibold mt-3">Column Headers</Label>
+          {[
+            { key: "slNo", label: "Sl. No", def: "Sl.No" },
+            { key: "description", label: "Description", def: "Description" },
+            { key: "qty", label: "Qty", def: "Qty" },
+            { key: "price", label: "Price", def: "Price" },
+            { key: "gstType", label: "GST Type", def: "GST Type" },
+            { key: "gstRate", label: "GST Rate%", def: "GST%" },
+            { key: "gstAmt", label: "GST Amount", def: "GST Amt" },
+            { key: "total", label: "Total", def: "Total" },
+          ].filter(col => (element.content.visibleColumns || {})[col.key] !== false).map(col => (
+            <div key={col.key}>
+              <Label className="text-[10px]">{col.label}</Label>
+              <Input className="h-7 text-xs mt-1" value={element.content.columns?.[col.key] || col.def} onChange={(e) => updateContent("columns", { ...element.content.columns, [col.key]: e.target.value })} />
+            </div>
+          ))}
 
           <Label className="text-[10px] font-semibold mt-3">Items</Label>
           {(element.content.items || []).map((item: any, idx: number) => (
