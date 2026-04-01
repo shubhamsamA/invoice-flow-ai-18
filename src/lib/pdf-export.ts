@@ -312,6 +312,8 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       const tdStyleR = tdStyle + "text-align:right;";
       const tdStyleC = tdStyle + "text-align:center;";
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
+      const vis = c.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = c.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
       const rows = data.items
         .map(
           (item: any, i) => {
@@ -320,30 +322,29 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
             const base = item.amount || (item.quantity * item.unit_price);
             const gstAmt = gstType !== "none" && gstRate > 0 ? (base * gstRate) / 100 : 0;
             return `<tr>
-          <td style="${tdStyle}">${i + 1}</td>
-          <td style="${tdStyle}">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>
-          <td style="${tdStyleR}">${item.quantity}</td>
-          <td style="${tdStyleR}">${fmt(item.unit_price, data.currency)}</td>
-          <td style="${tdStyleC};font-size:10px;">${gstLabels[gstType] || "—"}</td>
-          <td style="${tdStyleR}">${gstRate > 0 ? gstRate + "%" : "—"}</td>
-          <td style="${tdStyleR}">${gstAmt > 0 ? fmt(gstAmt, data.currency) : "—"}</td>
-          <td style="${tdStyleR}font-weight:500;">${fmt(base + gstAmt, data.currency)}</td>
+          ${vis.slNo !== false ? `<td style="${tdStyleC}">${i + 1}</td>` : ""}
+          ${vis.description !== false ? `<td style="${tdStyle}">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>` : ""}
+          ${vis.qty !== false ? `<td style="${tdStyleR}">${item.quantity}</td>` : ""}
+          ${vis.price !== false ? `<td style="${tdStyleR}">${fmt(item.unit_price, data.currency)}</td>` : ""}
+          ${vis.gstType !== false ? `<td style="${tdStyleC};font-size:10px;">${gstLabels[gstType] || "—"}</td>` : ""}
+          ${vis.gstRate !== false ? `<td style="${tdStyleR}">${gstRate > 0 ? gstRate + "%" : "—"}</td>` : ""}
+          ${vis.gstAmt !== false ? `<td style="${tdStyleR}">${gstAmt > 0 ? fmt(gstAmt, data.currency) : "—"}</td>` : ""}
+          ${vis.total !== false ? `<td style="${tdStyleR}font-weight:500;">${fmt(base + gstAmt, data.currency)}</td>` : ""}
         </tr>`;
           },
         )
         .join("");
-      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
       return `<div style="${style}overflow:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead><tr>
-            <th style="${thStyle}">#</th>
-            <th style="${thStyle}">${cols.description}</th>
-            <th style="${thStyleR}">${cols.qty}</th>
-            <th style="${thStyleR}">${cols.price}</th>
-            <th style="${thStyleC}">${cols.gstType || "GST Type"}</th>
-            <th style="${thStyleR}">${cols.gstRate || "GST%"}</th>
-            <th style="${thStyleR}">${cols.gstAmt || "GST Amt"}</th>
-            <th style="${thStyleR}">${cols.total}</th>
+            ${vis.slNo !== false ? `<th style="${thStyleC}">${cols.slNo || "Sl.No"}</th>` : ""}
+            ${vis.description !== false ? `<th style="${thStyle}">${cols.description}</th>` : ""}
+            ${vis.qty !== false ? `<th style="${thStyleR}">${cols.qty}</th>` : ""}
+            ${vis.price !== false ? `<th style="${thStyleR}">${cols.price}</th>` : ""}
+            ${vis.gstType !== false ? `<th style="${thStyleC}">${cols.gstType || "GST Type"}</th>` : ""}
+            ${vis.gstRate !== false ? `<th style="${thStyleR}">${cols.gstRate || "GST%"}</th>` : ""}
+            ${vis.gstAmt !== false ? `<th style="${thStyleR}">${cols.gstAmt || "GST Amt"}</th>` : ""}
+            ${vis.total !== false ? `<th style="${thStyleR}">${cols.total}</th>` : ""}
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
