@@ -337,7 +337,7 @@ export default function TemplatesPage() {
     queryFn: async () => {
       const { data, error } = await supabase.from("templates").select("*").order("created_at", { ascending: false });
       if (error) throw error;
-      return data as CustomTemplate[];
+      return data as unknown as CustomTemplate[];
     },
     enabled: !!user,
   });
