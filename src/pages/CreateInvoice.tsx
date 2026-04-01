@@ -716,15 +716,7 @@ export default function CreateInvoicePage() {
                 <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Line Items</h2>
               </div>
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 hover:text-primary"
-                  onClick={() => setShowTableSettings(!showTableSettings)}
-                >
-                  <Settings2 className="h-3.5 w-3.5 mr-1.5" />
-                  Table Settings
-                </Button>
+               
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -811,7 +803,7 @@ export default function CreateInvoicePage() {
                             value={item.name} 
                             onChange={(e) => updateItem(item.id, "name", e.target.value)}
                             placeholder="Item name or service description"
-                            className="border-transparent bg-transparent hover:border-border focus:bg-background transition-all text-sm font-medium"
+                            className="bg-transparent hover:border-border focus:bg-background transition-all text-sm font-medium"
                           />
                         </td>
                         <td className="px-4 py-4">
@@ -819,7 +811,7 @@ export default function CreateInvoicePage() {
                             type="number" 
                             value={item.quantity} 
                             onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                            className="text-center font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background"
+                            className="text-center font-mono text-sm  bg-transparent hover:border-border focus:bg-background"
                           />
                         </td>
                         <td className="px-4 py-4">
@@ -829,7 +821,7 @@ export default function CreateInvoicePage() {
                               type="number" 
                               value={item.price} 
                               onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                              className="text-right pl-6 font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background"
+                              className="text-right pl-6 font-mono text-sm  bg-transparent hover:border-border focus:bg-background"
                             />
                           </div>
                         </td>
@@ -840,7 +832,7 @@ export default function CreateInvoicePage() {
                                 value={item.gst_type} 
                                 onValueChange={(v) => updateItem(item.id, "gst_type", v)}
                               >
-                                <SelectTrigger className="h-9 text-xs border-transparent bg-transparent hover:border-border focus:bg-background">
+                                <SelectTrigger className="h-9 text-xs bg-transparent hover:border-border focus:bg-background">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -856,14 +848,14 @@ export default function CreateInvoicePage() {
                                 value={item.gst_rate} 
                                 onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
                                 disabled={item.gst_type === "none"}
-                                className="text-center font-mono text-sm border-transparent bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
+                                className="text-center font-mono text-sm  bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
                               />
                             </td>
                           </>
                         )}
                         {customColumns.map((col) => (
                           <td key={col.key} className="px-4 py-4">
-                            <Input className="text-xs border-transparent bg-transparent hover:border-border focus:bg-background" />
+                            <Input className="text-xs  bg-transparent hover:border-border focus:bg-background" />
                           </td>
                         ))}
                         <td className="px-6 py-4 text-right">

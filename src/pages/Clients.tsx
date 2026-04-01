@@ -132,7 +132,7 @@ export default function ClientsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6">
       <motion.div
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         initial={{ opacity: 0, y: 12 }}
@@ -223,7 +223,7 @@ export default function ClientsPage() {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5   gap-4">
           {filtered.map((client: any, i: number) => {
             const stats = clientStats[client.id] || { count: 0, total: 0 };
             return (
@@ -236,7 +236,7 @@ export default function ClientsPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-none bg-primary/10 flex items-center justify-center text-[10px] font-bold font-mono text-primary">
+                    <div className="h-10 w-10 rounded-none bg-primary/10 flex items-center justify-center text-[17px] font-bold font-mono text-primary">
                       {client.name
                         .split(" ")
                         .map((w: string) => w[0])
@@ -244,9 +244,9 @@ export default function ClientsPage() {
                         .slice(0, 2)}
                     </div>
                     <div>
-                      <p className="font-bold text-xs font-mono">{client.name}</p>
+                      <p className="font-bold text-lg font-mono">{client.name}</p>
                       {client.email && (
-                        <p className="text-[10px]  flex items-center gap-1 font-mono">
+                        <p className="text-[13px]  flex items-center gap-1 font-mono">
                           <Mail className="h-3 w-3" /> {client.email}
                         </p>
                       )}
@@ -272,7 +272,7 @@ export default function ClientsPage() {
                   </DropdownMenu>
                 </div>
 
-                <div className="mt-4 space-y-2 text-[10px]  font-mono">
+                <div className="mt-4 space-y-2 text-[13px]  font-mono">
                   {client.address && (
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3" /> {client.address}
@@ -281,9 +281,9 @@ export default function ClientsPage() {
                   {client.gst_number && <div>GST: {client.gst_number}</div>}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/50 flex justify-between text-[10px] font-mono">
+                <div className="mt-4 pt-3 border-t border-border/50 flex justify-between text-[13px] font-mono">
                   <span >{stats.count} Invoices</span>
-                  <span className="font-bold tabular-nums">{formatCurrency(stats.total)}</span>
+                  <span className="font-bold tabular-nums text-[13px]">{formatCurrency(stats.total)}</span>
                 </div>
               </motion.div>
             );

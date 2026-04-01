@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { exportFullInvoicePDF } from "@/lib/pdf-export";
+
 
 const statusClasses: Record<string, string> = {
   paid: "invoice-status-paid",
@@ -82,7 +82,7 @@ export default function InvoicesPage() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6">
       <motion.div
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         initial={{ opacity: 0, y: 12 }}
@@ -115,12 +115,12 @@ export default function InvoicesPage() {
       </motion.div>
 
       <motion.div
-        className="flex flex-col sm:flex-row gap-3"
+        className="flex flex-col sm:flex-row gap-3 "
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 max-w-sm ">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search Invoices..."
@@ -145,7 +145,7 @@ export default function InvoicesPage() {
       </motion.div>
 
       <motion.div
-        className="bg-card border border-border/50 rounded-lg overflow-hidden"
+        className="bg-card border border-border/50 rounded-lg overflow-hidden " 
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -156,25 +156,25 @@ export default function InvoicesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs font-mono">
+            <table className="w-full text-xl font-mono">
               <thead>
                 <tr className="border-b border-border/50 bg-muted/20">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-4 py-3 font-large text-muted-foreground uppercase tracking-wider">
                     Invoice ID
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-4 py-3 font-large text-muted-foreground uppercase tracking-wider">
                     Client
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">
+                  <th className="text-left px-4 py-3 font-large text-muted-foreground uppercase tracking-wider hidden md:table-cell">
                     Date
                   </th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
+                  <th className="text-left px-4 py-3 font-large text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                     Due
                   </th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-right px-4 py-3 font-large text-muted-foreground uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="text-center px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-center px-4 py-3 font-large text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-4 py-3 w-10"></th>
@@ -200,7 +200,7 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="font-medium">{inv.clients?.name || "—"}</p>
-                      <p className="text-[10px] text-muted-foreground">{inv.clients?.email || ""}</p>
+                      <p className="text-[15px] text-muted-foreground">{inv.clients?.email || ""}</p>
                     </td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden md:table-cell">{inv.issue_date}</td>
                     <td className="px-4 py-3.5 text-muted-foreground hidden lg:table-cell">{inv.due_date || "—"}</td>
