@@ -407,6 +407,8 @@ export default function CreateInvoicePage() {
           quantity: i.quantity,
           unit_price: i.price,
           amount: i.quantity * i.price,
+          gst_type: i.gst_type,
+          gst_rate: i.gst_rate,
         })),
       layout_json: layoutJson,
       bank_account_name: bankDetails.account_name,
