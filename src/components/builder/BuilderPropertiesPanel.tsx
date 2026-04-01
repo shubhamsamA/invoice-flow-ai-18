@@ -236,9 +236,87 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
             <Input className="h-7 text-xs mt-1" value={element.content.columns?.price || "Price"} onChange={(e) => updateContent("columns", { ...element.content.columns, price: e.target.value })} />
           </div>
           <div>
+            <Label className="text-[10px]">GST Type</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstType || "GST Type"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstType: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-[10px]">GST Rate%</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstRate || "GST%"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstRate: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-[10px]">GST Amount</Label>
+            <Input className="h-7 text-xs mt-1" value={element.content.columns?.gstAmt || "GST Amt"} onChange={(e) => updateContent("columns", { ...element.content.columns, gstAmt: e.target.value })} />
+          </div>
+          <div>
             <Label className="text-[10px]">Total</Label>
             <Input className="h-7 text-xs mt-1" value={element.content.columns?.total || "Total"} onChange={(e) => updateContent("columns", { ...element.content.columns, total: e.target.value })} />
           </div>
+
+          <Label className="text-[10px] font-semibold mt-3">Items</Label>
+          {(element.content.items || []).map((item: any, idx: number) => (
+            <div key={idx} className="space-y-1 bg-muted/30 rounded-md p-2 border border-dashed">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-muted-foreground">Item {idx + 1}</span>
+                <button
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    const newItems = [...(element.content.items || [])];
+                    newItems.splice(idx, 1);
+                    updateContent("items", newItems);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+              <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
+                const newItems = [...(element.content.items || [])];
+                newItems[idx] = { ...newItems[idx], name: e.target.value };
+                updateContent("items", newItems);
+              }} />
+              <div className="grid grid-cols-2 gap-1">
+                <Input className="h-7 text-xs" type="number" placeholder="Qty" value={item.qty || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], qty: parseInt(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} />
+                <Input className="h-7 text-xs" type="number" placeholder="Price" value={item.price || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], price: parseFloat(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} />
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                <Select value={item.gst_type || "none"} onValueChange={(v) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], gst_type: v, gst_rate: v === "none" ? 0 : (newItems[idx].gst_rate || 18) };
+                  updateContent("items", newItems);
+                }}>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No GST</SelectItem>
+                    <SelectItem value="cgst_sgst">CGST+SGST</SelectItem>
+                    <SelectItem value="igst">IGST</SelectItem>
+                    <SelectItem value="cgst_utgst">CGST+UTGST</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input className="h-7 text-xs" type="number" placeholder="GST%" value={item.gst_rate || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], gst_rate: parseFloat(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} disabled={!item.gst_type || item.gst_type === "none"} />
+              </div>
+            </div>
+          ))}
+          <button
+            className="w-full flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 py-1.5 border border-dashed rounded-md"
+            onClick={() => {
+              const newItems = [...(element.content.items || []), { name: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
+              updateContent("items", newItems);
+            }}
+          >
+            <Plus className="h-3 w-3" /> Add Row
+          </button>
+
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}
