@@ -160,10 +160,24 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     }
 
     case "items-table": {
-      const cols = content.columns || { description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const cols = content.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = content.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
       const style = fontStyle(content, { fontSize: 11 });
       const fmt = (n: number) => `₹${(n || 0).toLocaleString("en-IN")}`;
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
+
+      // Build dynamic grid columns
+      const colDefs: { key: string; fr: string; align: string }[] = [];
+      if (vis.slNo) colDefs.push({ key: "slNo", fr: "0.5fr", align: "text-center" });
+      if (vis.description) colDefs.push({ key: "description", fr: "3fr", align: "text-left" });
+      if (vis.qty) colDefs.push({ key: "qty", fr: "1fr", align: "text-right" });
+      if (vis.price) colDefs.push({ key: "price", fr: "1.5fr", align: "text-right" });
+      if (vis.gstType) colDefs.push({ key: "gstType", fr: "1.5fr", align: "text-center" });
+      if (vis.gstRate) colDefs.push({ key: "gstRate", fr: "1fr", align: "text-right" });
+      if (vis.gstAmt) colDefs.push({ key: "gstAmt", fr: "1.5fr", align: "text-right" });
+      if (vis.total) colDefs.push({ key: "total", fr: "1.5fr", align: "text-right" });
+      const gridTemplate = colDefs.map(c => c.fr).join(" ");
+
       return (
         <div className="p-3" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
@@ -171,28 +185,25 @@ export function BuilderElementRenderer({ element, selected }: Props) {
             <span className="text-[10px] uppercase tracking-wider font-medium">Items</span>
           </div>
           <div className="border rounded-md overflow-hidden">
-            <div className="grid gap-px bg-muted text-[10px] uppercase tracking-wider font-medium px-2 py-1.5" style={{ gridTemplateColumns: "3fr 1fr 1.5fr 1.5fr 1fr 1.5fr 1.5fr" }}>
-              <span>{cols.description}</span>
-              <span className="text-right">{cols.qty}</span>
-              <span className="text-right">{cols.price}</span>
-              <span className="text-center">{cols.gstType || "GST Type"}</span>
-              <span className="text-right">{cols.gstRate || "GST%"}</span>
-              <span className="text-right">{cols.gstAmt || "GST Amt"}</span>
-              <span className="text-right">{cols.total}</span>
+            <div className="grid gap-px bg-muted text-[10px] uppercase tracking-wider font-medium px-2 py-1.5" style={{ gridTemplateColumns: gridTemplate }}>
+              {colDefs.map(c => (
+                <span key={c.key} className={c.align}>{cols[c.key]}</span>
+              ))}
             </div>
             {(content.items || []).map((item: any, i: number) => {
               const base = (item.qty || 0) * (item.price || 0);
               const rate = item.gst_rate || 0;
               const gstAmt = item.gst_type && item.gst_type !== "none" && rate > 0 ? (base * rate) / 100 : 0;
               return (
-                <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: "3fr 1fr 1.5fr 1.5fr 1fr 1.5fr 1.5fr" }}>
-                  <span className="truncate">{item.name || "—"}</span>
-                  <span className="text-right tabular-nums">{item.qty}</span>
-                  <span className="text-right tabular-nums">{fmt(item.price)}</span>
-                  <span className="text-center text-[10px] text-muted-foreground">{gstLabels[item.gst_type] || "—"}</span>
-                  <span className="text-right tabular-nums">{rate > 0 ? `${rate}%` : "—"}</span>
-                  <span className="text-right tabular-nums">{gstAmt > 0 ? fmt(gstAmt) : "—"}</span>
-                  <span className="text-right tabular-nums font-medium">{fmt(base + gstAmt)}</span>
+                <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: gridTemplate }}>
+                  {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{i + 1}</span>}
+                  {vis.description && <span className="truncate">{item.name || "—"}</span>}
+                  {vis.qty && <span className="text-right tabular-nums">{item.qty}</span>}
+                  {vis.price && <span className="text-right tabular-nums">{fmt(item.price)}</span>}
+                  {vis.gstType && <span className="text-center text-[10px] text-muted-foreground">{gstLabels[item.gst_type] || "—"}</span>}
+                  {vis.gstRate && <span className="text-right tabular-nums">{rate > 0 ? `${rate}%` : "—"}</span>}
+                  {vis.gstAmt && <span className="text-right tabular-nums">{gstAmt > 0 ? fmt(gstAmt) : "—"}</span>}
+                  {vis.total && <span className="text-right tabular-nums font-medium">{fmt(base + gstAmt)}</span>}
                 </div>
               );
             })}
