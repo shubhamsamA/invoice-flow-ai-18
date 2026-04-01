@@ -160,8 +160,24 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     }
 
     case "items-table": {
-      const cols = content.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
+      const cols = content.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = content.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
       const style = fontStyle(content, { fontSize: 11 });
+      const fmt = (n: number) => `₹${(n || 0).toLocaleString("en-IN")}`;
+      const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
+
+      // Build dynamic grid columns
+      const colDefs: { key: string; fr: string; align: string }[] = [];
+      if (vis.slNo) colDefs.push({ key: "slNo", fr: "0.5fr", align: "text-center" });
+      if (vis.description) colDefs.push({ key: "description", fr: "3fr", align: "text-left" });
+      if (vis.qty) colDefs.push({ key: "qty", fr: "1fr", align: "text-right" });
+      if (vis.price) colDefs.push({ key: "price", fr: "1.5fr", align: "text-right" });
+      if (vis.gstType) colDefs.push({ key: "gstType", fr: "1.5fr", align: "text-center" });
+      if (vis.gstRate) colDefs.push({ key: "gstRate", fr: "1fr", align: "text-right" });
+      if (vis.gstAmt) colDefs.push({ key: "gstAmt", fr: "1.5fr", align: "text-right" });
+      if (vis.total) colDefs.push({ key: "total", fr: "1.5fr", align: "text-right" });
+      const gridTemplate = colDefs.map(c => c.fr).join(" ");
+
       return (
         <div className="p-3" style={style}>
           <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
@@ -169,20 +185,28 @@ export function BuilderElementRenderer({ element, selected }: Props) {
             <span className="text-[10px] uppercase tracking-wider font-medium">Items</span>
           </div>
           <div className="border rounded-md overflow-hidden">
-            <div className="grid grid-cols-12 gap-px bg-muted text-[10px] uppercase tracking-wider font-medium px-2 py-1.5">
-              <span className="col-span-5">{cols.description}</span>
-              <span className="col-span-2 text-right">{cols.qty}</span>
-              <span className="col-span-3 text-right">{cols.price}</span>
-              <span className="col-span-2 text-right">{cols.total}</span>
+            <div className="grid gap-px bg-muted text-[10px] uppercase tracking-wider font-medium px-2 py-1.5" style={{ gridTemplateColumns: gridTemplate }}>
+              {colDefs.map(c => (
+                <span key={c.key} className={c.align}>{cols[c.key]}</span>
+              ))}
             </div>
-            {(content.items || []).map((item: any, i: number) => (
-              <div key={i} className="grid grid-cols-12 gap-px px-2 py-1.5 border-t text-[11px]">
-                <span className="col-span-5 truncate">{item.name || "—"}</span>
-                <span className="col-span-2 text-right tabular-nums">{item.qty}</span>
-                <span className="col-span-3 text-right tabular-nums">₹{(item.price || 0).toLocaleString("en-IN")}</span>
-                <span className="col-span-2 text-right tabular-nums font-medium">₹{((item.qty || 0) * (item.price || 0)).toLocaleString("en-IN")}</span>
-              </div>
-            ))}
+            {(content.items || []).map((item: any, i: number) => {
+              const base = (item.qty || 0) * (item.price || 0);
+              const rate = item.gst_rate || 0;
+              const gstAmt = item.gst_type && item.gst_type !== "none" && rate > 0 ? (base * rate) / 100 : 0;
+              return (
+                <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: gridTemplate }}>
+                  {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{i + 1}</span>}
+                  {vis.description && <span className="truncate">{item.name || "—"}</span>}
+                  {vis.qty && <span className="text-right tabular-nums">{item.qty}</span>}
+                  {vis.price && <span className="text-right tabular-nums">{fmt(item.price)}</span>}
+                  {vis.gstType && <span className="text-center text-[10px] text-muted-foreground">{gstLabels[item.gst_type] || "—"}</span>}
+                  {vis.gstRate && <span className="text-right tabular-nums">{rate > 0 ? `${rate}%` : "—"}</span>}
+                  {vis.gstAmt && <span className="text-right tabular-nums">{gstAmt > 0 ? fmt(gstAmt) : "—"}</span>}
+                  {vis.total && <span className="text-right tabular-nums font-medium">{fmt(base + gstAmt)}</span>}
+                </div>
+              );
+            })}
           </div>
         </div>
       );

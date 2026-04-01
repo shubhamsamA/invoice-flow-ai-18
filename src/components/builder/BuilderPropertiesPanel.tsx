@@ -1,4 +1,5 @@
 import { BuilderElement } from "@/types/builder";
+import { Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -221,23 +222,109 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       {/* Items Table */}
       {element.type === "items-table" && (
         <>
-          <Label className="text-[10px] font-semibold">Column Headers</Label>
-          <div>
-            <Label className="text-[10px]">Description</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.description || "Description"} onChange={(e) => updateContent("columns", { ...element.content.columns, description: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Qty</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.qty || "Qty"} onChange={(e) => updateContent("columns", { ...element.content.columns, qty: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Price</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.price || "Price"} onChange={(e) => updateContent("columns", { ...element.content.columns, price: e.target.value })} />
-          </div>
-          <div>
-            <Label className="text-[10px]">Total</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.columns?.total || "Total"} onChange={(e) => updateContent("columns", { ...element.content.columns, total: e.target.value })} />
-          </div>
+          <Label className="text-[10px] font-semibold">Show / Hide Columns</Label>
+          {[
+            { key: "slNo", label: "Sl. No" },
+            { key: "description", label: "Description" },
+            { key: "qty", label: "Quantity" },
+            { key: "price", label: "Price" },
+            { key: "gstType", label: "GST Type" },
+            { key: "gstRate", label: "GST Rate %" },
+            { key: "gstAmt", label: "GST Amount" },
+            { key: "total", label: "Total" },
+          ].map(col => {
+            const vis = element.content.visibleColumns || {};
+            const isVisible = vis[col.key] !== false;
+            return (
+              <div key={col.key} className="flex items-center justify-between">
+                <Label className="text-[10px]">{col.label}</Label>
+                <Switch checked={isVisible} onCheckedChange={(v) => updateContent("visibleColumns", { ...vis, [col.key]: v })} />
+              </div>
+            );
+          })}
+
+          <Label className="text-[10px] font-semibold mt-3">Column Headers</Label>
+          {[
+            { key: "slNo", label: "Sl. No", def: "Sl.No" },
+            { key: "description", label: "Description", def: "Description" },
+            { key: "qty", label: "Qty", def: "Qty" },
+            { key: "price", label: "Price", def: "Price" },
+            { key: "gstType", label: "GST Type", def: "GST Type" },
+            { key: "gstRate", label: "GST Rate%", def: "GST%" },
+            { key: "gstAmt", label: "GST Amount", def: "GST Amt" },
+            { key: "total", label: "Total", def: "Total" },
+          ].filter(col => (element.content.visibleColumns || {})[col.key] !== false).map(col => (
+            <div key={col.key}>
+              <Label className="text-[10px]">{col.label}</Label>
+              <Input className="h-7 text-xs mt-1" value={element.content.columns?.[col.key] || col.def} onChange={(e) => updateContent("columns", { ...element.content.columns, [col.key]: e.target.value })} />
+            </div>
+          ))}
+
+          <Label className="text-[10px] font-semibold mt-3">Items</Label>
+          {(element.content.items || []).map((item: any, idx: number) => (
+            <div key={idx} className="space-y-1 bg-muted/30 rounded-md p-2 border border-dashed">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-muted-foreground">Item {idx + 1}</span>
+                <button
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    const newItems = [...(element.content.items || [])];
+                    newItems.splice(idx, 1);
+                    updateContent("items", newItems);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+              <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
+                const newItems = [...(element.content.items || [])];
+                newItems[idx] = { ...newItems[idx], name: e.target.value };
+                updateContent("items", newItems);
+              }} />
+              <div className="grid grid-cols-2 gap-1">
+                <Input className="h-7 text-xs" type="number" placeholder="Qty" value={item.qty || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], qty: parseInt(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} />
+                <Input className="h-7 text-xs" type="number" placeholder="Price" value={item.price || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], price: parseFloat(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} />
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                <Select value={item.gst_type || "none"} onValueChange={(v) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], gst_type: v, gst_rate: v === "none" ? 0 : (newItems[idx].gst_rate || 18) };
+                  updateContent("items", newItems);
+                }}>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No GST</SelectItem>
+                    <SelectItem value="cgst_sgst">CGST+SGST</SelectItem>
+                    <SelectItem value="igst">IGST</SelectItem>
+                    <SelectItem value="cgst_utgst">CGST+UTGST</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input className="h-7 text-xs" type="number" placeholder="GST%" value={item.gst_rate || ""} onChange={(e) => {
+                  const newItems = [...(element.content.items || [])];
+                  newItems[idx] = { ...newItems[idx], gst_rate: parseFloat(e.target.value) || 0 };
+                  updateContent("items", newItems);
+                }} disabled={!item.gst_type || item.gst_type === "none"} />
+              </div>
+            </div>
+          ))}
+          <button
+            className="w-full flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 py-1.5 border border-dashed rounded-md"
+            onClick={() => {
+              const newItems = [...(element.content.items || []), { name: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
+              updateContent("items", newItems);
+            }}
+          >
+            <Plus className="h-3 w-3" /> Add Row
+          </button>
+
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
       )}

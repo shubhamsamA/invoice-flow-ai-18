@@ -305,27 +305,46 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       </div>`;
     }
     case "items-table": {
+      const thStyle = "text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;";
+      const thStyleR = thStyle.replace("text-align:left", "text-align:right");
+      const thStyleC = thStyle.replace("text-align:left", "text-align:center");
+      const tdStyle = "padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;";
+      const tdStyleR = tdStyle + "text-align:right;";
+      const tdStyleC = tdStyle + "text-align:center;";
+      const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
+      const vis = c.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = c.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
       const rows = data.items
         .map(
-          (item, i) => `
-        <tr>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;">${i + 1}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">${item.quantity}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;">${fmt(item.unit_price, data.currency)}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:right;font-weight:500;">${fmt(item.amount, data.currency)}</td>
-        </tr>`,
+          (item: any, i) => {
+            const gstType = item.gst_type || "none";
+            const gstRate = item.gst_rate || 0;
+            const base = item.amount || (item.quantity * item.unit_price);
+            const gstAmt = gstType !== "none" && gstRate > 0 ? (base * gstRate) / 100 : 0;
+            return `<tr>
+          ${vis.slNo !== false ? `<td style="${tdStyleC}">${i + 1}</td>` : ""}
+          ${vis.description !== false ? `<td style="${tdStyle}">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>` : ""}
+          ${vis.qty !== false ? `<td style="${tdStyleR}">${item.quantity}</td>` : ""}
+          ${vis.price !== false ? `<td style="${tdStyleR}">${fmt(item.unit_price, data.currency)}</td>` : ""}
+          ${vis.gstType !== false ? `<td style="${tdStyleC};font-size:10px;">${gstLabels[gstType] || "—"}</td>` : ""}
+          ${vis.gstRate !== false ? `<td style="${tdStyleR}">${gstRate > 0 ? gstRate + "%" : "—"}</td>` : ""}
+          ${vis.gstAmt !== false ? `<td style="${tdStyleR}">${gstAmt > 0 ? fmt(gstAmt, data.currency) : "—"}</td>` : ""}
+          ${vis.total !== false ? `<td style="${tdStyleR}font-weight:500;">${fmt(base + gstAmt, data.currency)}</td>` : ""}
+        </tr>`;
+          },
         )
         .join("");
-      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
       return `<div style="${style}overflow:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead><tr>
-            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">#</th>
-            <th style="text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.description}</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.qty}</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.price}</th>
-            <th style="text-align:right;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#8899a6;border-bottom:2px solid #e8edf2;">${cols.total}</th>
+            ${vis.slNo !== false ? `<th style="${thStyleC}">${cols.slNo || "Sl.No"}</th>` : ""}
+            ${vis.description !== false ? `<th style="${thStyle}">${cols.description}</th>` : ""}
+            ${vis.qty !== false ? `<th style="${thStyleR}">${cols.qty}</th>` : ""}
+            ${vis.price !== false ? `<th style="${thStyleR}">${cols.price}</th>` : ""}
+            ${vis.gstType !== false ? `<th style="${thStyleC}">${cols.gstType || "GST Type"}</th>` : ""}
+            ${vis.gstRate !== false ? `<th style="${thStyleR}">${cols.gstRate || "GST%"}</th>` : ""}
+            ${vis.gstAmt !== false ? `<th style="${thStyleR}">${cols.gstAmt || "GST Amt"}</th>` : ""}
+            ${vis.total !== false ? `<th style="${thStyleR}">${cols.total}</th>` : ""}
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
