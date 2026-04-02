@@ -19,6 +19,7 @@ interface InvoiceItem {
   id: string;
   name: string;
   description: string;
+  hsn_sac: string;
   quantity: number;
   price: number;
   gst_type: string;
@@ -36,6 +37,7 @@ const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
   description: "",
+  hsn_sac: "",
   quantity: 1,
   price: 0,
   gst_type: "none",
@@ -170,6 +172,7 @@ export default function EditInvoicePage() {
               id: i.id,
               name: i.name,
               description: i.description || "",
+              hsn_sac: i.hsn_sac || "",
               quantity: Number(i.quantity),
               price: Number(i.unit_price),
               gst_type: "none",
@@ -388,8 +391,8 @@ export default function EditInvoicePage() {
             )}
 
             <div className="space-y-3 overflow-x-auto">
-              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `0.5fr 2fr 0.8fr 1fr 1.5fr 0.8fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
-                <div>Sl.No</div><div>Description</div><div>Qty</div><div>Price</div><div>GST Type</div><div>GST%</div><div>GST Amt</div>
+              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                <div>Sl.No</div><div>Description</div><div>HSN/SAC</div><div>Qty</div><div>Price</div><div>GST Type</div><div>GST%</div><div>GST Amt</div>
                 {customColumns.map((col) => <div key={col.key}>{col.label}</div>)}
                 <div className="text-right">Total</div><div></div>
               </div>
@@ -397,9 +400,10 @@ export default function EditInvoicePage() {
               {items.map((item, idx) => {
                 const itemGst = overallGstEnabled ? (item.quantity * item.price * overallGstRate) / 100 : computeItemGST(item).total;
                 return (
-                  <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.5fr 2fr 0.8fr 1fr 1.5fr 0.8fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                  <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
                     <div className="text-center text-xs font-mono text-muted-foreground">{idx + 1}</div>
                     <Input placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
+                    <Input placeholder="HSN/SAC" value={item.hsn_sac} onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)} className="text-xs font-mono" />
                     <Input className="tabular-nums" type="number" min={1} value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)} />
                     <Input className="tabular-nums" type="number" min={0} value={item.price} onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)} />
                     <Select value={overallGstEnabled ? "overall" : item.gst_type} onValueChange={(v) => { if (!overallGstEnabled) setItems(items.map((i) => i.id === item.id ? { ...i, gst_type: v, gst_rate: v === "none" ? 0 : i.gst_rate || 18 } : i)); }} disabled={overallGstEnabled}>

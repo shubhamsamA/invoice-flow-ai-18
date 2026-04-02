@@ -26,6 +26,7 @@ interface InvoiceItem {
   id: string;
   name: string;
   description: string;
+  hsn_sac: string;
   quantity: number;
   price: number;
   gst_type: string;
@@ -43,6 +44,7 @@ const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
   description: "",
+  hsn_sac: "",
   quantity: 1,
   price: 0,
   gst_type: "none",
@@ -227,6 +229,7 @@ export default function CreateInvoicePage() {
             id: crypto.randomUUID(),
             name: item.name || "",
             description: "",
+            hsn_sac: item.hsn_sac || "",
             quantity: item.qty || 1,
             price: item.price || 0,
             gst_type: aiGst > 0 ? "cgst_sgst" : "none",
@@ -770,22 +773,23 @@ export default function CreateInvoicePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/50">
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[5%]">Sl.No</th>
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[28%]">Description</th>
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">Qty</th>
-                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Price</th>
+                    <th className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[4%]">Sl.No</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[24%]">Description</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">HSN/SAC</th>
+                    <th className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[7%]">Qty</th>
+                    <th className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Price</th>
                     {!overallGstEnabled && (
                       <>
-                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[13%]">GST Type</th>
-                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">GST%</th>
-                        <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">GST Amt</th>
+                        <th className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">GST Type</th>
+                        <th className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[7%]">GST%</th>
+                        <th className="px-3 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[9%]">GST Amt</th>
                       </>
                     )}
                     {customColumns.map((col) => (
-                      <th key={col.key} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{col.label}</th>
+                      <th key={col.key} className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{col.label}</th>
                     ))}
-                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Total</th>
-                    <th className="px-4 py-3 w-[50px]"></th>
+                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Total</th>
+                    <th className="px-3 py-3 w-[40px]"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
@@ -805,12 +809,20 @@ export default function CreateInvoicePage() {
                         <td className="px-4 py-4 text-center">
                           <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <Input 
                             value={item.name} 
                             onChange={(e) => updateItem(item.id, "name", e.target.value)}
                             placeholder="Item name or service description"
                             className="bg-transparent hover:border-border focus:bg-background transition-all text-sm font-medium"
+                          />
+                        </td>
+                        <td className="px-3 py-4">
+                          <Input 
+                            value={item.hsn_sac} 
+                            onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)}
+                            placeholder="HSN/SAC"
+                            className="bg-transparent hover:border-border focus:bg-background text-xs font-mono"
                           />
                         </td>
                         <td className="px-4 py-4">
