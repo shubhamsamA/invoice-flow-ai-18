@@ -19,6 +19,7 @@ interface InvoiceItem {
   id: string;
   name: string;
   description: string;
+  hsn_sac: string;
   quantity: number;
   price: number;
   gst_type: string;
@@ -36,6 +37,7 @@ const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
   name: "",
   description: "",
+  hsn_sac: "",
   quantity: 1,
   price: 0,
   gst_type: "none",
