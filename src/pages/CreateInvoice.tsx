@@ -770,19 +770,21 @@ export default function CreateInvoicePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/50">
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[35%]">Description</th>
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Qty</th>
-                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Price</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[5%]">Sl.No</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[28%]">Description</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">Qty</th>
+                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Price</th>
                     {!overallGstEnabled && (
                       <>
-                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">GST Type</th>
-                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Rate%</th>
+                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[13%]">GST Type</th>
+                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">GST%</th>
+                        <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">GST Amt</th>
                       </>
                     )}
                     {customColumns.map((col) => (
                       <th key={col.key} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{col.label}</th>
                     ))}
-                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Total</th>
+                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Total</th>
                     <th className="px-4 py-3 w-[50px]"></th>
                   </tr>
                 </thead>
