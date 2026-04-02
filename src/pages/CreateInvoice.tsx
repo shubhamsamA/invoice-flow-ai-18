@@ -808,12 +808,20 @@ export default function CreateInvoicePage() {
                         <td className="px-4 py-4 text-center">
                           <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <Input 
                             value={item.name} 
                             onChange={(e) => updateItem(item.id, "name", e.target.value)}
                             placeholder="Item name or service description"
                             className="bg-transparent hover:border-border focus:bg-background transition-all text-sm font-medium"
+                          />
+                        </td>
+                        <td className="px-3 py-4">
+                          <Input 
+                            value={item.hsn_sac} 
+                            onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)}
+                            placeholder="HSN/SAC"
+                            className="bg-transparent hover:border-border focus:bg-background text-xs font-mono"
                           />
                         </td>
                         <td className="px-4 py-4">
