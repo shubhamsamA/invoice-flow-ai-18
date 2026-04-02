@@ -229,6 +229,7 @@ export default function CreateInvoicePage() {
             id: crypto.randomUUID(),
             name: item.name || "",
             description: "",
+            hsn_sac: item.hsn_sac || "",
             quantity: item.qty || 1,
             price: item.price || 0,
             gst_type: aiGst > 0 ? "cgst_sgst" : "none",
