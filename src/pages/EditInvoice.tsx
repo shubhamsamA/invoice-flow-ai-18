@@ -388,17 +388,17 @@ export default function EditInvoicePage() {
             )}
 
             <div className="space-y-3 overflow-x-auto">
-              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}>
-                <div>Description</div><div>Qty</div><div>Price</div><div>GST Type</div><div>Rate%</div>
+              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `0.5fr 2fr 0.8fr 1fr 1.5fr 0.8fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                <div>Sl.No</div><div>Description</div><div>Qty</div><div>Price</div><div>GST Type</div><div>GST%</div><div>GST Amt</div>
                 {customColumns.map((col) => <div key={col.key}>{col.label}</div>)}
                 <div className="text-right">Total</div><div></div>
               </div>
 
               {items.map((item, idx) => {
                 const itemGst = overallGstEnabled ? (item.quantity * item.price * overallGstRate) / 100 : computeItemGST(item).total;
-                const g = computeItemGST(item);
                 return (
-                  <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `2fr 1fr 1fr 1.5fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.5fr auto` }}>
+                  <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.5fr 2fr 0.8fr 1fr 1.5fr 0.8fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                    <div className="text-center text-xs font-mono text-muted-foreground">{idx + 1}</div>
                     <Input placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
                     <Input className="tabular-nums" type="number" min={1} value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)} />
                     <Input className="tabular-nums" type="number" min={0} value={item.price} onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)} />
@@ -407,14 +407,10 @@ export default function EditInvoicePage() {
                       <SelectContent>{GST_TYPES.map((g) => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                     </Select>
                     <Input className="tabular-nums" type="number" min={0} value={overallGstEnabled ? overallGstRate : item.gst_rate} onChange={(e) => { if (!overallGstEnabled) updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0); }} disabled={overallGstEnabled || item.gst_type === "none"} />
+                    <div className="text-right text-xs font-mono text-muted-foreground">{formatCurrency(itemGst)}</div>
                     {customColumns.map((col) => <Input key={col.key} className="text-xs" placeholder={col.label} />)}
                     <div className="text-right">
                       <p className="text-sm font-medium tabular-nums">{formatCurrency(item.quantity * item.price + itemGst)}</p>
-                      {!overallGstEnabled && item.gst_type !== "none" && item.gst_rate > 0 && (
-                        <p className="text-[10px] text-muted-foreground">
-                          {g.cgst > 0 && `C:${formatCurrency(g.cgst)} `}{g.sgst > 0 && `S:${formatCurrency(g.sgst)} `}{g.igst > 0 && `I:${formatCurrency(g.igst)} `}{g.utgst > 0 && `U:${formatCurrency(g.utgst)}`}
-                        </p>
-                      )}
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)} disabled={items.length === 1}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
