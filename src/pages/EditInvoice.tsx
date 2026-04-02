@@ -172,6 +172,7 @@ export default function EditInvoicePage() {
               id: i.id,
               name: i.name,
               description: i.description || "",
+              hsn_sac: i.hsn_sac || "",
               quantity: Number(i.quantity),
               price: Number(i.unit_price),
               gst_type: "none",
