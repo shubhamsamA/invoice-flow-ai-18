@@ -770,19 +770,21 @@ export default function CreateInvoicePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/50">
-                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[35%]">Description</th>
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Qty</th>
-                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Price</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[5%]">Sl.No</th>
+                    <th className="px-6 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[28%]">Description</th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">Qty</th>
+                    <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Price</th>
                     {!overallGstEnabled && (
                       <>
-                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">GST Type</th>
-                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">Rate%</th>
+                        <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[13%]">GST Type</th>
+                        <th className="px-4 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[8%]">GST%</th>
+                        <th className="px-4 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">GST Amt</th>
                       </>
                     )}
                     {customColumns.map((col) => (
                       <th key={col.key} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{col.label}</th>
                     ))}
-                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[15%]">Total</th>
+                    <th className="px-6 py-3 text-right text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[12%]">Total</th>
                     <th className="px-4 py-3 w-[50px]"></th>
                   </tr>
                 </thead>
@@ -800,6 +802,9 @@ export default function CreateInvoicePage() {
                         transition={{ delay: idx * 0.05 }}
                         className="group hover:bg-muted/20 transition-colors"
                       >
+                        <td className="px-4 py-4 text-center">
+                          <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
+                        </td>
                         <td className="px-6 py-4">
                           <Input 
                             value={item.name} 
@@ -813,7 +818,7 @@ export default function CreateInvoicePage() {
                             type="number" 
                             value={item.quantity} 
                             onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                            className="text-center font-mono text-sm  bg-transparent hover:border-border focus:bg-background"
+                            className="text-center font-mono text-sm bg-transparent hover:border-border focus:bg-background"
                           />
                         </td>
                         <td className="px-4 py-4">
@@ -823,7 +828,7 @@ export default function CreateInvoicePage() {
                               type="number" 
                               value={item.price} 
                               onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                              className="text-right pl-6 font-mono text-sm  bg-transparent hover:border-border focus:bg-background"
+                              className="text-right pl-6 font-mono text-sm bg-transparent hover:border-border focus:bg-background"
                             />
                           </div>
                         </td>
@@ -850,25 +855,25 @@ export default function CreateInvoicePage() {
                                 value={item.gst_rate} 
                                 onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
                                 disabled={item.gst_type === "none"}
-                                className="text-center font-mono text-sm  bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
+                                className="text-center font-mono text-sm bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
                               />
+                            </td>
+                            <td className="px-4 py-4 text-right">
+                              <span className="font-mono text-sm text-muted-foreground">
+                                {formatCurrency(itemGst)}
+                              </span>
                             </td>
                           </>
                         )}
                         {customColumns.map((col) => (
                           <td key={col.key} className="px-4 py-4">
-                            <Input className="text-xs  bg-transparent hover:border-border focus:bg-background" />
+                            <Input className="text-xs bg-transparent hover:border-border focus:bg-background" />
                           </td>
                         ))}
                         <td className="px-6 py-4 text-right">
                           <div className="font-mono font-bold text-foreground text-sm">
                             {formatCurrency(item.quantity * item.price + itemGst)}
                           </div>
-                          {!overallGstEnabled && item.gst_type !== "none" && item.gst_rate > 0 && (
-                            <div className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-tighter mt-1">
-                              Tax: {formatCurrency(itemGst)}
-                            </div>
-                          )}
                         </td>
                         <td className="px-4 py-4">
                           <Button 
