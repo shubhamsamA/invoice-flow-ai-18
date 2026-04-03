@@ -281,6 +281,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
                 newItems[idx] = { ...newItems[idx], name: e.target.value };
                 updateContent("items", newItems);
               }} />
+              <Input className="h-7 text-xs" placeholder="HSN/SAC Code" value={item.hsn_sac || ""} onChange={(e) => {
+                const newItems = [...(element.content.items || [])];
+                newItems[idx] = { ...newItems[idx], hsn_sac: e.target.value };
+                updateContent("items", newItems);
+              }} />
               <div className="grid grid-cols-2 gap-1">
                 <Input className="h-7 text-xs" type="number" placeholder="Qty" value={item.qty || ""} onChange={(e) => {
                   const newItems = [...(element.content.items || [])];
