@@ -107,34 +107,51 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
         </div>
       );
     case "items-table": {
-      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total" };
+      const cols = c.columns || { description: "Description", qty: "Qty", price: "Price", total: "Total", slNo: "#", hsnSac: "HSN/SAC", gstType: "GST Type", gstRate: "Rate %", gstAmount: "GST Amt" };
+      const vis = c.visibleColumns || { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmount: true, total: true };
       const ff = getFontFamily(c.fontFamily);
       const fs = c.fontSize || 12;
+      const thStyle = (align: string = "left"): React.CSSProperties => ({ textAlign: align as any, padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" });
+      const tdStyle = (align: string = "left"): React.CSSProperties => ({ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12, textAlign: align as any });
       return (
         <div className="p-3" style={{ fontSize: fs, fontFamily: ff }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>#</th>
-                <th style={{ textAlign: "left", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.description}</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.qty}</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.price}</th>
-                <th style={{ textAlign: "right", padding: "6px 8px", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8899a6", borderBottom: "2px solid #e8edf2" }}>{cols.total}</th>
+                {vis.slNo !== false && <th style={thStyle()}>{cols.slNo || "#"}</th>}
+                {vis.description !== false && <th style={thStyle()}>{cols.description || "Description"}</th>}
+                {vis.hsnSac && <th style={thStyle()}>{cols.hsnSac || "HSN/SAC"}</th>}
+                {vis.qty !== false && <th style={thStyle("right")}>{cols.qty || "Qty"}</th>}
+                {vis.price !== false && <th style={thStyle("right")}>{cols.price || "Price"}</th>}
+                {vis.gstType && <th style={thStyle()}>{cols.gstType || "GST Type"}</th>}
+                {vis.gstRate && <th style={thStyle("right")}>{cols.gstRate || "Rate %"}</th>}
+                {vis.gstAmount && <th style={thStyle("right")}>{cols.gstAmount || "GST Amt"}</th>}
+                {vis.total !== false && <th style={thStyle("right")}>{cols.total || "Total"}</th>}
               </tr>
             </thead>
             <tbody>
-              {data.items.map((item, i) => (
-                <tr key={i}>
-                  <td style={{ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12 }}>{i + 1}</td>
-                  <td style={{ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12 }}>
-                    {item.name}
-                    {item.description && <div style={{ fontSize: 10, color: "#888" }}>{item.description}</div>}
-                  </td>
-                  <td style={{ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12, textAlign: "right" }}>{item.quantity}</td>
-                  <td style={{ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12, textAlign: "right" }}>{fmt(item.unit_price, data.currency)}</td>
-                  <td style={{ padding: "6px 8px", borderBottom: "1px solid #eee", fontSize: 12, textAlign: "right", fontWeight: 500 }}>{fmt(item.amount, data.currency)}</td>
-                </tr>
-              ))}
+              {data.items.map((item, i) => {
+                const gstRate = (item as any).gst_rate || data.gst_rate || 0;
+                const gstAmt = item.amount * gstRate / 100;
+                return (
+                  <tr key={i}>
+                    {vis.slNo !== false && <td style={tdStyle()}>{i + 1}</td>}
+                    {vis.description !== false && (
+                      <td style={tdStyle()}>
+                        {item.name}
+                        {item.description && <div style={{ fontSize: 10, color: "#888" }}>{item.description}</div>}
+                      </td>
+                    )}
+                    {vis.hsnSac && <td style={tdStyle()}>{(item as any).hsn_sac || "—"}</td>}
+                    {vis.qty !== false && <td style={tdStyle("right")}>{item.quantity}</td>}
+                    {vis.price !== false && <td style={tdStyle("right")}>{fmt(item.unit_price, data.currency)}</td>}
+                    {vis.gstType && <td style={tdStyle()}>{(item as any).gst_type || "IGST"}</td>}
+                    {vis.gstRate && <td style={tdStyle("right")}>{gstRate}%</td>}
+                    {vis.gstAmount && <td style={tdStyle("right")}>{fmt(gstAmt, data.currency)}</td>}
+                    {vis.total !== false && <td style={{ ...tdStyle("right"), fontWeight: 500 }}>{fmt(item.amount, data.currency)}</td>}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
