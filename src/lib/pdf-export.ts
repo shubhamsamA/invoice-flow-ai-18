@@ -312,8 +312,8 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       const tdStyleR = tdStyle + "text-align:right;";
       const tdStyleC = tdStyle + "text-align:center;";
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
-      const vis = c.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
-      const cols = c.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = c.visibleColumns || { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = c.columns || { slNo: "Sl.No", description: "Description", hsnSac: "HSN/SAC", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
       const rows = data.items
         .map(
           (item: any, i) => {
