@@ -247,6 +247,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           {[
             { key: "slNo", label: "Sl. No", def: "Sl.No" },
             { key: "description", label: "Description", def: "Description" },
+            { key: "hsnSac", label: "HSN/SAC", def: "HSN/SAC" },
             { key: "qty", label: "Qty", def: "Qty" },
             { key: "price", label: "Price", def: "Price" },
             { key: "gstType", label: "GST Type", def: "GST Type" },
