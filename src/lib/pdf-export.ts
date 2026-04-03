@@ -312,8 +312,8 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       const tdStyleR = tdStyle + "text-align:right;";
       const tdStyleC = tdStyle + "text-align:center;";
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
-      const vis = c.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
-      const cols = c.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = c.visibleColumns || { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = c.columns || { slNo: "Sl.No", description: "Description", hsnSac: "HSN/SAC", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
       const rows = data.items
         .map(
           (item: any, i) => {
@@ -324,6 +324,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
             return `<tr>
           ${vis.slNo !== false ? `<td style="${tdStyleC}">${i + 1}</td>` : ""}
           ${vis.description !== false ? `<td style="${tdStyle}">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>` : ""}
+          ${vis.hsnSac !== false ? `<td style="${tdStyleC};font-size:10px;">${(item as any).hsn_sac || "—"}</td>` : ""}
           ${vis.qty !== false ? `<td style="${tdStyleR}">${item.quantity}</td>` : ""}
           ${vis.price !== false ? `<td style="${tdStyleR}">${fmt(item.unit_price, data.currency)}</td>` : ""}
           ${vis.gstType !== false ? `<td style="${tdStyleC};font-size:10px;">${gstLabels[gstType] || "—"}</td>` : ""}
@@ -339,6 +340,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
           <thead><tr>
             ${vis.slNo !== false ? `<th style="${thStyleC}">${cols.slNo || "Sl.No"}</th>` : ""}
             ${vis.description !== false ? `<th style="${thStyle}">${cols.description}</th>` : ""}
+            ${vis.hsnSac !== false ? `<th style="${thStyleC}">${cols.hsnSac || "HSN/SAC"}</th>` : ""}
             ${vis.qty !== false ? `<th style="${thStyleR}">${cols.qty}</th>` : ""}
             ${vis.price !== false ? `<th style="${thStyleR}">${cols.price}</th>` : ""}
             ${vis.gstType !== false ? `<th style="${thStyleC}">${cols.gstType || "GST Type"}</th>` : ""}

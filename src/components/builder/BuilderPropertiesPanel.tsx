@@ -226,6 +226,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           {[
             { key: "slNo", label: "Sl. No" },
             { key: "description", label: "Description" },
+            { key: "hsnSac", label: "HSN/SAC" },
             { key: "qty", label: "Quantity" },
             { key: "price", label: "Price" },
             { key: "gstType", label: "GST Type" },
@@ -247,6 +248,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           {[
             { key: "slNo", label: "Sl. No", def: "Sl.No" },
             { key: "description", label: "Description", def: "Description" },
+            { key: "hsnSac", label: "HSN/SAC", def: "HSN/SAC" },
             { key: "qty", label: "Qty", def: "Qty" },
             { key: "price", label: "Price", def: "Price" },
             { key: "gstType", label: "GST Type", def: "GST Type" },
@@ -279,6 +281,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
               <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
                 const newItems = [...(element.content.items || [])];
                 newItems[idx] = { ...newItems[idx], name: e.target.value };
+                updateContent("items", newItems);
+              }} />
+              <Input className="h-7 text-xs" placeholder="HSN/SAC Code" value={item.hsn_sac || ""} onChange={(e) => {
+                const newItems = [...(element.content.items || [])];
+                newItems[idx] = { ...newItems[idx], hsn_sac: e.target.value };
                 updateContent("items", newItems);
               }} />
               <div className="grid grid-cols-2 gap-1">
@@ -318,7 +325,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           <button
             className="w-full flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 py-1.5 border border-dashed rounded-md"
             onClick={() => {
-              const newItems = [...(element.content.items || []), { name: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
+              const newItems = [...(element.content.items || []), { name: "", hsn_sac: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
               updateContent("items", newItems);
             }}
           >

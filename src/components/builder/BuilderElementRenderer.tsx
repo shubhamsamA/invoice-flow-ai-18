@@ -160,8 +160,8 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     }
 
     case "items-table": {
-      const cols = content.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
-      const vis = content.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = content.columns || { slNo: "Sl.No", description: "Description", hsnSac: "HSN/SAC", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = content.visibleColumns || { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
       const style = fontStyle(content, { fontSize: 11 });
       const fmt = (n: number) => `₹${(n || 0).toLocaleString("en-IN")}`;
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
@@ -170,6 +170,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
       const colDefs: { key: string; fr: string; align: string }[] = [];
       if (vis.slNo) colDefs.push({ key: "slNo", fr: "0.5fr", align: "text-center" });
       if (vis.description) colDefs.push({ key: "description", fr: "3fr", align: "text-left" });
+      if (vis.hsnSac) colDefs.push({ key: "hsnSac", fr: "1.2fr", align: "text-center" });
       if (vis.qty) colDefs.push({ key: "qty", fr: "1fr", align: "text-right" });
       if (vis.price) colDefs.push({ key: "price", fr: "1.5fr", align: "text-right" });
       if (vis.gstType) colDefs.push({ key: "gstType", fr: "1.5fr", align: "text-center" });
@@ -198,6 +199,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
                 <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: gridTemplate }}>
                   {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{i + 1}</span>}
                   {vis.description && <span className="truncate">{item.name || "—"}</span>}
+                  {vis.hsnSac && <span className="text-center text-[10px] text-muted-foreground">{item.hsn_sac || "—"}</span>}
                   {vis.qty && <span className="text-right tabular-nums">{item.qty}</span>}
                   {vis.price && <span className="text-right tabular-nums">{fmt(item.price)}</span>}
                   {vis.gstType && <span className="text-center text-[10px] text-muted-foreground">{gstLabels[item.gst_type] || "—"}</span>}
