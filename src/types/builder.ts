@@ -70,7 +70,7 @@ export const DEFAULT_CONTENT: Record<BuilderElementType, Record<string, any>> = 
   text: { text: "Your text here", fontSize: 14, bold: false },
   logo: { url: "", placeholder: true },
   "client-details": { name: "Client Name", email: "client@example.com", address: "123 Main St", gst: "GSTIN" },
-  "items-table": { items: [{ name: "Item 1", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }], columns: { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" }, visibleColumns: { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true } },
+  "items-table": { items: [{ name: "Item 1", hsn_sac: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }], columns: { slNo: "Sl.No", description: "Description", hsnSac: "HSN/SAC", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" }, visibleColumns: { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true } },
   "total-summary": { subtotal: 0, gst: 18, discount: 0 },
   signature: { label: "Authorized Signature", signed: false },
   divider: { style: "solid", color: "#dddddd", thickness: 1, spacing: 0 },
