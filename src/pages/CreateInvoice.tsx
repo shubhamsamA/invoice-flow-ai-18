@@ -497,7 +497,7 @@ export default function CreateInvoicePage() {
   };
 
   return (
-    <div className={cn("max-w-7xl mx-auto pb-20", showPreview ? "" : "max-w-5xl")}>
+    <div className="max-w-5xl mx-auto pb-20">
       {/* Header Section */}
       <motion.div
         className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
@@ -519,7 +519,7 @@ export default function CreateInvoicePage() {
             <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono">
               <span className="bg-muted px-2 py-0.5 rounded uppercase">{nextNumber}</span>
               <span>•</span>
-              <span>Draft Mode</span>
+              <span>{showPreview ? "Preview Mode" : "Draft Mode"}</span>
             </div>
           </div>
         </div>
@@ -534,8 +534,8 @@ export default function CreateInvoicePage() {
             )}
             onClick={() => setShowPreview(!showPreview)}
           >
-            {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {showPreview ? "Hide Preview" : "Live Preview"}
+            {showPreview ? <FileText className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPreview ? "Back to Form" : "Live Preview"}
           </Button>
           <Button 
             className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300"
@@ -548,7 +548,31 @@ export default function CreateInvoicePage() {
         </div>
       </motion.div>
 
-      <div className={cn("grid gap-8", showPreview ? "grid-cols-1 xl:grid-cols-[1fr,400px]" : "grid-cols-1")}>
+      {showPreview ? (
+        <motion.div
+          className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="px-4 py-3 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-destructive/40" />
+              <div className="w-2 h-2 rounded-full bg-warning/40" />
+              <div className="w-2 h-2 rounded-full bg-success/40" />
+            </div>
+          </div>
+          <div className="h-[75vh] overflow-auto bg-white p-4">
+            <iframe
+              srcDoc={previewHTML}
+              className="w-full h-full border-none"
+              title="Invoice Preview"
+            />
+          </div>
+        </motion.div>
+      ) : (
+
+      <div className="grid gap-8 grid-cols-1">
         <div className="space-y-8">
           {/* Main Configuration Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
