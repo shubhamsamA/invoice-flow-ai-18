@@ -160,8 +160,8 @@ export function BuilderElementRenderer({ element, selected }: Props) {
     }
 
     case "items-table": {
-      const cols = content.columns || { slNo: "Sl.No", description: "Description", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
-      const vis = content.visibleColumns || { slNo: true, description: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
+      const cols = content.columns || { slNo: "Sl.No", description: "Description", hsnSac: "HSN/SAC", qty: "Qty", price: "Price", gstType: "GST Type", gstRate: "GST%", gstAmt: "GST Amt", total: "Total" };
+      const vis = content.visibleColumns || { slNo: true, description: true, hsnSac: true, qty: true, price: true, gstType: true, gstRate: true, gstAmt: true, total: true };
       const style = fontStyle(content, { fontSize: 11 });
       const fmt = (n: number) => `₹${(n || 0).toLocaleString("en-IN")}`;
       const gstLabels: Record<string, string> = { none: "—", cgst_sgst: "CGST+SGST", igst: "IGST", cgst_utgst: "CGST+UTGST" };
