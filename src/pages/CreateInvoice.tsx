@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { 
   ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
-  Check, Eye, EyeOff, ChevronDown, ChevronUp, 
+  Check, Eye, ChevronDown, ChevronUp, 
   FileText, User, Calendar, CreditCard, Receipt, 
   Settings2, Info, Sparkles
 } from "lucide-react";
