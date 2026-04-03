@@ -1097,32 +1097,9 @@ export default function CreateInvoicePage() {
             </Button>
           </motion.div>
 
-          {showPreview && (
-            <motion.div 
-              className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden sticky top-[480px]"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="px-4 py-2 border-b border-border/50 bg-muted/30 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-destructive/40" />
-                  <div className="w-2 h-2 rounded-full bg-warning/40" />
-                  <div className="w-2 h-2 rounded-full bg-success/40" />
-                </div>
-              </div>
-              <div className="h-[500px] overflow-auto bg-whitep-4">
-               <iframe
-                  srcDoc={previewHTML}
-                  className="w-full h-full border-none  "
-                  title="Invoice Preview"
-                />
-               
-              </div>
-            </motion.div>
-          )}
         </div>
       </div>
+      )}
     </div>
   );
 }
