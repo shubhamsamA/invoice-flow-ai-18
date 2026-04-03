@@ -199,6 +199,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
                 <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: gridTemplate }}>
                   {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{i + 1}</span>}
                   {vis.description && <span className="truncate">{item.name || "—"}</span>}
+                  {vis.hsnSac && <span className="text-center text-[10px] text-muted-foreground">{item.hsn_sac || "—"}</span>}
                   {vis.qty && <span className="text-right tabular-nums">{item.qty}</span>}
                   {vis.price && <span className="text-right tabular-nums">{fmt(item.price)}</span>}
                   {vis.gstType && <span className="text-center text-[10px] text-muted-foreground">{gstLabels[item.gst_type] || "—"}</span>}

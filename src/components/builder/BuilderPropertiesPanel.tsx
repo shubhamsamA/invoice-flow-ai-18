@@ -323,7 +323,7 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
           <button
             className="w-full flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 py-1.5 border border-dashed rounded-md"
             onClick={() => {
-              const newItems = [...(element.content.items || []), { name: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
+              const newItems = [...(element.content.items || []), { name: "", hsn_sac: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
               updateContent("items", newItems);
             }}
           >

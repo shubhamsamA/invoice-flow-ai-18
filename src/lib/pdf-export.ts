@@ -340,6 +340,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
           <thead><tr>
             ${vis.slNo !== false ? `<th style="${thStyleC}">${cols.slNo || "Sl.No"}</th>` : ""}
             ${vis.description !== false ? `<th style="${thStyle}">${cols.description}</th>` : ""}
+            ${vis.hsnSac !== false ? `<th style="${thStyleC}">${cols.hsnSac || "HSN/SAC"}</th>` : ""}
             ${vis.qty !== false ? `<th style="${thStyleR}">${cols.qty}</th>` : ""}
             ${vis.price !== false ? `<th style="${thStyleR}">${cols.price}</th>` : ""}
             ${vis.gstType !== false ? `<th style="${thStyleC}">${cols.gstType || "GST Type"}</th>` : ""}
