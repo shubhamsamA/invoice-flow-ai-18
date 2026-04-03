@@ -170,6 +170,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
       const colDefs: { key: string; fr: string; align: string }[] = [];
       if (vis.slNo) colDefs.push({ key: "slNo", fr: "0.5fr", align: "text-center" });
       if (vis.description) colDefs.push({ key: "description", fr: "3fr", align: "text-left" });
+      if (vis.hsnSac) colDefs.push({ key: "hsnSac", fr: "1.2fr", align: "text-center" });
       if (vis.qty) colDefs.push({ key: "qty", fr: "1fr", align: "text-right" });
       if (vis.price) colDefs.push({ key: "price", fr: "1.5fr", align: "text-right" });
       if (vis.gstType) colDefs.push({ key: "gstType", fr: "1.5fr", align: "text-center" });
