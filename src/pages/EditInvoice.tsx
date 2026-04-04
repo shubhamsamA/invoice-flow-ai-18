@@ -174,8 +174,9 @@ export default function EditInvoicePage() {
       setDiscount(sub > 0 ? Math.round((disc / sub) * 100 * 100) / 100 : 0);
       setItems(
         invoice.items.length > 0
-          ? invoice.items.map((i: any) => ({
+          ? invoice.items.map((i: any, idx: number) => ({
               id: i.id,
+              sl_no: i.sort_order != null ? i.sort_order + 1 : idx + 1,
               name: i.name,
               description: i.description || "",
               hsn_sac: i.hsn_sac || "",
