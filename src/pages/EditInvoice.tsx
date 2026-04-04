@@ -126,6 +126,7 @@ export default function EditInvoicePage() {
   const [overallGstRate, setOverallGstRate] = useState(18);
   const [showTableSettings, setShowTableSettings] = useState(false);
   const [customColumns, setCustomColumns] = useState<{ key: string; label: string }[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
