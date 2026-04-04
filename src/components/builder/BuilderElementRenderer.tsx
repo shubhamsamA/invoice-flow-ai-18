@@ -197,7 +197,7 @@ export function BuilderElementRenderer({ element, selected }: Props) {
               const gstAmt = item.gst_type && item.gst_type !== "none" && rate > 0 ? (base * rate) / 100 : 0;
               return (
                 <div key={i} className="grid gap-px px-2 py-1.5 border-t text-[11px]" style={{ gridTemplateColumns: gridTemplate }}>
-                  {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{i + 1}</span>}
+                  {vis.slNo && <span className="text-center tabular-nums text-muted-foreground">{item.sl_no || i + 1}</span>}
                   {vis.description && <span className="truncate">{item.name || "—"}</span>}
                   {vis.hsnSac && <span className="text-center text-[10px] text-muted-foreground">{item.hsn_sac || "—"}</span>}
                   {vis.qty && <span className="text-right tabular-nums">{item.qty}</span>}

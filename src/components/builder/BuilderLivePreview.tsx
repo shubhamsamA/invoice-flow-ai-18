@@ -135,7 +135,7 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
                 const gstAmt = item.amount * gstRate / 100;
                 return (
                   <tr key={i}>
-                    {vis.slNo !== false && <td style={tdStyle()}>{i + 1}</td>}
+                    {vis.slNo !== false && <td style={tdStyle()}>{item.sl_no || i + 1}</td>}
                     {vis.description !== false && (
                       <td style={tdStyle()}>
                         {item.name}
