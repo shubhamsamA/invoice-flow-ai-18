@@ -559,10 +559,27 @@ export default function CreateInvoicePage() {
         >
           <div className="px-4 py-3 border-b border-border/50 bg-muted/30 flex items-center justify-between">
             <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-destructive/40" />
-              <div className="w-2 h-2 rounded-full bg-warning/40" />
-              <div className="w-2 h-2 rounded-full bg-success/40" />
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => {
+                  const printWindow = window.open('', '_blank');
+                  if (printWindow) {
+                    printWindow.document.write(previewHTML);
+                    printWindow.document.close();
+                    printWindow.onload = () => { printWindow.print(); };
+                  }
+                }}
+              >
+                <Download className="h-3.5 w-3.5" /> Download PDF
+              </Button>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-destructive/40" />
+                <div className="w-2 h-2 rounded-full bg-warning/40" />
+                <div className="w-2 h-2 rounded-full bg-success/40" />
+              </div>
             </div>
           </div>
           <div className="h-[75vh] overflow-auto bg-white p-4">
