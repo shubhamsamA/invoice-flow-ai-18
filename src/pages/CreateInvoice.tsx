@@ -3,7 +3,7 @@ import {
   ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
   Check, Eye, ChevronDown, ChevronUp, 
   FileText, User, Calendar, CreditCard, Receipt, 
-  Settings2, Info, Sparkles
+  Settings2, Info, Sparkles, Download
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
