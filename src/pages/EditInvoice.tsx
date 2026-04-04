@@ -413,8 +413,8 @@ export default function EditInvoicePage() {
               </div>
             </div>
           </div>
-          <div className="h-[75vh] overflow-auto bg-white p-4">
-            <iframe srcDoc={previewHTML} className="w-full h-full border-none" title="Invoice Preview" />
+          <div className="bg-white">
+            <iframe srcDoc={previewHTML} className="w-full border-none" style={{ minHeight: "calc(100vh - 180px)" }} title="Invoice Preview" />
           </div>
         </motion.div>
       ) : (
