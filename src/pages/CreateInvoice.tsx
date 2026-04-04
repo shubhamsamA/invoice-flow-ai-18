@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
+  sl_no: number;
   name: string;
   description: string;
   hsn_sac: string;
@@ -40,8 +41,10 @@ const GST_TYPES = [
   { value: "cgst_utgst", label: "CGST + UTGST" },
 ];
 
+let slNoCounter = 1;
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
+  sl_no: slNoCounter++,
   name: "",
   description: "",
   hsn_sac: "",
