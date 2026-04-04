@@ -228,8 +228,9 @@ export default function CreateInvoicePage() {
       if (aiData.items && aiData.items.length > 0) {
         const aiGst = typeof aiData.gst === "number" ? aiData.gst : 0;
         setItems(
-          aiData.items.map((item: any) => ({
+          aiData.items.map((item: any, idx: number) => ({
             id: crypto.randomUUID(),
+            sl_no: idx + 1,
             name: item.name || "",
             description: "",
             hsn_sac: item.hsn_sac || "",
