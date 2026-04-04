@@ -505,7 +505,7 @@ export default function EditInvoicePage() {
                 const itemGst = overallGstEnabled ? (item.quantity * item.price * overallGstRate) / 100 : computeItemGST(item).total;
                 return (
                   <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
-                    <div className="text-center text-xs font-mono text-muted-foreground">{idx + 1}</div>
+                    <Input type="number" min={1} value={item.sl_no} onChange={(e) => updateItem(item.id, "sl_no", parseInt(e.target.value) || 1)} className="w-14 text-center text-xs font-mono tabular-nums" />
                     <Input placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
                     <Input placeholder="HSN/SAC" value={item.hsn_sac} onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)} className="text-xs font-mono" />
                     <Input className="tabular-nums" type="number" min={1} value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)} />

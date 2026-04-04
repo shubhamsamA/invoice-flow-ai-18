@@ -851,7 +851,13 @@ export default function CreateInvoicePage() {
                         className="group hover:bg-muted/20 transition-colors"
                       >
                         <td className="px-4 py-4 text-center">
-                          <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={item.sl_no}
+                            onChange={(e) => updateItem(item.id, "sl_no", parseInt(e.target.value) || 1)}
+                            className="w-14 text-center text-xs font-mono tabular-nums bg-transparent"
+                          />
                         </td>
                         <td className="px-4 py-4">
                           <Input 
