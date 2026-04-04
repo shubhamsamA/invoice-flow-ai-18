@@ -550,6 +550,7 @@ export default function EditInvoicePage() {
           </div>
         </motion.div>
       </div>
+      )}
     </div>
   );
 }
