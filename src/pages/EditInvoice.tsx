@@ -241,6 +241,41 @@ export default function EditInvoicePage() {
   const total = subtotal + gstAmount - discountAmount;
   const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 
+  const selectedClient = clients.find((c: any) => c.id === clientId);
+
+  const previewHTML = useMemo(() => {
+    const layoutJson = getSelectedLayoutJson();
+    const previewData = {
+      invoice_number: invoiceNumber,
+      issue_date: issueDate,
+      due_date: dueDate || null,
+      status: "unpaid" as const,
+      subtotal,
+      discount: discountAmount,
+      gst_rate: gstRate,
+      gst_amount: gstAmount,
+      total,
+      currency: "INR",
+      notes: notes || null,
+      client_name: selectedClient?.name || "",
+      client_email: "",
+      client_address: "",
+      items: items
+        .filter((i) => i.name.trim())
+        .map((i) => ({
+          name: i.name,
+          description: i.description,
+          quantity: i.quantity,
+          unit_price: i.price,
+          amount: i.quantity * i.price,
+          gst_type: i.gst_type,
+          gst_rate: i.gst_rate,
+        })),
+      layout_json: layoutJson,
+    };
+    return generateInvoicePreviewHTML(previewData);
+  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+
   const handleSave = async () => {
     if (!items.some((i) => i.name.trim())) { toast.error("Add at least one item"); return; }
     setSaving(true);
