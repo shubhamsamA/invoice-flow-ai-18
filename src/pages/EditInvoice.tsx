@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp, Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
+import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
@@ -124,6 +126,7 @@ export default function EditInvoicePage() {
   const [overallGstRate, setOverallGstRate] = useState(18);
   const [showTableSettings, setShowTableSettings] = useState(false);
   const [customColumns, setCustomColumns] = useState<{ key: string; label: string }[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -238,6 +241,41 @@ export default function EditInvoicePage() {
   const total = subtotal + gstAmount - discountAmount;
   const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 
+  const selectedClient = clients.find((c: any) => c.id === clientId);
+
+  const previewHTML = useMemo(() => {
+    const layoutJson = getSelectedLayoutJson();
+    const previewData = {
+      invoice_number: invoiceNumber,
+      issue_date: issueDate,
+      due_date: dueDate || null,
+      status: "unpaid" as const,
+      subtotal,
+      discount: discountAmount,
+      gst_rate: gstRate,
+      gst_amount: gstAmount,
+      total,
+      currency: "INR",
+      notes: notes || null,
+      client_name: selectedClient?.name || "",
+      client_email: "",
+      client_address: "",
+      items: items
+        .filter((i) => i.name.trim())
+        .map((i) => ({
+          name: i.name,
+          description: i.description,
+          quantity: i.quantity,
+          unit_price: i.price,
+          amount: i.quantity * i.price,
+          gst_type: i.gst_type,
+          gst_rate: i.gst_rate,
+        })),
+      layout_json: layoutJson,
+    };
+    return generateInvoicePreviewHTML(previewData);
+  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+
   const handleSave = async () => {
     if (!items.some((i) => i.name.trim())) { toast.error("Add at least one item"); return; }
     setSaving(true);
@@ -308,11 +346,57 @@ export default function EditInvoicePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <motion.div className="flex items-center gap-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-        <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link></Button>
-        <div><h1 className="text-2xl font-semibold">Edit {invoiceNumber}</h1><p className="text-sm text-muted-foreground">Update invoice details</p></div>
+    <div className="max-w-5xl mx-auto pb-20">
+      <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="rounded-full h-10 w-10 border-border" asChild><Link to="/invoices"><ArrowLeft className="h-4 w-4" /></Link></Button>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">Edit {invoiceNumber}</h1>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono">
+              <span className="bg-muted px-2 py-0.5 rounded uppercase">{invoiceNumber}</span>
+              <span>•</span>
+              <span>{showPreview ? "Preview Mode" : "Draft Mode"}</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "gap-2 font-medium transition-all duration-300",
+              showPreview ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90" : "bg-card border-border"
+            )}
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? <FileText className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPreview ? "Back to Form" : "Live Preview"}
+          </Button>
+          <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Update Invoice
+          </Button>
+        </div>
       </motion.div>
+
+      {showPreview ? (
+        <motion.div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="px-4 py-3 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-destructive/40" />
+              <div className="w-2 h-2 rounded-full bg-warning/40" />
+              <div className="w-2 h-2 rounded-full bg-success/40" />
+            </div>
+          </div>
+          <div className="h-[75vh] overflow-auto bg-white p-4">
+            <iframe srcDoc={previewHTML} className="w-full h-full border-none" title="Invoice Preview" />
+          </div>
+        </motion.div>
+      ) : (
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div className="lg:col-span-2 space-y-6" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
@@ -466,6 +550,7 @@ export default function EditInvoicePage() {
           </div>
         </motion.div>
       </div>
+      )}
     </div>
   );
 }
