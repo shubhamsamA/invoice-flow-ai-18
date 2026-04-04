@@ -3,7 +3,7 @@ import {
   ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
   Check, Eye, ChevronDown, ChevronUp, 
   FileText, User, Calendar, CreditCard, Receipt, 
-  Settings2, Info, Sparkles
+  Settings2, Info, Sparkles, Download
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
+  sl_no: number;
   name: string;
   description: string;
   hsn_sac: string;
@@ -40,8 +41,10 @@ const GST_TYPES = [
   { value: "cgst_utgst", label: "CGST + UTGST" },
 ];
 
+let slNoCounter = 1;
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
+  sl_no: slNoCounter++,
   name: "",
   description: "",
   hsn_sac: "",
@@ -225,8 +228,9 @@ export default function CreateInvoicePage() {
       if (aiData.items && aiData.items.length > 0) {
         const aiGst = typeof aiData.gst === "number" ? aiData.gst : 0;
         setItems(
-          aiData.items.map((item: any) => ({
+          aiData.items.map((item: any, idx: number) => ({
             id: crypto.randomUUID(),
+            sl_no: idx + 1,
             name: item.name || "",
             description: "",
             hsn_sac: item.hsn_sac || "",
@@ -556,10 +560,27 @@ export default function CreateInvoicePage() {
         >
           <div className="px-4 py-3 border-b border-border/50 bg-muted/30 flex items-center justify-between">
             <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-destructive/40" />
-              <div className="w-2 h-2 rounded-full bg-warning/40" />
-              <div className="w-2 h-2 rounded-full bg-success/40" />
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => {
+                  const printWindow = window.open('', '_blank');
+                  if (printWindow) {
+                    printWindow.document.write(previewHTML);
+                    printWindow.document.close();
+                    printWindow.onload = () => { printWindow.print(); };
+                  }
+                }}
+              >
+                <Download className="h-3.5 w-3.5" /> Download PDF
+              </Button>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-destructive/40" />
+                <div className="w-2 h-2 rounded-full bg-warning/40" />
+                <div className="w-2 h-2 rounded-full bg-success/40" />
+              </div>
             </div>
           </div>
           <div className="h-[75vh] overflow-auto bg-white p-4">
@@ -831,7 +852,13 @@ export default function CreateInvoicePage() {
                         className="group hover:bg-muted/20 transition-colors"
                       >
                         <td className="px-4 py-4 text-center">
-                          <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={item.sl_no}
+                            onChange={(e) => updateItem(item.id, "sl_no", parseInt(e.target.value) || 1)}
+                            className="w-14 text-center text-xs font-mono tabular-nums bg-transparent"
+                          />
                         </td>
                         <td className="px-4 py-4">
                           <Input 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp, Eye, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp, Eye, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
+  sl_no: number;
   name: string;
   description: string;
   hsn_sac: string;
@@ -35,8 +36,10 @@ const GST_TYPES = [
   { value: "cgst_utgst", label: "CGST + UTGST" },
 ];
 
+let editSlNoCounter = 1;
 const emptyItem = (): InvoiceItem => ({
   id: crypto.randomUUID(),
+  sl_no: editSlNoCounter++,
   name: "",
   description: "",
   hsn_sac: "",
@@ -171,8 +174,9 @@ export default function EditInvoicePage() {
       setDiscount(sub > 0 ? Math.round((disc / sub) * 100 * 100) / 100 : 0);
       setItems(
         invoice.items.length > 0
-          ? invoice.items.map((i: any) => ({
+          ? invoice.items.map((i: any, idx: number) => ({
               id: i.id,
+              sl_no: i.sort_order != null ? i.sort_order + 1 : idx + 1,
               name: i.name,
               description: i.description || "",
               hsn_sac: i.hsn_sac || "",
@@ -386,10 +390,27 @@ export default function EditInvoicePage() {
         <motion.div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="px-4 py-3 border-b border-border/50 bg-muted/30 flex items-center justify-between">
             <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Live Preview</span>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-destructive/40" />
-              <div className="w-2 h-2 rounded-full bg-warning/40" />
-              <div className="w-2 h-2 rounded-full bg-success/40" />
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => {
+                  const printWindow = window.open('', '_blank');
+                  if (printWindow) {
+                    printWindow.document.write(previewHTML);
+                    printWindow.document.close();
+                    printWindow.onload = () => { printWindow.print(); };
+                  }
+                }}
+              >
+                <Download className="h-3.5 w-3.5" /> Download PDF
+              </Button>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-destructive/40" />
+                <div className="w-2 h-2 rounded-full bg-warning/40" />
+                <div className="w-2 h-2 rounded-full bg-success/40" />
+              </div>
             </div>
           </div>
           <div className="h-[75vh] overflow-auto bg-white p-4">
@@ -485,7 +506,7 @@ export default function EditInvoicePage() {
                 const itemGst = overallGstEnabled ? (item.quantity * item.price * overallGstRate) / 100 : computeItemGST(item).total;
                 return (
                   <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
-                    <div className="text-center text-xs font-mono text-muted-foreground">{idx + 1}</div>
+                    <Input type="number" min={1} value={item.sl_no} onChange={(e) => updateItem(item.id, "sl_no", parseInt(e.target.value) || 1)} className="w-14 text-center text-xs font-mono tabular-nums" />
                     <Input placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
                     <Input placeholder="HSN/SAC" value={item.hsn_sac} onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)} className="text-xs font-mono" />
                     <Input className="tabular-nums" type="number" min={1} value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)} />
