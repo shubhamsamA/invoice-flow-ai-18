@@ -278,11 +278,24 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
                   <Trash2 className="h-3 w-3" />
                 </button>
               </div>
-              <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
-                const newItems = [...(element.content.items || [])];
-                newItems[idx] = { ...newItems[idx], name: e.target.value };
-                updateContent("items", newItems);
-              }} />
+              <div className="grid grid-cols-3 gap-1">
+                <div>
+                  <Label className="text-[9px] text-muted-foreground">Sl.No</Label>
+                  <Input className="h-7 text-xs" type="number" min={1} value={item.sl_no || idx + 1} onChange={(e) => {
+                    const newItems = [...(element.content.items || [])];
+                    newItems[idx] = { ...newItems[idx], sl_no: parseInt(e.target.value) || 1 };
+                    updateContent("items", newItems);
+                  }} />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-[9px] text-muted-foreground">Name</Label>
+                  <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
+                    const newItems = [...(element.content.items || [])];
+                    newItems[idx] = { ...newItems[idx], name: e.target.value };
+                    updateContent("items", newItems);
+                  }} />
+                </div>
+              </div>
               <Input className="h-7 text-xs" placeholder="HSN/SAC Code" value={item.hsn_sac || ""} onChange={(e) => {
                 const newItems = [...(element.content.items || [])];
                 newItems[idx] = { ...newItems[idx], hsn_sac: e.target.value };
