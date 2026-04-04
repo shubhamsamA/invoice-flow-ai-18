@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, Check, ChevronDown, ChevronUp, Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
+import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: string;
