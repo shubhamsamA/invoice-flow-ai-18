@@ -1,10 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { 
   ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
   Check, Eye, ChevronDown, ChevronUp, 
   FileText, User, Calendar, CreditCard, Receipt, 
-  Settings2, Info, Sparkles, Download
+  Settings2, Info, Sparkles, Download, GripVertical
 } from "lucide-react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,6 +129,25 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
   },
 ];
 
+function SortableInvoiceRow({ item, idx, children }: { item: InvoiceItem; idx: number; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className="group hover:bg-muted/20 transition-colors">
+      <td className="px-1 py-4 w-[30px]">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors p-1">
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </td>
+      {children}
+    </tr>
+  );
+}
+
 export default function CreateInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -165,6 +187,22 @@ export default function CreateInvoicePage() {
   ]);
   const [showTableSettings, setShowTableSettings] = useState(false);
   const [customColumns, setCustomColumns] = useState<{ key: string; label: string }[]>([]);
+
+  // DnD sensors & handler
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setItems((prev) => {
+        const oldIndex = prev.findIndex((i) => i.id === active.id);
+        const newIndex = prev.findIndex((i) => i.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  }, []);
 
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
@@ -819,6 +857,7 @@ export default function CreateInvoicePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/50">
+                    <th className="px-1 py-3 w-[30px]"></th>
                     <th className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[4%]">Sl.No</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[24%]">Description</th>
                     <th className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">HSN/SAC</th>
@@ -838,6 +877,8 @@ export default function CreateInvoicePage() {
                     <th className="px-3 py-3 w-[40px]"></th>
                   </tr>
                 </thead>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
                 <tbody className="divide-y divide-border/50">
                   {items.map((item, idx) => {
                     const itemGst = overallGstEnabled
@@ -845,13 +886,7 @@ export default function CreateInvoicePage() {
                       : computeItemGST(item).total;
                     const g = computeItemGST(item);
                     return (
-                      <motion.tr 
-                        key={item.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="group hover:bg-muted/20 transition-colors"
-                      >
+                      <SortableInvoiceRow key={item.id} item={item} idx={idx}>
                         <td className="px-4 py-4 text-center">
                           <Input
                             type="number"
@@ -950,10 +985,12 @@ export default function CreateInvoicePage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </td>
-                      </motion.tr>
+                      </SortableInvoiceRow>
                     );
                   })}
                 </tbody>
+                </SortableContext>
+                </DndContext>
               </table>
             </div>
             
