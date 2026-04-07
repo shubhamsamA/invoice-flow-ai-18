@@ -129,6 +129,25 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
   },
 ];
 
+function SortableInvoiceRow({ item, idx, children }: { item: InvoiceItem; idx: number; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className="group hover:bg-muted/20 transition-colors">
+      <td className="px-1 py-4 w-[30px]">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors p-1">
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </td>
+      {children}
+    </tr>
+  );
+}
+
 export default function CreateInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
