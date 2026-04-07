@@ -1,10 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { 
   ArrowLeft, Plus, Trash2, Save, Loader2, LayoutTemplate, 
   Check, Eye, ChevronDown, ChevronUp, 
   FileText, User, Calendar, CreditCard, Receipt, 
-  Settings2, Info, Sparkles, Download
+  Settings2, Info, Sparkles, Download, GripVertical
 } from "lucide-react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
