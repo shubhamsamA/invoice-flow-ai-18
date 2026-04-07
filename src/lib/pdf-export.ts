@@ -488,7 +488,7 @@ export function generateInvoicePreviewHTML(data: FullInvoiceData): string {
     .map(
       (item, i) => `
     <tr>
-      <td>${i + 1}</td>
+      <td>${item.sl_no || i + 1}</td>
       <td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td>
       <td>${item.quantity}</td>
       <td>${fmt(item.unit_price, data.currency)}</td>
