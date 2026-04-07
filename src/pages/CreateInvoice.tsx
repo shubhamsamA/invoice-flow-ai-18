@@ -838,6 +838,7 @@ export default function CreateInvoicePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/50">
+                    <th className="px-1 py-3 w-[30px]"></th>
                     <th className="px-3 py-3 text-center text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[4%]">Sl.No</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[24%]">Description</th>
                     <th className="px-3 py-3 text-left text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest w-[10%]">HSN/SAC</th>
@@ -857,6 +858,8 @@ export default function CreateInvoicePage() {
                     <th className="px-3 py-3 w-[40px]"></th>
                   </tr>
                 </thead>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
                 <tbody className="divide-y divide-border/50">
                   {items.map((item, idx) => {
                     const itemGst = overallGstEnabled
@@ -864,13 +867,7 @@ export default function CreateInvoicePage() {
                       : computeItemGST(item).total;
                     const g = computeItemGST(item);
                     return (
-                      <motion.tr 
-                        key={item.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="group hover:bg-muted/20 transition-colors"
-                      >
+                      <SortableInvoiceRow key={item.id} item={item} idx={idx}>
                         <td className="px-4 py-4 text-center">
                           <Input
                             type="number"
@@ -969,10 +966,12 @@ export default function CreateInvoicePage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </td>
-                      </motion.tr>
+                      </SortableInvoiceRow>
                     );
                   })}
                 </tbody>
+                </SortableContext>
+                </DndContext>
               </table>
             </div>
             
