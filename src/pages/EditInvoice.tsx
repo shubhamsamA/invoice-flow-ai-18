@@ -112,6 +112,23 @@ const builtinTemplateOptions: { id: string; name: string; elements: BuilderEleme
   },
 ];
 
+function SortableEditRow({ item, gridTemplate, children }: { item: InvoiceItem; gridTemplate: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={{ ...style, gridTemplateColumns: gridTemplate }} className="grid gap-1 items-center">
+      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors p-1 flex justify-center">
+        <GripVertical className="h-3.5 w-3.5" />
+      </button>
+      {children}
+    </div>
+  );
+}
+
 export default function EditInvoicePage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -515,8 +532,8 @@ export default function EditInvoicePage() {
             )}
 
             <div className="space-y-3 overflow-x-auto">
-              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
-                <div>Sl.No</div><div>Description</div><div>HSN/SAC</div><div>Qty</div><div>Price</div><div>GST Type</div><div>GST%</div><div>GST Amt</div>
+              <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1" style={{ gridTemplateColumns: `24px 0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                <div></div><div>Sl.No</div><div>Description</div><div>HSN/SAC</div><div>Qty</div><div>Price</div><div>GST Type</div><div>GST%</div><div>GST Amt</div>
                 {customColumns.map((col) => <div key={col.key}>{col.label}</div>)}
                 <div className="text-right">Total</div><div></div>
               </div>
