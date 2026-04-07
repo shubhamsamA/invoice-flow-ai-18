@@ -538,10 +538,13 @@ export default function EditInvoicePage() {
                 <div className="text-right">Total</div><div></div>
               </div>
 
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
               {items.map((item, idx) => {
                 const itemGst = overallGstEnabled ? (item.quantity * item.price * overallGstRate) / 100 : computeItemGST(item).total;
+                const gridTemplate = `24px 0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto`;
                 return (
-                  <div key={item.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `0.4fr 2fr 1fr 0.7fr 1fr 1.5fr 0.7fr 1fr ${customColumns.map(() => '1fr').join(' ')} 1.2fr auto` }}>
+                  <SortableEditRow key={item.id} item={item} gridTemplate={gridTemplate}>
                     <Input type="number" min={1} value={item.sl_no} onChange={(e) => updateItem(item.id, "sl_no", parseInt(e.target.value) || 1)} className="w-14 text-center text-xs font-mono tabular-nums" />
                     <Input placeholder="Item name" value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} />
                     <Input placeholder="HSN/SAC" value={item.hsn_sac} onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)} className="text-xs font-mono" />
@@ -558,9 +561,11 @@ export default function EditInvoicePage() {
                       <p className="text-sm font-medium tabular-nums">{formatCurrency(item.quantity * item.price + itemGst)}</p>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)} disabled={items.length === 1}><Trash2 className="h-3.5 w-3.5" /></Button>
-                  </div>
+                  </SortableEditRow>
                 );
               })}
+              </SortableContext>
+              </DndContext>
             </div>
           </div>
 
