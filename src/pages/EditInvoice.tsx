@@ -134,6 +134,22 @@ export default function EditInvoicePage() {
   const [customColumns, setCustomColumns] = useState<{ key: string; label: string }[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
+  // DnD sensors & handler
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setItems((prev) => {
+        const oldIndex = prev.findIndex((i) => i.id === active.id);
+        const newIndex = prev.findIndex((i) => i.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  }, []);
+
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
