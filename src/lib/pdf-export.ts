@@ -26,7 +26,7 @@ interface FullInvoiceData {
   client_email?: string;
   client_address?: string;
   client_gst?: string;
-  items: { name: string; description?: string; quantity: number; unit_price: number; amount: number }[];
+  items: { name: string; description?: string; quantity: number; unit_price: number; amount: number; sl_no?: number }[];
   // Business branding
   business_name?: string;
   business_email?: string;
@@ -203,7 +203,7 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   const itemsRows = data.items
     .map(
       (item, i) => `
-    <tr><td>${i + 1}</td><td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td><td>${item.quantity}</td><td>${fmt(item.unit_price, data.currency)}</td><td style="font-weight:500;">${fmt(item.amount, data.currency)}</td></tr>`,
+    <tr><td>${item.sl_no || i + 1}</td><td>${item.name}${item.description ? `<div style="font-size:11px;color:#888;margin-top:2px;">${item.description}</div>` : ""}</td><td>${item.quantity}</td><td>${fmt(item.unit_price, data.currency)}</td><td style="font-weight:500;">${fmt(item.amount, data.currency)}</td></tr>`,
     )
     .join("");
 
@@ -322,7 +322,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
             const base = item.amount || (item.quantity * item.unit_price);
             const gstAmt = gstType !== "none" && gstRate > 0 ? (base * gstRate) / 100 : 0;
             return `<tr>
-          ${vis.slNo !== false ? `<td style="${tdStyleC}">${i + 1}</td>` : ""}
+          ${vis.slNo !== false ? `<td style="${tdStyleC}">${(item as any).sl_no || i + 1}</td>` : ""}
           ${vis.description !== false ? `<td style="${tdStyle}">${item.name}${item.description ? `<div style="font-size:10px;color:#888;">${item.description}</div>` : ""}</td>` : ""}
           ${vis.hsnSac !== false ? `<td style="${tdStyleC};font-size:10px;">${(item as any).hsn_sac || "—"}</td>` : ""}
           ${vis.qty !== false ? `<td style="${tdStyleR}">${item.quantity}</td>` : ""}

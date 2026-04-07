@@ -59,12 +59,13 @@ export default function InvoicePreview() {
       client_email: invoice.clients?.email,
       client_address: invoice.clients?.address,
       client_gst: invoice.clients?.gst_number,
-      items: invoice.items.map((i: any) => ({
+      items: invoice.items.map((i: any, idx: number) => ({
         name: i.name,
         description: i.description,
         quantity: Number(i.quantity),
         unit_price: Number(i.unit_price),
         amount: Number(i.amount),
+        sl_no: i.sort_order != null ? i.sort_order + 1 : idx + 1,
       })),
       // Business branding
       business_name: profile?.business_name || undefined,
