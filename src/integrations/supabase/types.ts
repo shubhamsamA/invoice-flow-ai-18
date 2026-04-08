@@ -101,6 +101,7 @@ export type Database = {
           gst_amount: number
           gst_rate: number
           id: string
+          inline_client_json: Json | null
           invoice_number: string
           issue_date: string
           layout_json: Json | null
@@ -120,6 +121,7 @@ export type Database = {
           gst_amount?: number
           gst_rate?: number
           id?: string
+          inline_client_json?: Json | null
           invoice_number: string
           issue_date?: string
           layout_json?: Json | null
@@ -139,6 +141,7 @@ export type Database = {
           gst_amount?: number
           gst_rate?: number
           id?: string
+          inline_client_json?: Json | null
           invoice_number?: string
           issue_date?: string
           layout_json?: Json | null
