@@ -501,7 +501,15 @@ export default function EditInvoicePage() {
             <h2 className="text-sm font-semibold">Invoice Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label className="text-xs">Client</Label>
-                <Select value={clientId} onValueChange={setClientId}><SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger><SelectContent>{clients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent></Select>
+                <ClientSelector
+                  clients={clients}
+                  clientId={clientId}
+                  onClientIdChange={setClientId}
+                  inlineDetails={inlineClientDetails}
+                  onInlineDetailsChange={setInlineClientDetails}
+                  clientMode={clientMode}
+                  onClientModeChange={(mode) => { setClientMode(mode); if (mode !== "select") setClientId(""); }}
+                />
               </div>
               <div className="space-y-1.5"><Label className="text-xs">Invoice Number</Label><Input value={invoiceNumber} readOnly className="bg-muted/50" /></div>
               <div className="space-y-1.5"><Label className="text-xs">Issue Date</Label><Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} /></div>
