@@ -329,7 +329,7 @@ export default function EditInvoicePage() {
       const layoutJson = getSelectedLayoutJson();
       const { error: invError } = await supabase
         .from("invoices")
-        .update({ client_id: clientMode === "select" && clientId ? clientId : null, issue_date: issueDate, due_date: dueDate || null, subtotal, discount: discountAmount, gst_rate: gstRate, gst_amount: gstAmount, total, layout_json: layoutJson, notes: notes || null, inline_client_json: clientMode === "inline" ? inlineClientDetails : null })
+        .update({ client_id: clientMode === "select" && clientId ? clientId : null, issue_date: issueDate, due_date: dueDate || null, subtotal, discount: discountAmount, gst_rate: gstRate, gst_amount: gstAmount, total, layout_json: layoutJson, notes: notes || null, inline_client_json: clientMode === "inline" ? (inlineClientDetails as any) : null })
         .eq("id", id!);
       if (invError) throw invError;
       await supabase.from("invoice_items").delete().eq("invoice_id", id!);

@@ -392,7 +392,7 @@ export default function CreateInvoicePage() {
           total: total,
           layout_json: layoutJson,
           notes: notes || null,
-          inline_client_json: clientMode === "inline" ? inlineClientDetails : null,
+          inline_client_json: clientMode === "inline" ? (inlineClientDetails as any) : null,
         })
         .select("id")
         .single();
