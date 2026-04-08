@@ -285,6 +285,9 @@ export default function EditInvoicePage() {
   const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 
   const selectedClient = clients.find((c: any) => c.id === clientId);
+  const resolvedClientName = clientMode === "inline" ? inlineClientDetails.name : (selectedClient?.name || "");
+  const resolvedClientEmail = clientMode === "inline" ? inlineClientDetails.email : "";
+  const resolvedClientAddress = clientMode === "inline" ? inlineClientDetails.address : "";
 
   const previewHTML = useMemo(() => {
     const layoutJson = getSelectedLayoutJson();
@@ -300,9 +303,9 @@ export default function EditInvoicePage() {
       total,
       currency: "INR",
       notes: notes || null,
-      client_name: selectedClient?.name || "",
-      client_email: "",
-      client_address: "",
+      client_name: resolvedClientName,
+      client_email: resolvedClientEmail,
+      client_address: resolvedClientAddress,
       items: items
         .filter((i) => i.name.trim())
         .map((i) => ({
