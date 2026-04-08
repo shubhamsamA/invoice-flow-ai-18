@@ -655,18 +655,15 @@ export default function CreateInvoicePage() {
               </div>
               <div className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-foreground">Select Client</Label>
-                  <Select value={clientId} onValueChange={setClientId}>
-                    <SelectTrigger className="bg-muted/50 border-border focus:ring-primary">
-                      <SelectValue placeholder="Choose a client..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clients.map((c: any) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <ClientSelector
+                    clients={clients}
+                    clientId={clientId}
+                    onClientIdChange={setClientId}
+                    inlineDetails={inlineClientDetails}
+                    onInlineDetailsChange={setInlineClientDetails}
+                    clientMode={clientMode}
+                    onClientModeChange={(mode) => { setClientMode(mode); if (mode !== "select") setClientId(""); }}
+                  />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold text-foreground">Issue Date</Label>
