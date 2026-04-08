@@ -24,6 +24,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 import { cn } from "@/lib/utils";
+import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 
 interface InvoiceItem {
   id: string;
@@ -156,6 +157,8 @@ export default function CreateInvoicePage() {
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
   const [discount, setDiscount] = useState(0);
   const [clientId, setClientId] = useState("");
+  const [clientMode, setClientMode] = useState<ClientMode>("select");
+  const [inlineClientDetails, setInlineClientDetails] = useState<InlineClientDetails>({ ...emptyInline });
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -427,6 +430,9 @@ export default function CreateInvoicePage() {
 
   // Build live preview data
   const selectedClient = clients.find((c: any) => c.id === clientId);
+  const resolvedClientName = clientMode === "inline" ? inlineClientDetails.name : (selectedClient?.name || "");
+  const resolvedClientEmail = clientMode === "inline" ? inlineClientDetails.email : "";
+  const resolvedClientAddress = clientMode === "inline" ? inlineClientDetails.address : "";
   const previewHTML = useMemo(() => {
     const layoutJson = getSelectedLayoutJson();
     const previewData = {
@@ -441,9 +447,9 @@ export default function CreateInvoicePage() {
       total,
       currency: "INR",
       notes: notes || null,
-      client_name: selectedClient?.name || "",
-      client_email: "",
-      client_address: "",
+      client_name: resolvedClientName,
+      client_email: resolvedClientEmail,
+      client_address: resolvedClientAddress,
       items: items
         .filter((i) => i.name.trim())
         .map((i) => ({
@@ -464,7 +470,7 @@ export default function CreateInvoicePage() {
       bank_upi_id: bankDetails.upi_id,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, bankDetails]);
+  }, [nextNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, bankDetails, clientMode, inlineClientDetails]);
 
   // GST summary component
   const GstSummary = () => (
