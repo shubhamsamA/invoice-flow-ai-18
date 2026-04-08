@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 import { cn } from "@/lib/utils";
+import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 
 interface InvoiceItem {
   id: string;
@@ -137,6 +138,8 @@ export default function EditInvoicePage() {
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
   const [discount, setDiscount] = useState(0);
   const [clientId, setClientId] = useState("");
+  const [clientMode, setClientMode] = useState<ClientMode>("select");
+  const [inlineClientDetails, setInlineClientDetails] = useState<InlineClientDetails>({ ...emptyInline });
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [dueDate, setDueDate] = useState("");
