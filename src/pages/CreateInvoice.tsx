@@ -664,6 +664,7 @@ export default function CreateInvoicePage() {
                     clientMode={clientMode}
                     onClientModeChange={(mode) => { setClientMode(mode); if (mode !== "select") setClientId(""); }}
                   />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold text-foreground">Issue Date</Label>
