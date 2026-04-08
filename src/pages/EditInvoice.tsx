@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 import { cn } from "@/lib/utils";
+import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 
 interface InvoiceItem {
   id: string;
@@ -137,6 +138,8 @@ export default function EditInvoicePage() {
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()]);
   const [discount, setDiscount] = useState(0);
   const [clientId, setClientId] = useState("");
+  const [clientMode, setClientMode] = useState<ClientMode>("select");
+  const [inlineClientDetails, setInlineClientDetails] = useState<InlineClientDetails>({ ...emptyInline });
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -282,6 +285,9 @@ export default function EditInvoicePage() {
   const formatCurrency = (n: number) => `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 
   const selectedClient = clients.find((c: any) => c.id === clientId);
+  const resolvedClientName = clientMode === "inline" ? inlineClientDetails.name : (selectedClient?.name || "");
+  const resolvedClientEmail = clientMode === "inline" ? inlineClientDetails.email : "";
+  const resolvedClientAddress = clientMode === "inline" ? inlineClientDetails.address : "";
 
   const previewHTML = useMemo(() => {
     const layoutJson = getSelectedLayoutJson();
@@ -297,9 +303,9 @@ export default function EditInvoicePage() {
       total,
       currency: "INR",
       notes: notes || null,
-      client_name: selectedClient?.name || "",
-      client_email: "",
-      client_address: "",
+      client_name: resolvedClientName,
+      client_email: resolvedClientEmail,
+      client_address: resolvedClientAddress,
       items: items
         .filter((i) => i.name.trim())
         .map((i) => ({
@@ -314,7 +320,7 @@ export default function EditInvoicePage() {
       layout_json: layoutJson,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, clientMode, inlineClientDetails]);
 
   const handleSave = async () => {
     if (!items.some((i) => i.name.trim())) { toast.error("Add at least one item"); return; }
@@ -495,7 +501,15 @@ export default function EditInvoicePage() {
             <h2 className="text-sm font-semibold">Invoice Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label className="text-xs">Client</Label>
-                <Select value={clientId} onValueChange={setClientId}><SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger><SelectContent>{clients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent></Select>
+                <ClientSelector
+                  clients={clients}
+                  clientId={clientId}
+                  onClientIdChange={setClientId}
+                  inlineDetails={inlineClientDetails}
+                  onInlineDetailsChange={setInlineClientDetails}
+                  clientMode={clientMode}
+                  onClientModeChange={(mode) => { setClientMode(mode); if (mode !== "select") setClientId(""); }}
+                />
               </div>
               <div className="space-y-1.5"><Label className="text-xs">Invoice Number</Label><Input value={invoiceNumber} readOnly className="bg-muted/50" /></div>
               <div className="space-y-1.5"><Label className="text-xs">Issue Date</Label><Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} /></div>
