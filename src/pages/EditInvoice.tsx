@@ -320,7 +320,7 @@ export default function EditInvoicePage() {
       layout_json: layoutJson,
     };
     return generateInvoicePreviewHTML(previewData);
-  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients]);
+  }, [invoiceNumber, issueDate, dueDate, subtotal, discountAmount, gstRate, gstAmount, total, notes, items, selectedTemplate, clientId, clients, clientMode, inlineClientDetails]);
 
   const handleSave = async () => {
     if (!items.some((i) => i.name.trim())) { toast.error("Add at least one item"); return; }
