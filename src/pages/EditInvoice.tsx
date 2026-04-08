@@ -204,7 +204,14 @@ export default function EditInvoicePage() {
   useEffect(() => {
     if (invoice && !loaded) {
       setInvoiceNumber(invoice.invoice_number);
-      setClientId(invoice.client_id || "");
+      if (invoice.inline_client_json && !invoice.client_id) {
+        setClientMode("inline");
+        const ic = invoice.inline_client_json as any;
+        setInlineClientDetails({ name: ic.name || "", email: ic.email || "", phone: ic.phone || "", address: ic.address || "", gst_number: ic.gst_number || "" });
+        setClientId("");
+      } else {
+        setClientId(invoice.client_id || "");
+      }
       setIssueDate(invoice.issue_date);
       setDueDate(invoice.due_date || "");
       setNotes(invoice.notes || "");
