@@ -381,7 +381,7 @@ export default function CreateInvoicePage() {
         .from("invoices")
         .insert({
           user_id: user!.id,
-          client_id: clientId || null,
+          client_id: clientMode === "select" && clientId ? clientId : null,
           invoice_number: nextNumber,
           issue_date: issueDate,
           due_date: dueDate || null,
@@ -392,6 +392,7 @@ export default function CreateInvoicePage() {
           total: total,
           layout_json: layoutJson,
           notes: notes || null,
+          inline_client_json: clientMode === "inline" ? (inlineClientDetails as any) : null,
         })
         .select("id")
         .single();
