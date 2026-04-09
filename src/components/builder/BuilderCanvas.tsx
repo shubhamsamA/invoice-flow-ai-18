@@ -5,7 +5,7 @@ import {
   DEFAULT_SIZES, DEFAULT_CONTENT 
 } from "@/types/builder";
 import { BuilderElementRenderer } from "./BuilderElementRenderer";
-import { Trash2, Move, Lock, Unlock } from "lucide-react";
+import { Trash2, Move, Lock, Unlock, Plus } from "lucide-react";
 
 interface AlignGuide {
   axis: "x" | "y";
@@ -230,12 +230,21 @@ export function BuilderCanvas({
         onDrop={handleDrop}
         onClick={() => onSelectElement(null)}
       >
-        {/* Grid dots */}
+        {/* Grid dots - more subtle and refined */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.12]"
+          className="absolute inset-0 pointer-events-none opacity-[0.05]"
           style={{
-            backgroundImage: "radial-gradient(circle, hsl(var(--foreground)) 0.5px, transparent 0.5px)",
+            backgroundImage: `radial-gradient(circle, #000 0.5px, transparent 0.5px)`,
             backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+          }}
+        />
+
+        {/* Major Grid Lines (every 100px) */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
+            backgroundSize: `100px 100px`,
           }}
         />
 
@@ -246,8 +255,8 @@ export function BuilderCanvas({
             className="absolute pointer-events-none z-50"
             style={
               guide.axis === "x"
-                ? { left: guide.position, top: 0, width: 1, height: canvasHeight, background: "#ec4899", opacity: 0.7 }
-                : { left: 0, top: guide.position, width: canvasWidth, height: 1, background: "#ec4899", opacity: 0.7 }
+                ? { left: guide.position, top: 0, width: 1, height: canvasHeight, background: "hsl(var(--primary))", opacity: 0.5, boxShadow: "0 0 4px hsl(var(--primary) / 0.3)" }
+                : { left: 0, top: guide.position, width: canvasWidth, height: 1, background: "hsl(var(--primary))", opacity: 0.5, boxShadow: "0 0 4px hsl(var(--primary) / 0.3)" }
             }
           />
         ))}
@@ -258,11 +267,11 @@ export function BuilderCanvas({
           return (
             <div
               key={el.id}
-              className={`absolute group transition-shadow duration-150 ${
+              className={`absolute group transition-all duration-200 ${
                 isSelected
-                  ? "ring-2 ring-primary shadow-lg z-20"
-                  : "hover:ring-1 hover:ring-primary/40 z-10"
-              } ${el.locked ? "opacity-80" : ""}`}
+                  ? "ring-2 ring-primary ring-offset-2 ring-offset-white shadow-2xl z-20"
+                  : "hover:ring-1 hover:ring-primary/30 z-10"
+              } ${el.locked ? "opacity-90" : ""}`}
               style={{
                 left: el.x,
                 top: el.y,
@@ -277,42 +286,42 @@ export function BuilderCanvas({
               {/* Move handle — supports both mouse and touch */}
               {!el.locked && (
                 <div
-                  className="absolute -top-0.5 left-0 right-0 h-6 cursor-move flex items-center justify-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-30 touch-none"
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 h-6 w-10 cursor-move flex items-center justify-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all z-30 touch-none"
                   onMouseDown={(e) => startDrag(e, el.id, "move")}
                   onTouchStart={(e) => startDrag(e, el.id, "move")}
                   style={{ touchAction: "none" }}
                 >
-                  <div className="bg-primary/90 rounded-b-md px-2 py-0.5">
-                    <Move className="h-2.5 w-2.5 text-primary-foreground" />
+                  <div className="bg-primary shadow-lg rounded-full px-2 py-1 flex items-center justify-center">
+                    <Move className="h-3 w-3 text-primary-foreground" />
                   </div>
                 </div>
               )}
 
               {/* Element content */}
-              <div className="w-full h-full overflow-hidden rounded-md border border-transparent group-hover:border-border/50 bg-white">
+              <div className="w-full h-full overflow-hidden rounded-sm border border-transparent group-hover:border-primary/10 bg-white shadow-sm">
                 <BuilderElementRenderer element={el} selected={isSelected} />
               </div>
 
               {/* Action buttons */}
               {isSelected && (
-                <div className="absolute -top-8 right-0 flex gap-1 z-30">
+                <div className="absolute -top-10 right-0 flex gap-1.5 z-30 animate-in fade-in slide-in-from-bottom-2 duration-200">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onUpdateElement(el.id, { locked: !el.locked });
                     }}
-                    className="h-6 w-6 rounded bg-card border shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
+                    className="h-8 w-8 rounded-xl bg-white border shadow-xl flex items-center justify-center hover:bg-muted transition-all active:scale-95"
                   >
-                    {el.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                    {el.locked ? <Lock className="h-3.5 w-3.5 text-primary" /> : <Unlock className="h-3.5 w-3.5 text-muted-foreground" />}
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onRemoveElement(el.id);
                     }}
-                    className="h-6 w-6 rounded bg-card border shadow-sm flex items-center justify-center hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    className="h-8 w-8 rounded-xl bg-white border shadow-xl flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all active:scale-95"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
@@ -320,11 +329,13 @@ export function BuilderCanvas({
               {/* Resize handle — supports both mouse and touch */}
               {!el.locked && isSelected && (
                 <div
-                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-sm cursor-se-resize z-30 shadow-sm touch-none"
+                  className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-primary rounded-full cursor-se-resize z-30 shadow-xl border-2 border-white flex items-center justify-center touch-none transition-transform hover:scale-110"
                   onMouseDown={(e) => startDrag(e, el.id, "resize")}
                   onTouchStart={(e) => startDrag(e, el.id, "resize")}
                   style={{ touchAction: "none" }}
-                />
+                >
+                  <div className="w-1.5 h-1.5 bg-white rounded-full opacity-50" />
+                </div>
               )}
             </div>
           );
@@ -333,9 +344,14 @@ export function BuilderCanvas({
         {/* Empty state */}
         {elements.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">Drag components from the sidebar</p>
-              <p className="text-[10px] text-muted-foreground/60">They'll snap to grid & show alignment guides</p>
+            <div className="text-center space-y-4 animate-in fade-in zoom-in duration-700">
+              <div className="h-16 w-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Plus className="h-8 w-8 text-muted-foreground/20" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-bold font-display uppercase tracking-widest text-muted-foreground">Empty Canvas</p>
+                <p className="text-[10px] text-muted-foreground/60 font-serif italic">Drag components from the sidebar to start crafting</p>
+              </div>
             </div>
           </div>
         )}

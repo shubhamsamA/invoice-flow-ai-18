@@ -45,7 +45,7 @@ interface BuilderSidebarProps {
 
 function ComponentList({ onDragStart }: { onDragStart: (type: BuilderElementType) => void }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       {components.map((comp) => (
         <div
           key={comp.type}
@@ -55,16 +55,16 @@ function ComponentList({ onDragStart }: { onDragStart: (type: BuilderElementType
             e.dataTransfer.effectAllowed = "copy";
             onDragStart(comp.type);
           }}
-          className="flex items-center gap-3 p-2.5 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-colors group"
+          className="flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-primary/20 hover:bg-primary/5 cursor-grab active:cursor-grabbing transition-all duration-200 group shadow-sm hover:shadow-md"
         >
-          <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
-            <comp.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+            <comp.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium">{comp.label}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{comp.description}</p>
+            <p className="text-xs font-bold font-display tracking-tight">{comp.label}</p>
+            <p className="text-[10px] text-muted-foreground truncate font-serif italic">{comp.description}</p>
           </div>
-          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30 shrink-0 group-hover:text-primary/40 transition-colors" />
         </div>
       ))}
     </div>
@@ -73,13 +73,13 @@ function ComponentList({ onDragStart }: { onDragStart: (type: BuilderElementType
 
 function CollapsedSidebar({ onDragStart, onExpand }: { onDragStart: (type: BuilderElementType) => void; onExpand: () => void }) {
   return (
-    <div className="w-12 shrink-0 bg-card border-r flex flex-col h-full">
-      <div className="p-1.5 border-b flex justify-center">
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onExpand} title="Expand sidebar">
-          <ChevronRight className="h-3.5 w-3.5" />
+    <div className="w-14 shrink-0 bg-card border-r flex flex-col h-full shadow-sm">
+      <div className="p-2 border-b flex justify-center">
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={onExpand} title="Expand sidebar">
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex-1 overflow-y-auto py-2 space-y-1 flex flex-col items-center">
+      <div className="flex-1 overflow-y-auto py-4 space-y-2 flex flex-col items-center">
         {components.map((comp) => (
           <div
             key={comp.type}
@@ -89,10 +89,10 @@ function CollapsedSidebar({ onDragStart, onExpand }: { onDragStart: (type: Build
               e.dataTransfer.effectAllowed = "copy";
               onDragStart(comp.type);
             }}
-            className="h-8 w-8 rounded-md bg-muted/50 hover:bg-primary/10 flex items-center justify-center cursor-grab active:cursor-grabbing transition-colors"
+            className="h-10 w-10 rounded-lg bg-muted/50 hover:bg-primary/10 flex items-center justify-center cursor-grab active:cursor-grabbing transition-all hover:scale-110 shadow-sm"
             title={comp.label}
           >
-            <comp.icon className="h-3.5 w-3.5 text-muted-foreground" />
+            <comp.icon className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
           </div>
         ))}
       </div>
@@ -111,15 +111,16 @@ export function BuilderSidebar({ onDragStart }: BuilderSidebarProps) {
       <>
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="fixed bottom-4 left-4 z-40 gap-1.5 shadow-lg text-xs">
-              <ChevronRight className="h-3.5 w-3.5" /> Components
+            <Button variant="outline" size="sm" className="fixed bottom-4 left-4 z-40 gap-2 shadow-xl text-xs font-bold font-display rounded-full px-6 border-primary/20 bg-background/80 backdrop-blur-sm">
+              <ChevronRight className="h-4 w-4 text-primary" /> Components
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72 p-0">
-            <SheetHeader className="p-4 border-b">
-              <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Components</SheetTitle>
+          <SheetContent side="left" className="w-80 p-0">
+            <SheetHeader className="p-6 border-b bg-muted/30">
+              <SheetTitle className="text-sm font-bold uppercase tracking-widest font-display text-primary">Components</SheetTitle>
+              <p className="text-[10px] text-muted-foreground font-serif italic">Drag elements to build your layout</p>
             </SheetHeader>
-            <div className="p-3 overflow-y-auto h-[calc(100%-60px)]">
+            <div className="p-4 overflow-y-auto h-[calc(100%-100px)] custom-scrollbar">
               <ComponentList onDragStart={(type) => { onDragStart(type); setSheetOpen(false); }} />
             </div>
           </SheetContent>
@@ -135,18 +136,18 @@ export function BuilderSidebar({ onDragStart }: BuilderSidebarProps) {
 
   // Desktop expanded
   return (
-    <div className="w-56 xl:w-64 shrink-0 bg-card border-r flex flex-col h-full">
-      <div className="p-3 border-b flex items-center justify-between">
+    <div className="w-64 xl:w-72 shrink-0 bg-card border-r flex flex-col h-full shadow-sm">
+      <div className="p-4 border-b flex items-center justify-between bg-muted/10">
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Components</h2>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Drag onto the canvas</p>
+          <h2 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Components</h2>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic">Drag onto the canvas</p>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCollapsed(true)} title="Collapse sidebar">
-          <ChevronLeft className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted" onClick={() => setCollapsed(true)} title="Collapse sidebar">
+          <ChevronLeft className="h-4 w-4" />
         </Button>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         <ComponentList onDragStart={onDragStart} />
       </div>
     </div>

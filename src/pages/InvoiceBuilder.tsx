@@ -19,6 +19,7 @@ import { BuilderPropertiesPanel } from "@/components/builder/BuilderPropertiesPa
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Settings2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "invoiceflow-builder-layout";
 
@@ -195,47 +196,52 @@ export default function InvoiceBuilderPage() {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3rem)]">
+    <div className="flex flex-col h-[calc(100vh-3rem)] bg-muted/5">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b bg-card px-2 sm:px-4 py-2 shrink-0 gap-2 overflow-x-auto">
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+      <div className="flex items-center justify-between border-b bg-card/80 backdrop-blur-md px-4 py-3 shrink-0 gap-4 sticky top-0 z-50">
+        <div className="flex items-center gap-4 shrink-0">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-muted" asChild>
             <Link to="/invoices">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="text-sm font-semibold hidden sm:block">Invoice Builder</h1>
+          <div className="hidden sm:block">
+            <h1 className="text-lg font-bold font-display tracking-tight leading-none">Invoice Builder</h1>
+            <p className="text-[10px] text-muted-foreground font-serif italic">Crafting your perfect layout</p>
+          </div>
 
           {/* Editor / Preview toggle */}
-          <div className="flex items-center bg-muted rounded-md p-0.5">
+          <div className="flex items-center bg-muted/50 rounded-full p-1 ml-2">
             <button
               onClick={() => setActiveTab("editor")}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              className={cn(
+                "flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold font-display transition-all duration-300",
                 activeTab === "editor"
-                  ? "bg-background shadow-sm text-foreground"
+                  ? "bg-background shadow-md text-primary scale-105"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+              )}
             >
-              <Pencil className="h-3 w-3" />
-              <span className="hidden sm:inline">Editor</span>
+              <Pencil className="h-3.5 w-3.5" />
+              <span className="hidden md:inline">Editor</span>
             </button>
             <button
               onClick={() => setActiveTab("preview")}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              className={cn(
+                "flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold font-display transition-all duration-300",
                 activeTab === "preview"
-                  ? "bg-background shadow-sm text-foreground"
+                  ? "bg-background shadow-md text-primary scale-105"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+              )}
             >
-              <Eye className="h-3 w-3" />
-              <span className="hidden sm:inline">Preview</span>
+              <Eye className="h-3.5 w-3.5" />
+              <span className="hidden md:inline">Preview</span>
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Page Size Selector */}
-          <div className="flex items-center gap-1 mr-1">
+          <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg mr-2">
             <Select
               value={pageSize}
               onValueChange={(v) => {
@@ -247,13 +253,13 @@ export default function InvoiceBuilderPage() {
               }}
               disabled={pageLocked}
             >
-              <SelectTrigger className="h-7 w-[80px] sm:w-[100px] text-[10px]">
+              <SelectTrigger className="h-8 w-[90px] sm:w-[120px] text-[10px] font-bold font-display border-none bg-transparent focus:ring-0">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="font-display">
                 {Object.values(PAGE_PRESETS).map((p) => (
                   <SelectItem key={p.key} value={p.key} className="text-xs">
-                    {p.label} ({p.width}×{p.height})
+                    {p.label} <span className="text-[10px] text-muted-foreground ml-1">({p.width}×{p.height})</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -261,44 +267,48 @@ export default function InvoiceBuilderPage() {
             <Button
               variant={pageLocked ? "default" : "ghost"}
               size="icon"
-              className="h-7 w-7"
+              className={cn("h-8 w-8 rounded-md transition-all", pageLocked && "bg-primary text-primary-foreground shadow-sm")}
               onClick={() => setPageLocked(!pageLocked)}
               title={pageLocked ? "Unlock page size" : "Lock page size"}
             >
-              {pageLocked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+              {pageLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
             </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={handleUndo}
-            disabled={history.length === 0}
-            title="Undo"
-          >
-            <Undo2 className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleImportJSON}>
-            <Upload className="h-3.5 w-3.5" /> Load
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs hidden sm:flex" onClick={handleExportJSON}>
-            <Download className="h-3.5 w-3.5" /> Export
-          </Button>
+
+          <div className="hidden lg:flex items-center gap-1 border-r pr-2 mr-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-full" 
+              onClick={handleUndo} 
+              disabled={history.length === 0}
+              title="Undo"
+            >
+              <Undo2 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest" onClick={handleImportJSON}>
+              <Upload className="h-3.5 w-3.5 mr-1.5" /> Load
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest" onClick={handleExportJSON}>
+              <Download className="h-3.5 w-3.5 mr-1.5" /> Export
+            </Button>
+          </div>
+
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5 text-xs hidden lg:flex"
+            className="h-9 rounded-full gap-2 text-xs font-bold font-display hidden xl:flex border-primary/20 hover:bg-primary/5"
             onClick={() => setSaveTemplateOpen(true)}
             disabled={elements.length === 0}
           >
-            <BookmarkPlus className="h-3.5 w-3.5" /> Save as Template
+            <BookmarkPlus className="h-4 w-4 text-primary" /> Save Template
           </Button>
           <Button
             size="sm"
-            className="gap-1.5 text-xs shadow-sm border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
+            className="h-9 rounded-full gap-2 px-6 text-xs font-bold font-display shadow-lg transition-all hover:scale-105 active:scale-95 border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
             onClick={handleSave}
           >
-            <Save className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Save</span>
+            <Save className="h-4 w-4" /> <span>Save Layout</span>
           </Button>
         </div>
       </div>

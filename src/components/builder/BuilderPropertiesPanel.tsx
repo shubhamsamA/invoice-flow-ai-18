@@ -32,35 +32,39 @@ function FontControls({
   return (
     <>
       {showTextArea && (
-        <div>
-          <Label className="text-[10px]">Text</Label>
+        <div className="space-y-1.5">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Content</Label>
           <Textarea
-            className="text-xs min-h-[60px] mt-1"
+            className="text-xs min-h-[80px] font-sans rounded-xl border-muted-foreground/20 focus-visible:ring-primary/20"
             value={content[textKey] || ""}
             onChange={(e) => updateContent(textKey, e.target.value)}
           />
         </div>
       )}
-      <div>
-        <Label className="text-[10px]">Font Family</Label>
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Typeface</Label>
         <Select value={content.fontFamily || "sans"} onValueChange={(v) => updateContent("fontFamily", v)}>
-          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger className="h-9 text-xs font-display font-bold rounded-xl border-muted-foreground/20"><SelectValue /></SelectTrigger>
+          <SelectContent className="font-display">
             <SelectItem value="sans">Sans (Inter)</SelectItem>
-            <SelectItem value="serif">Serif (Merriweather)</SelectItem>
-            <SelectItem value="mono">Mono (JetBrains)</SelectItem>
+            <SelectItem value="display">Display (Space Grotesk)</SelectItem>
+            <SelectItem value="serif">Serif (Playfair Display)</SelectItem>
+            <SelectItem value="mono">Mono (JetBrains Mono)</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label className="text-[10px]">Font Size ({content.fontSize || defaultFontSize}px)</Label>
-        <Slider className="mt-1" min={8} max={72} step={1} value={[content.fontSize || defaultFontSize]} onValueChange={([v]) => updateContent("fontSize", v)} />
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Size</Label>
+          <span className="text-[10px] font-mono font-bold text-primary">{content.fontSize || defaultFontSize}px</span>
+        </div>
+        <Slider className="py-2" min={8} max={72} step={1} value={[content.fontSize || defaultFontSize]} onValueChange={([v]) => updateContent("fontSize", v)} />
       </div>
-      <div>
-        <Label className="text-[10px]">Font Weight</Label>
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Weight</Label>
         <Select value={String(content.fontWeight || (content.bold ? 700 : 400))} onValueChange={(v) => { updateContent("fontWeight", Number(v)); updateContent("bold", Number(v) >= 600); }}>
-          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger className="h-9 text-xs font-display font-bold rounded-xl border-muted-foreground/20"><SelectValue /></SelectTrigger>
+          <SelectContent className="font-display">
             <SelectItem value="300">Light</SelectItem>
             <SelectItem value="400">Regular</SelectItem>
             <SelectItem value="500">Medium</SelectItem>
@@ -69,50 +73,57 @@ function FontControls({
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label className="text-[10px]">Style</Label>
-        <div className="flex gap-1 mt-1">
-          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.bold || (content.fontWeight || 0) >= 600} onPressedChange={(v) => { updateContent("bold", v); updateContent("fontWeight", v ? 700 : 400); }}>
-            <Bold className="h-3 w-3" />
-          </Toggle>
-          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.italic} onPressedChange={(v) => updateContent("italic", v)}>
-            <Italic className="h-3 w-3" />
-          </Toggle>
-          <Toggle size="sm" className="h-7 w-7 p-0" pressed={!!content.underline} onPressedChange={(v) => updateContent("underline", v)}>
-            <Underline className="h-3 w-3" />
-          </Toggle>
-        </div>
-      </div>
-      <div>
-        <Label className="text-[10px]">Alignment</Label>
-        <div className="flex gap-1 mt-1">
-          {([["left", AlignLeft], ["center", AlignCenter], ["right", AlignRight], ["justify", AlignJustify]] as const).map(([align, Icon]) => (
-            <Toggle key={align} size="sm" className="h-7 w-7 p-0" pressed={(content.textAlign || "left") === align} onPressedChange={(pressed) => { if (pressed) updateContent("textAlign", align); }}>
-              <Icon className="h-3 w-3" />
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Style & Alignment</Label>
+        <div className="flex flex-wrap gap-1">
+          <div className="flex bg-muted/50 p-1 rounded-lg">
+            <Toggle size="sm" className="h-7 w-7 p-0 rounded-md" pressed={!!content.bold || (content.fontWeight || 0) >= 600} onPressedChange={(v) => { updateContent("bold", v); updateContent("fontWeight", v ? 700 : 400); }}>
+              <Bold className="h-3.5 w-3.5" />
             </Toggle>
-          ))}
+            <Toggle size="sm" className="h-7 w-7 p-0 rounded-md" pressed={!!content.italic} onPressedChange={(v) => updateContent("italic", v)}>
+              <Italic className="h-3.5 w-3.5" />
+            </Toggle>
+            <Toggle size="sm" className="h-7 w-7 p-0 rounded-md" pressed={!!content.underline} onPressedChange={(v) => updateContent("underline", v)}>
+              <Underline className="h-3.5 w-3.5" />
+            </Toggle>
+          </div>
+          <div className="flex bg-muted/50 p-1 rounded-lg">
+            {([["left", AlignLeft], ["center", AlignCenter], ["right", AlignRight], ["justify", AlignJustify]] as const).map(([align, Icon]) => (
+              <Toggle key={align} size="sm" className="h-7 w-7 p-0 rounded-md" pressed={(content.textAlign || "left") === align} onPressedChange={(pressed) => { if (pressed) updateContent("textAlign", align); }}>
+                <Icon className="h-3.5 w-3.5" />
+              </Toggle>
+            ))}
+          </div>
         </div>
       </div>
-      <div>
-        <Label className="text-[10px]">Color</Label>
-        <div className="flex items-center gap-2 mt-1">
-          <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
-          <Input className="h-7 text-xs flex-1" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Color</Label>
+        <div className="flex items-center gap-2">
+          <div className="relative h-9 w-9 shrink-0 rounded-xl overflow-hidden border border-muted-foreground/20">
+            <input type="color" className="absolute inset-0 w-full h-full cursor-pointer scale-150" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
+          </div>
+          <Input className="h-9 text-xs font-mono rounded-xl border-muted-foreground/20" value={content.color || "#000000"} onChange={(e) => updateContent("color", e.target.value)} />
         </div>
       </div>
-      <div>
-        <Label className="text-[10px]">Line Height ({content.lineHeight || 1.4})</Label>
-        <Slider className="mt-1" min={0.8} max={3} step={0.1} value={[content.lineHeight || 1.4]} onValueChange={([v]) => updateContent("lineHeight", v)} />
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Line Height</Label>
+          <span className="text-[10px] font-mono font-bold text-primary">{content.lineHeight || 1.4}</span>
+        </div>
+        <Slider className="py-2" min={0.8} max={3} step={0.1} value={[content.lineHeight || 1.4]} onValueChange={([v]) => updateContent("lineHeight", v)} />
       </div>
-      <div>
-        <Label className="text-[10px]">Letter Spacing ({content.letterSpacing || 0}px)</Label>
-        <Slider className="mt-1" min={-2} max={10} step={0.5} value={[content.letterSpacing || 0]} onValueChange={([v]) => updateContent("letterSpacing", v)} />
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Letter Spacing</Label>
+          <span className="text-[10px] font-mono font-bold text-primary">{content.letterSpacing || 0}px</span>
+        </div>
+        <Slider className="py-2" min={-2} max={10} step={0.5} value={[content.letterSpacing || 0]} onValueChange={([v]) => updateContent("letterSpacing", v)} />
       </div>
-      <div>
-        <Label className="text-[10px]">Transform</Label>
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Transform</Label>
         <Select value={content.textTransform || "none"} onValueChange={(v) => updateContent("textTransform", v)}>
-          <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger className="h-9 text-xs font-display font-bold rounded-xl border-muted-foreground/20"><SelectValue /></SelectTrigger>
+          <SelectContent className="font-display">
             <SelectItem value="none">None</SelectItem>
             <SelectItem value="uppercase">UPPERCASE</SelectItem>
             <SelectItem value="lowercase">lowercase</SelectItem>
@@ -120,12 +131,14 @@ function FontControls({
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label className="text-[10px]">Background</Label>
-        <div className="flex items-center gap-2 mt-1">
-          <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={content.backgroundColor || "#ffffff"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
-          <Input className="h-7 text-xs flex-1" value={content.backgroundColor || "transparent"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
-          <button className="text-[9px] text-muted-foreground hover:text-foreground" onClick={() => updateContent("backgroundColor", "transparent")}>Clear</button>
+      <div className="space-y-1.5">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Background</Label>
+        <div className="flex items-center gap-2">
+          <div className="relative h-9 w-9 shrink-0 rounded-xl overflow-hidden border border-muted-foreground/20">
+            <input type="color" className="absolute inset-0 w-full h-full cursor-pointer scale-150" value={content.backgroundColor || "#ffffff"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+          </div>
+          <Input className="h-9 text-xs font-mono rounded-xl border-muted-foreground/20" value={content.backgroundColor || "transparent"} onChange={(e) => updateContent("backgroundColor", e.target.value)} />
+          <button className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground hover:text-primary transition-colors" onClick={() => updateContent("backgroundColor", "transparent")}>Clear</button>
         </div>
       </div>
     </>
@@ -136,8 +149,12 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
   if (!element) {
     if (embedded) return null;
     return (
-      <div className="w-56 shrink-0 border-l bg-card flex items-center justify-center p-4">
-        <p className="text-xs text-muted-foreground text-center">Select an element to edit its properties</p>
+      <div className="w-64 xl:w-72 shrink-0 border-l bg-card flex flex-col items-center justify-center p-8 text-center">
+        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+          <Plus className="h-6 w-6 text-muted-foreground/30" />
+        </div>
+        <p className="text-xs font-bold font-display uppercase tracking-widest text-muted-foreground">Select Element</p>
+        <p className="text-[10px] text-muted-foreground mt-2 font-serif italic">Choose a component on the canvas to refine its properties</p>
       </div>
     );
   }
@@ -147,28 +164,31 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
   };
 
   const inner = (
-    <div className="p-3 space-y-4 text-xs">
-      {/* Position */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-[10px]">X</Label>
-          <Input type="number" className="h-7 text-xs" value={element.x} onChange={(e) => onUpdate({ x: Number(e.target.value) })} />
-        </div>
-        <div>
-          <Label className="text-[10px]">Y</Label>
-          <Input type="number" className="h-7 text-xs" value={element.y} onChange={(e) => onUpdate({ y: Number(e.target.value) })} />
+    <div className="p-4 space-y-6 text-xs custom-scrollbar overflow-y-auto">
+      {/* Position & Size */}
+      <div className="space-y-3">
+        <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Layout & Geometry</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-[9px] text-muted-foreground/60">X Position</Label>
+            <Input type="number" className="h-8 text-xs font-mono rounded-lg" value={element.x} onChange={(e) => onUpdate({ x: Number(e.target.value) })} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[9px] text-muted-foreground/60">Y Position</Label>
+            <Input type="number" className="h-8 text-xs font-mono rounded-lg" value={element.y} onChange={(e) => onUpdate({ y: Number(e.target.value) })} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[9px] text-muted-foreground/60">Width</Label>
+            <Input type="number" className="h-8 text-xs font-mono rounded-lg" value={element.width} onChange={(e) => onUpdate({ width: Number(e.target.value) })} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[9px] text-muted-foreground/60">Height</Label>
+            <Input type="number" className="h-8 text-xs font-mono rounded-lg" value={element.height} onChange={(e) => onUpdate({ height: Number(e.target.value) })} />
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label className="text-[10px]">Width</Label>
-          <Input type="number" className="h-7 text-xs" value={element.width} onChange={(e) => onUpdate({ width: Number(e.target.value) })} />
-        </div>
-        <div>
-          <Label className="text-[10px]">Height</Label>
-          <Input type="number" className="h-7 text-xs" value={element.height} onChange={(e) => onUpdate({ height: Number(e.target.value) })} />
-        </div>
-      </div>
+
+      <div className="h-px bg-border/50" />
 
       {/* Text / Note — full font controls with textarea */}
       {(element.type === "text" || element.type === "note") && (
@@ -178,9 +198,9 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       {/* Signature */}
       {element.type === "signature" && (
         <>
-          <div>
-            <Label className="text-[10px]">Label</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Label</Label>
+            <Input className="h-9 text-xs rounded-xl border-muted-foreground/20" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} />
           </div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={10} />
         </>
@@ -189,11 +209,11 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       {/* Divider */}
       {element.type === "divider" && (
         <>
-          <div>
-            <Label className="text-[10px]">Style</Label>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Stroke Style</Label>
             <Select value={element.content.style || "solid"} onValueChange={(v) => updateContent("style", v)}>
-              <SelectTrigger className="h-7 text-xs mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="h-9 text-xs font-display font-bold rounded-xl border-muted-foreground/20"><SelectValue /></SelectTrigger>
+              <SelectContent className="font-display">
                 <SelectItem value="solid">Solid</SelectItem>
                 <SelectItem value="dashed">Dashed</SelectItem>
                 <SelectItem value="dotted">Dotted</SelectItem>
@@ -201,20 +221,28 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label className="text-[10px]">Color</Label>
-            <div className="flex items-center gap-2 mt-1">
-              <input type="color" className="w-7 h-7 rounded border cursor-pointer" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
-              <Input className="h-7 text-xs flex-1" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Stroke Color</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative h-9 w-9 shrink-0 rounded-xl overflow-hidden border border-muted-foreground/20">
+                <input type="color" className="absolute inset-0 w-full h-full cursor-pointer scale-150" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
+              </div>
+              <Input className="h-9 text-xs font-mono rounded-xl border-muted-foreground/20" value={element.content.color || "#dddddd"} onChange={(e) => updateContent("color", e.target.value)} />
             </div>
           </div>
-          <div>
-            <Label className="text-[10px]">Thickness ({element.content.thickness || 1}px)</Label>
-            <Slider className="mt-1" min={1} max={8} step={1} value={[element.content.thickness || 1]} onValueChange={([v]) => updateContent("thickness", v)} />
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Thickness</Label>
+              <span className="text-[10px] font-mono font-bold text-primary">{element.content.thickness || 1}px</span>
+            </div>
+            <Slider className="py-2" min={1} max={8} step={1} value={[element.content.thickness || 1]} onValueChange={([v]) => updateContent("thickness", v)} />
           </div>
-          <div>
-            <Label className="text-[10px]">Spacing ({element.content.spacing || 0}px)</Label>
-            <Slider className="mt-1" min={0} max={40} step={2} value={[element.content.spacing || 0]} onValueChange={([v]) => updateContent("spacing", v)} />
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Vertical Spacing</Label>
+              <span className="text-[10px] font-mono font-bold text-primary">{element.content.spacing || 0}px</span>
+            </div>
+            <Slider className="py-2" min={0} max={40} step={2} value={[element.content.spacing || 0]} onValueChange={([v]) => updateContent("spacing", v)} />
           </div>
         </>
       )}
@@ -222,128 +250,104 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
       {/* Items Table */}
       {element.type === "items-table" && (
         <>
-          <Label className="text-[10px] font-semibold">Show / Hide Columns</Label>
-          {[
-            { key: "slNo", label: "Sl. No" },
-            { key: "description", label: "Description" },
-            { key: "hsnSac", label: "HSN/SAC" },
-            { key: "qty", label: "Quantity" },
-            { key: "price", label: "Price" },
-            { key: "gstType", label: "GST Type" },
-            { key: "gstRate", label: "GST Rate %" },
-            { key: "gstAmt", label: "GST Amount" },
-            { key: "total", label: "Total" },
-          ].map(col => {
-            const vis = element.content.visibleColumns || {};
-            const isVisible = vis[col.key] !== false;
-            return (
-              <div key={col.key} className="flex items-center justify-between">
-                <Label className="text-[10px]">{col.label}</Label>
-                <Switch checked={isVisible} onCheckedChange={(v) => updateContent("visibleColumns", { ...vis, [col.key]: v })} />
-              </div>
-            );
-          })}
-
-          <Label className="text-[10px] font-semibold mt-3">Column Headers</Label>
-          {[
-            { key: "slNo", label: "Sl. No", def: "Sl.No" },
-            { key: "description", label: "Description", def: "Description" },
-            { key: "hsnSac", label: "HSN/SAC", def: "HSN/SAC" },
-            { key: "qty", label: "Qty", def: "Qty" },
-            { key: "price", label: "Price", def: "Price" },
-            { key: "gstType", label: "GST Type", def: "GST Type" },
-            { key: "gstRate", label: "GST Rate%", def: "GST%" },
-            { key: "gstAmt", label: "GST Amount", def: "GST Amt" },
-            { key: "total", label: "Total", def: "Total" },
-          ].filter(col => (element.content.visibleColumns || {})[col.key] !== false).map(col => (
-            <div key={col.key}>
-              <Label className="text-[10px]">{col.label}</Label>
-              <Input className="h-7 text-xs mt-1" value={element.content.columns?.[col.key] || col.def} onChange={(e) => updateContent("columns", { ...element.content.columns, [col.key]: e.target.value })} />
+          <div className="space-y-3">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-primary">Column Visibility</Label>
+            <div className="space-y-2 bg-muted/30 p-3 rounded-xl border border-border/50">
+              {[
+                { key: "slNo", label: "Sl. No" },
+                { key: "description", label: "Description" },
+                { key: "hsnSac", label: "HSN/SAC" },
+                { key: "qty", label: "Quantity" },
+                { key: "price", label: "Price" },
+                { key: "gstType", label: "GST Type" },
+                { key: "gstRate", label: "GST Rate %" },
+                { key: "gstAmt", label: "GST Amount" },
+                { key: "total", label: "Total" },
+              ].map(col => {
+                const vis = element.content.visibleColumns || {};
+                const isVisible = vis[col.key] !== false;
+                return (
+                  <div key={col.key} className="flex items-center justify-between">
+                    <Label className="text-[10px] font-medium">{col.label}</Label>
+                    <Switch className="scale-75 origin-right" checked={isVisible} onCheckedChange={(v) => updateContent("visibleColumns", { ...vis, [col.key]: v })} />
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          </div>
 
-          <Label className="text-[10px] font-semibold mt-3">Items</Label>
-          {(element.content.items || []).map((item: any, idx: number) => (
-            <div key={idx} className="space-y-1 bg-muted/30 rounded-md p-2 border border-dashed">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium text-muted-foreground">Item {idx + 1}</span>
-                <button
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => {
-                    const newItems = [...(element.content.items || [])];
-                    newItems.splice(idx, 1);
-                    updateContent("items", newItems);
-                  }}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                <div>
-                  <Label className="text-[9px] text-muted-foreground">Sl.No</Label>
-                  <Input className="h-7 text-xs" type="number" min={1} value={item.sl_no || idx + 1} onChange={(e) => {
-                    const newItems = [...(element.content.items || [])];
-                    newItems[idx] = { ...newItems[idx], sl_no: parseInt(e.target.value) || 1 };
-                    updateContent("items", newItems);
-                  }} />
+          <div className="space-y-3">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-primary">Column Headers</Label>
+            <div className="space-y-3">
+              {[
+                { key: "slNo", label: "Sl. No", def: "Sl.No" },
+                { key: "description", label: "Description", def: "Description" },
+                { key: "hsnSac", label: "HSN/SAC", def: "HSN/SAC" },
+                { key: "qty", label: "Qty", def: "Qty" },
+                { key: "price", label: "Price", def: "Price" },
+                { key: "gstType", label: "GST Type", def: "GST Type" },
+                { key: "gstRate", label: "GST Rate%", def: "GST%" },
+                { key: "gstAmt", label: "GST Amount", def: "GST Amt" },
+                { key: "total", label: "Total", def: "Total" },
+              ].filter(col => (element.content.visibleColumns || {})[col.key] !== false).map(col => (
+                <div key={col.key} className="space-y-1">
+                  <Label className="text-[9px] text-muted-foreground">{col.label}</Label>
+                  <Input className="h-8 text-xs rounded-lg" value={element.content.columns?.[col.key] || col.def} onChange={(e) => updateContent("columns", { ...element.content.columns, [col.key]: e.target.value })} />
                 </div>
-                <div className="col-span-2">
-                  <Label className="text-[9px] text-muted-foreground">Name</Label>
-                  <Input className="h-7 text-xs" placeholder="Name" value={item.name || ""} onChange={(e) => {
-                    const newItems = [...(element.content.items || [])];
-                    newItems[idx] = { ...newItems[idx], name: e.target.value };
-                    updateContent("items", newItems);
-                  }} />
-                </div>
-              </div>
-              <Input className="h-7 text-xs" placeholder="HSN/SAC Code" value={item.hsn_sac || ""} onChange={(e) => {
-                const newItems = [...(element.content.items || [])];
-                newItems[idx] = { ...newItems[idx], hsn_sac: e.target.value };
-                updateContent("items", newItems);
-              }} />
-              <div className="grid grid-cols-2 gap-1">
-                <Input className="h-7 text-xs" type="number" placeholder="Qty" value={item.qty || ""} onChange={(e) => {
-                  const newItems = [...(element.content.items || [])];
-                  newItems[idx] = { ...newItems[idx], qty: parseInt(e.target.value) || 0 };
-                  updateContent("items", newItems);
-                }} />
-                <Input className="h-7 text-xs" type="number" placeholder="Price" value={item.price || ""} onChange={(e) => {
-                  const newItems = [...(element.content.items || [])];
-                  newItems[idx] = { ...newItems[idx], price: parseFloat(e.target.value) || 0 };
-                  updateContent("items", newItems);
-                }} />
-              </div>
-              <div className="grid grid-cols-2 gap-1">
-                <Select value={item.gst_type || "none"} onValueChange={(v) => {
-                  const newItems = [...(element.content.items || [])];
-                  newItems[idx] = { ...newItems[idx], gst_type: v, gst_rate: v === "none" ? 0 : (newItems[idx].gst_rate || 18) };
-                  updateContent("items", newItems);
-                }}>
-                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No GST</SelectItem>
-                    <SelectItem value="cgst_sgst">CGST+SGST</SelectItem>
-                    <SelectItem value="igst">IGST</SelectItem>
-                    <SelectItem value="cgst_utgst">CGST+UTGST</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input className="h-7 text-xs" type="number" placeholder="GST%" value={item.gst_rate || ""} onChange={(e) => {
-                  const newItems = [...(element.content.items || [])];
-                  newItems[idx] = { ...newItems[idx], gst_rate: parseFloat(e.target.value) || 0 };
-                  updateContent("items", newItems);
-                }} disabled={!item.gst_type || item.gst_type === "none"} />
-              </div>
+              ))}
             </div>
-          ))}
-          <button
-            className="w-full flex items-center justify-center gap-1 text-[10px] text-primary hover:text-primary/80 py-1.5 border border-dashed rounded-md"
-            onClick={() => {
-              const newItems = [...(element.content.items || []), { name: "", hsn_sac: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
-              updateContent("items", newItems);
-            }}
-          >
-            <Plus className="h-3 w-3" /> Add Row
-          </button>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-primary">Sample Items</Label>
+            <div className="space-y-3">
+              {(element.content.items || []).map((item: any, idx: number) => (
+                <div key={idx} className="space-y-2 bg-muted/50 rounded-xl p-3 border border-border/50 relative group">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold font-display uppercase tracking-wider text-muted-foreground">Item {idx + 1}</span>
+                    <button
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      onClick={() => {
+                        const newItems = [...(element.content.items || [])];
+                        newItems.splice(idx, 1);
+                        updateContent("items", newItems);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Input className="h-8 text-xs rounded-lg" placeholder="Item Name" value={item.name || ""} onChange={(e) => {
+                      const newItems = [...(element.content.items || [])];
+                      newItems[idx] = { ...newItems[idx], name: e.target.value };
+                      updateContent("items", newItems);
+                    }} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input className="h-8 text-xs rounded-lg" type="number" placeholder="Qty" value={item.qty || ""} onChange={(e) => {
+                        const newItems = [...(element.content.items || [])];
+                        newItems[idx] = { ...newItems[idx], qty: parseInt(e.target.value) || 0 };
+                        updateContent("items", newItems);
+                      }} />
+                      <Input className="h-8 text-xs rounded-lg" type="number" placeholder="Price" value={item.price || ""} onChange={(e) => {
+                        const newItems = [...(element.content.items || [])];
+                        newItems[idx] = { ...newItems[idx], price: parseFloat(e.target.value) || 0 };
+                        updateContent("items", newItems);
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                className="w-full flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5 py-3 border-2 border-dashed border-primary/20 rounded-xl transition-all"
+                onClick={() => {
+                  const newItems = [...(element.content.items || []), { name: "", hsn_sac: "", qty: 1, price: 0, gst_type: "none", gst_rate: 0 }];
+                  updateContent("items", newItems);
+                }}
+              >
+                <Plus className="h-3.5 w-3.5" /> Add Row
+              </button>
+            </div>
+          </div>
 
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
         </>
@@ -351,76 +355,76 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
 
       {/* Business Details */}
       {element.type === "business-details" && (
-        <>
-          <div><Label className="text-[10px]">Business Name</Label><Input className="h-7 text-xs mt-1" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Email</Label><Input className="h-7 text-xs mt-1" value={element.content.email || ""} onChange={(e) => updateContent("email", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Phone</Label><Input className="h-7 text-xs mt-1" value={element.content.phone || ""} onChange={(e) => updateContent("phone", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Address</Label><Input className="h-7 text-xs mt-1" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
-          <div><Label className="text-[10px]">GST Number</Label><Input className="h-7 text-xs mt-1" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
+        <div className="space-y-4">
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Business Name</Label><Input className="h-9 text-xs rounded-xl" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Email</Label><Input className="h-9 text-xs rounded-xl" value={element.content.email || ""} onChange={(e) => updateContent("email", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Phone</Label><Input className="h-9 text-xs rounded-xl" value={element.content.phone || ""} onChange={(e) => updateContent("phone", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Address</Label><Input className="h-9 text-xs rounded-xl" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">GST Number</Label><Input className="h-9 text-xs font-mono rounded-xl" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
-        </>
+        </div>
       )}
 
       {/* Client Details */}
       {element.type === "client-details" && (
-        <>
-          <div><Label className="text-[10px]">Name</Label><Input className="h-7 text-xs mt-1" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Email</Label><Input className="h-7 text-xs mt-1" value={element.content.email || ""} onChange={(e) => updateContent("email", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Address</Label><Input className="h-7 text-xs mt-1" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
-          <div><Label className="text-[10px]">GST</Label><Input className="h-7 text-xs mt-1" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
+        <div className="space-y-4">
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Client Name</Label><Input className="h-9 text-xs rounded-xl" value={element.content.name || ""} onChange={(e) => updateContent("name", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Email</Label><Input className="h-9 text-xs rounded-xl" value={element.content.email || ""} onChange={(e) => updateContent("email", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Address</Label><Input className="h-9 text-xs rounded-xl" value={element.content.address || ""} onChange={(e) => updateContent("address", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">GST</Label><Input className="h-9 text-xs font-mono rounded-xl" value={element.content.gst || ""} onChange={(e) => updateContent("gst", e.target.value)} /></div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
-        </>
+        </div>
       )}
 
       {/* Bank Details */}
       {element.type === "bank-details" && (
-        <>
-          <div><Label className="text-[10px]">Account Name</Label><Input className="h-7 text-xs mt-1" value={element.content.accountName || ""} onChange={(e) => updateContent("accountName", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Account Number</Label><Input className="h-7 text-xs mt-1" value={element.content.accountNumber || ""} onChange={(e) => updateContent("accountNumber", e.target.value)} /></div>
-          <div><Label className="text-[10px]">IFSC Code</Label><Input className="h-7 text-xs mt-1" value={element.content.ifsc || ""} onChange={(e) => updateContent("ifsc", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Bank Name</Label><Input className="h-7 text-xs mt-1" value={element.content.bankName || ""} onChange={(e) => updateContent("bankName", e.target.value)} /></div>
-          <div><Label className="text-[10px]">Branch</Label><Input className="h-7 text-xs mt-1" value={element.content.branch || ""} onChange={(e) => updateContent("branch", e.target.value)} /></div>
-          <div><Label className="text-[10px]">UPI ID</Label><Input className="h-7 text-xs mt-1" placeholder="name@upi" value={element.content.upiId || ""} onChange={(e) => updateContent("upiId", e.target.value)} /></div>
+        <div className="space-y-4">
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Account Name</Label><Input className="h-9 text-xs rounded-xl" value={element.content.accountName || ""} onChange={(e) => updateContent("accountName", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Account Number</Label><Input className="h-9 text-xs font-mono rounded-xl" value={element.content.accountNumber || ""} onChange={(e) => updateContent("accountNumber", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">IFSC Code</Label><Input className="h-9 text-xs font-mono rounded-xl" value={element.content.ifsc || ""} onChange={(e) => updateContent("ifsc", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Bank Name</Label><Input className="h-9 text-xs rounded-xl" value={element.content.bankName || ""} onChange={(e) => updateContent("bankName", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Branch</Label><Input className="h-9 text-xs rounded-xl" value={element.content.branch || ""} onChange={(e) => updateContent("branch", e.target.value)} /></div>
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">UPI ID</Label><Input className="h-9 text-xs font-mono rounded-xl" placeholder="name@upi" value={element.content.upiId || ""} onChange={(e) => updateContent("upiId", e.target.value)} /></div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
-        </>
+        </div>
       )}
 
       {/* Logo / Stamp */}
       {(element.type === "logo" || element.type === "stamp") && (
-        <div>
-          <Label className="text-[10px]">Image URL</Label>
-          <Input className="h-7 text-xs mt-1" placeholder="https://..." value={element.content.url || ""} onChange={(e) => updateContent("url", e.target.value)} />
-          <p className="text-[10px] text-muted-foreground mt-1">Uses your profile {element.type} if left empty</p>
+        <div className="space-y-1.5">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Image Source URL</Label>
+          <Input className="h-9 text-xs rounded-xl border-muted-foreground/20" placeholder="https://..." value={element.content.url || ""} onChange={(e) => updateContent("url", e.target.value)} />
+          <p className="text-[10px] text-muted-foreground mt-1 font-serif italic">Uses your profile {element.type} if left empty</p>
         </div>
       )}
 
       {/* Invoice Number */}
       {element.type === "invoice-number" && (
-        <>
-          <div><Label className="text-[10px]">Label</Label><Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
-          <div>
-            <Label className="text-[10px]">Value / Placeholder</Label>
-            <Input className="h-7 text-xs mt-1" value={element.content.value || ""} onChange={(e) => updateContent("value", e.target.value)} />
-            <p className="text-[10px] text-muted-foreground mt-1">Use {"{{invoice_number}}"} for auto-fill</p>
+        <div className="space-y-4">
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Label</Label><Input className="h-9 text-xs rounded-xl" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Value / Placeholder</Label>
+            <Input className="h-9 text-xs font-mono rounded-xl" value={element.content.value || ""} onChange={(e) => updateContent("value", e.target.value)} />
+            <p className="text-[10px] text-muted-foreground mt-1 font-serif italic">Use {"{{invoice_number}}"} for auto-fill</p>
           </div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={14} />
-        </>
+        </div>
       )}
 
       {/* Invoice Date */}
       {element.type === "invoice-date" && (
-        <>
-          <div><Label className="text-[10px]">Label</Label><Input className="h-7 text-xs mt-1" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
-          <div className="flex items-center justify-between">
-            <Label className="text-[10px]">Show Issue Date</Label>
-            <Switch checked={element.content.showIssue !== false} onCheckedChange={(v) => updateContent("showIssue", v)} />
+        <div className="space-y-4">
+          <div className="space-y-1.5"><Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Label</Label><Input className="h-9 text-xs rounded-xl" value={element.content.label || ""} onChange={(e) => updateContent("label", e.target.value)} /></div>
+          <div className="flex items-center justify-between bg-muted/30 p-3 rounded-xl">
+            <Label className="text-[10px] font-bold">Show Issue Date</Label>
+            <Switch className="scale-75 origin-right" checked={element.content.showIssue !== false} onCheckedChange={(v) => updateContent("showIssue", v)} />
           </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-[10px]">Show Due Date</Label>
-            <Switch checked={element.content.showDue !== false} onCheckedChange={(v) => updateContent("showDue", v)} />
+          <div className="flex items-center justify-between bg-muted/30 p-3 rounded-xl">
+            <Label className="text-[10px] font-bold">Show Due Date</Label>
+            <Switch className="scale-75 origin-right" checked={element.content.showDue !== false} onCheckedChange={(v) => updateContent("showDue", v)} />
           </div>
           <FontControls content={element.content} updateContent={updateContent} defaultFontSize={12} />
-        </>
+        </div>
       )}
 
       {/* Total Summary */}
@@ -433,10 +437,10 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
   if (embedded) return inner;
 
   return (
-    <div className="w-56 shrink-0 border-l bg-card flex flex-col h-full overflow-y-auto">
-      <div className="p-3 border-b">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Properties</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{element.type.replace("-", " ")}</p>
+    <div className="w-64 xl:w-72 shrink-0 border-l bg-card flex flex-col h-full overflow-hidden shadow-sm">
+      <div className="p-4 border-b bg-muted/10">
+        <h3 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Properties</h3>
+        <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic capitalize">{element.type.replace("-", " ")}</p>
       </div>
       {inner}
     </div>
