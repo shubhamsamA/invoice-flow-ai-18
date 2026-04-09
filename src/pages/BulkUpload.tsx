@@ -180,11 +180,16 @@ export default function BulkUploadPage() {
         }, 0);
         const total = subtotal + totalGst;
 
+        const inlineClientJson = clientMatch
+          ? null
+          : { name: inv.client_name, email: "", phone: "", address: "", gst_number: "" };
+
         const { data: created, error: invErr } = await supabase
           .from("invoices")
           .insert({
             user_id: user.id,
             client_id: clientMatch?.id || null,
+            inline_client_json: inlineClientJson,
             invoice_number: invoiceNumber,
             issue_date: inv.issue_date,
             due_date: inv.due_date || null,
