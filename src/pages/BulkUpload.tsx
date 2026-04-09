@@ -328,10 +328,15 @@ export default function BulkUploadPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{inv.client_name}</p>
+                    {!clientExists && (inv.client_email || inv.client_phone || inv.client_address) && (
+                      <p className="text-[10px] text-muted-foreground">
+                        {[inv.client_email, inv.client_phone, inv.client_address].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {inv.items.length} item(s) · {inv.issue_date}
                       {!clientExists && (
-                        <span className="ml-2 text-amber-600">(Client not in database)</span>
+                        <span className="ml-2 text-amber-600">(Fill directly)</span>
                       )}
                     </p>
                   </div>
