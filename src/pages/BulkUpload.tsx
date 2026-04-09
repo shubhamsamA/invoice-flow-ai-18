@@ -10,6 +10,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ParsedInvoice {
   client_name: string;
+  client_email: string;
+  client_phone: string;
+  client_address: string;
   items: { name: string; quantity: number; price: number; gst_type: string; gst_rate: number }[];
   issue_date: string;
   due_date: string;
