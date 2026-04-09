@@ -191,7 +191,7 @@ export default function BulkUploadPage() {
 
         const inlineClientJson = clientMatch
           ? null
-          : { name: inv.client_name, email: "", phone: "", address: "", gst_number: "" };
+          : { name: inv.client_name, email: inv.client_email, phone: inv.client_phone, address: inv.client_address, gst_number: "" };
 
         const { data: created, error: invErr } = await supabase
           .from("invoices")
