@@ -264,7 +264,7 @@ export default function BulkUploadPage() {
       >
         <h2 className="text-sm font-semibold">Upload File</h2>
         <p className="text-xs text-muted-foreground">
-          CSV format with columns: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">Client, Item, Qty, Price, GST Type, GST Rate, Date, Due Date, Notes</code>
+          CSV format with columns: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">Client, Client Email, Client Phone, Client Address, Item, Qty, Price, GST Type, GST Rate, Date, Due Date, Notes</code>
         </p>
         <p className="text-xs text-muted-foreground">
           GST Type can be: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">none, cgst_sgst, igst, utgst</code>. Multiple items per client are grouped into one invoice.
