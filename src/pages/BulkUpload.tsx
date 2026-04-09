@@ -10,6 +10,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ParsedInvoice {
   client_name: string;
+  client_email: string;
+  client_phone: string;
+  client_address: string;
   items: { name: string; quantity: number; price: number; gst_type: string; gst_rate: number }[];
   issue_date: string;
   due_date: string;
@@ -59,6 +62,9 @@ function groupIntoInvoices(rows: string[][], headers: string[]): ParsedInvoice[]
   };
 
   const clientCol = colIndex(["client", "customer", "billto", "company"]);
+  const clientEmailCol = colIndex(["clientemail", "customeremail", "email"]);
+  const clientPhoneCol = colIndex(["clientphone", "customerphone", "phone"]);
+  const clientAddressCol = colIndex(["clientaddress", "customeraddress", "address"]);
   const itemCol = colIndex(["item", "description", "product", "service"]);
   const qtyCol = colIndex(["qty", "quantity", "units"]);
   const priceCol = colIndex(["price", "rate", "unitprice", "amount"]);
@@ -81,6 +87,9 @@ function groupIntoInvoices(rows: string[][], headers: string[]): ParsedInvoice[]
     if (!invoiceMap.has(client)) {
       invoiceMap.set(client, {
         client_name: client,
+        client_email: clientEmailCol >= 0 ? row[clientEmailCol] || "" : "",
+        client_phone: clientPhoneCol >= 0 ? row[clientPhoneCol] || "" : "",
+        client_address: clientAddressCol >= 0 ? row[clientAddressCol] || "" : "",
         items: [],
         issue_date: dateCol >= 0 ? row[dateCol] || new Date().toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
         due_date: dueCol >= 0 ? row[dueCol] || "" : "",
@@ -182,7 +191,7 @@ export default function BulkUploadPage() {
 
         const inlineClientJson = clientMatch
           ? null
-          : { name: inv.client_name, email: "", phone: "", address: "", gst_number: "" };
+          : { name: inv.client_name, email: inv.client_email, phone: inv.client_phone, address: inv.client_address, gst_number: "" };
 
         const { data: created, error: invErr } = await supabase
           .from("invoices")
@@ -255,7 +264,7 @@ export default function BulkUploadPage() {
       >
         <h2 className="text-sm font-semibold">Upload File</h2>
         <p className="text-xs text-muted-foreground">
-          CSV format with columns: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">Client, Item, Qty, Price, GST Type, GST Rate, Date, Due Date, Notes</code>
+          CSV format with columns: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">Client, Client Email, Client Phone, Client Address, Item, Qty, Price, GST Type, GST Rate, Date, Due Date, Notes</code>
         </p>
         <p className="text-xs text-muted-foreground">
           GST Type can be: <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">none, cgst_sgst, igst, utgst</code>. Multiple items per client are grouped into one invoice.
@@ -319,10 +328,15 @@ export default function BulkUploadPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{inv.client_name}</p>
+                    {!clientExists && (inv.client_email || inv.client_phone || inv.client_address) && (
+                      <p className="text-[10px] text-muted-foreground">
+                        {[inv.client_email, inv.client_phone, inv.client_address].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {inv.items.length} item(s) · {inv.issue_date}
                       {!clientExists && (
-                        <span className="ml-2 text-amber-600">(Client not in database)</span>
+                        <span className="ml-2 text-amber-600">(Fill directly)</span>
                       )}
                     </p>
                   </div>
