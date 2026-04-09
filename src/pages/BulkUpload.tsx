@@ -62,6 +62,9 @@ function groupIntoInvoices(rows: string[][], headers: string[]): ParsedInvoice[]
   };
 
   const clientCol = colIndex(["client", "customer", "billto", "company"]);
+  const clientEmailCol = colIndex(["clientemail", "customeremail", "email"]);
+  const clientPhoneCol = colIndex(["clientphone", "customerphone", "phone"]);
+  const clientAddressCol = colIndex(["clientaddress", "customeraddress", "address"]);
   const itemCol = colIndex(["item", "description", "product", "service"]);
   const qtyCol = colIndex(["qty", "quantity", "units"]);
   const priceCol = colIndex(["price", "rate", "unitprice", "amount"]);
@@ -84,6 +87,9 @@ function groupIntoInvoices(rows: string[][], headers: string[]): ParsedInvoice[]
     if (!invoiceMap.has(client)) {
       invoiceMap.set(client, {
         client_name: client,
+        client_email: clientEmailCol >= 0 ? row[clientEmailCol] || "" : "",
+        client_phone: clientPhoneCol >= 0 ? row[clientPhoneCol] || "" : "",
+        client_address: clientAddressCol >= 0 ? row[clientAddressCol] || "" : "",
         items: [],
         issue_date: dateCol >= 0 ? row[dateCol] || new Date().toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
         due_date: dueCol >= 0 ? row[dueCol] || "" : "",
