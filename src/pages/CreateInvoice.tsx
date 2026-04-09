@@ -914,7 +914,7 @@ export default function CreateInvoicePage() {
                             value={item.hsn_sac} 
                             onChange={(e) => updateItem(item.id, "hsn_sac", e.target.value)}
                             placeholder="HSN/SAC"
-                            className="bg-transparent hover:border-border focus:bg-background text-xs font-mono"
+                            className="w-full bg-transparent hover:border-border focus:bg-background text-xs font-mono"
                           />
                         </td>
                         <td className="px-4 py-4">
@@ -922,7 +922,7 @@ export default function CreateInvoicePage() {
                             type="number" 
                             value={item.quantity} 
                             onChange={(e) => updateItem(item.id, "quantity", parseInt(e.target.value) || 0)}
-                            className="text-center font-mono text-sm bg-transparent hover:border-border focus:bg-background"
+                            className="w-20 text-center text-xs font-mono tabular-nums bg-transparent"
                           />
                         </td>
                         <td className="px-4 py-4">
@@ -932,7 +932,7 @@ export default function CreateInvoicePage() {
                               type="number" 
                               value={item.price} 
                               onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                              className="text-right pl-6 font-mono text-sm bg-transparent hover:border-border focus:bg-background"
+                              className="w-20 text-right pl-6 font-mono text-sm bg-transparent hover:border-border focus:bg-background"
                             />
                           </div>
                         </td>
@@ -959,7 +959,7 @@ export default function CreateInvoicePage() {
                                 value={item.gst_rate} 
                                 onChange={(e) => updateItem(item.id, "gst_rate", parseFloat(e.target.value) || 0)}
                                 disabled={item.gst_type === "none"}
-                                className="text-center font-mono text-sm bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
+                                className="w-14 text-center font-mono text-sm bg-transparent hover:border-border focus:bg-background disabled:opacity-30"
                               />
                             </td>
                             <td className="px-4 py-4 text-right">
