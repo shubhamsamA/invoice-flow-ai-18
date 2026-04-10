@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Bell, LogOut, KeyRound, User, ChevronDown } from "lucide-react";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -68,6 +69,7 @@ export function Layout() {
           <main className="flex-1 overflow-auto p-6">
             <Outlet />
           </main>
+          <OnboardingTour />
         </div>
       </div>
     </SidebarProvider>
