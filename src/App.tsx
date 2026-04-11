@@ -21,6 +21,8 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import RestaurantBill from "./pages/RestaurantBill";
+import RestaurantBills from "./pages/RestaurantBills";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +55,8 @@ const App = () => (
               <Route path="/templates" element={<Templates />} />
               <Route path="/ai-generator" element={<AIGenerator />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/restaurant-bills" element={<RestaurantBills />} />
+              <Route path="/restaurant-bill/new" element={<RestaurantBill />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

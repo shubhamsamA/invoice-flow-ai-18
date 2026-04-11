@@ -231,6 +231,104 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_bill_items: {
+        Row: {
+          amount: number
+          bill_id: string
+          id: string
+          name: string
+          quantity: number
+          sort_order: number
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          bill_id: string
+          id?: string
+          name: string
+          quantity?: number
+          sort_order?: number
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          id?: string
+          name?: string
+          quantity?: number
+          sort_order?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_bill_items_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_bills: {
+        Row: {
+          bill_number: string
+          created_at: string
+          gst_amount: number
+          gst_rate: number
+          id: string
+          notes: string | null
+          payment_method: string
+          server_name: string | null
+          service_charge_amount: number
+          service_charge_rate: number
+          status: string
+          subtotal: number
+          table_number: string | null
+          tip: number
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bill_number: string
+          created_at?: string
+          gst_amount?: number
+          gst_rate?: number
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          server_name?: string | null
+          service_charge_amount?: number
+          service_charge_rate?: number
+          status?: string
+          subtotal?: number
+          table_number?: string | null
+          tip?: number
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bill_number?: string
+          created_at?: string
+          gst_amount?: number
+          gst_rate?: number
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          server_name?: string | null
+          service_charge_amount?: number
+          service_charge_rate?: number
+          status?: string
+          subtotal?: number
+          table_number?: string | null
+          tip?: number
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           canvas_height: number

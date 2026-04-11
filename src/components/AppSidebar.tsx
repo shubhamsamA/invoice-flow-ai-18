@@ -8,6 +8,7 @@ import {
   Settings,
   Plus,
   PenTool,
+  UtensilsCrossed,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -35,6 +36,7 @@ const mainNav = [
   { title: "Builder", url: "/invoices/builder", icon: PenTool },
   { title: "Templates", url: "/templates", icon: Palette },
   { title: "AI Generator", url: "/ai-generator", icon: Sparkles },
+  { title: "Restaurant Bills", url: "/restaurant-bills", icon: UtensilsCrossed },
 ];
 
 const secondaryNav = [{ title: "Business Profile ", url: "/settings", icon: Settings }];
