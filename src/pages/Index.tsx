@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist";
 import {
   AreaChart,
   Area,
@@ -178,6 +179,9 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
+          {/* Getting Started Checklist */}
+          <GettingStartedChecklist />
+
           {/* Stats Grid */}
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-border/50 rounded-lg overflow-hidden" variants={itemVariants}>
             {stats.map((stat, i) => (
