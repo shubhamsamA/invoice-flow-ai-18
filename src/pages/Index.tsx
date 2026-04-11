@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist";
 import {
   AreaChart,
   Area,
