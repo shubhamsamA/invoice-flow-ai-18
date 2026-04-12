@@ -147,17 +147,18 @@ export default function RestaurantBill() {
     printWindow.document.write(`
       <html><head><title>KOT - ${tableNumber || "N/A"}</title>
       <style>
+        @page { size: 80mm auto; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 16px; max-width: 300px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 8px; }
-        .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
-        .divider { border-top: 1px dashed #333; margin: 6px 0; }
-        .info { font-size: 12px; display: flex; justify-content: space-between; }
-        table { width: 100%; font-size: 13px; border-collapse: collapse; margin: 6px 0; }
-        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; font-size: 12px; }
-        td { padding: 4px 0; font-size: 13px; }
+        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        .header { text-align: center; margin-bottom: 6px; }
+        .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 2px; }
+        .divider { border-top: 1px dashed #333; margin: 4px 0; }
+        .info { font-size: 11px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 12px; border-collapse: collapse; margin: 4px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 3px 0; font-size: 11px; }
+        td { padding: 3px 0; font-size: 12px; }
         .center { text-align: center; }
-        .footer { text-align: center; font-size: 10px; margin-top: 12px; }
+        .footer { text-align: center; font-size: 9px; margin-top: 8px; }
       </style>
       </head><body>
         <div class="header"><h1>** KOT **</h1></div>
@@ -186,19 +187,20 @@ export default function RestaurantBill() {
     printWindow.document.write(`
       <html><head><title>${billNumber}</title>
       <style>
+        @page { size: 80mm auto; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 20px; max-width: 320px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 12px; }
-        .header h1 { font-size: 16px; font-weight: bold; }
-        .header p { font-size: 11px; color: #666; }
-        .divider { border-top: 1px dashed #999; margin: 8px 0; }
-        .info { font-size: 11px; display: flex; justify-content: space-between; }
-        table { width: 100%; font-size: 11px; border-collapse: collapse; margin: 8px 0; }
-        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; }
-        td { padding: 3px 0; }
+        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        .header { text-align: center; margin-bottom: 8px; }
+        .header h1 { font-size: 14px; font-weight: bold; }
+        .header p { font-size: 10px; color: #666; }
+        .divider { border-top: 1px dashed #999; margin: 6px 0; }
+        .info { font-size: 10px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 10px; border-collapse: collapse; margin: 6px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 3px 0; }
+        td { padding: 2px 0; }
         .right { text-align: right; }
-        .total-row { font-weight: bold; font-size: 13px; }
-        .footer { text-align: center; font-size: 10px; color: #666; margin-top: 16px; }
+        .total-row { font-weight: bold; font-size: 12px; }
+        .footer { text-align: center; font-size: 9px; color: #666; margin-top: 10px; }
       </style>
       </head><body>${printRef.current.innerHTML}
       <script>window.print(); window.close();</script>

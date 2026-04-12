@@ -43,18 +43,19 @@ export default function RestaurantBills() {
     printWindow.document.write(`
       <html><head><title>KOT - ${bill.table_number || "N/A"}</title>
       <style>
+        @page { size: 80mm auto; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 16px; max-width: 300px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 8px; }
-        .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
-        .reprint { text-align: center; font-size: 11px; font-weight: bold; margin-bottom: 4px; }
-        .divider { border-top: 1px dashed #333; margin: 6px 0; }
-        .info { font-size: 12px; display: flex; justify-content: space-between; }
-        table { width: 100%; font-size: 13px; border-collapse: collapse; margin: 6px 0; }
-        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; font-size: 12px; }
-        td { padding: 4px 0; font-size: 13px; }
+        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        .header { text-align: center; margin-bottom: 6px; }
+        .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 2px; }
+        .reprint { text-align: center; font-size: 10px; font-weight: bold; margin-bottom: 4px; }
+        .divider { border-top: 1px dashed #333; margin: 4px 0; }
+        .info { font-size: 11px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 12px; border-collapse: collapse; margin: 4px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 3px 0; font-size: 11px; }
+        td { padding: 3px 0; font-size: 12px; }
         .center { text-align: center; }
-        .footer { text-align: center; font-size: 10px; margin-top: 12px; }
+        .footer { text-align: center; font-size: 9px; margin-top: 8px; }
       </style>
       </head><body>
         <div class="header"><h1>** KOT **</h1></div>
