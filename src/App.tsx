@@ -23,6 +23,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import RestaurantBill from "./pages/RestaurantBill";
 import RestaurantBills from "./pages/RestaurantBills";
+import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
               <Route path="/restaurant-bills" element={<RestaurantBills />} />
               <Route path="/restaurant-bill/new" element={<RestaurantBill />} />
+              <Route path="/inventory" element={<Inventory />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
