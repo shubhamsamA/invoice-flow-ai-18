@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Plus, Loader2, Trash2 } from "lucide-react";
+import { Plus, Loader2, Trash2, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,58 @@ export default function RestaurantBills() {
     },
     enabled: !!user,
   });
+
+  const handleKOTReprint = async (bill: typeof bills extends (infer T)[] | undefined ? T : never) => {
+    const { data: billItems, error } = await supabase
+      .from("restaurant_bill_items")
+      .select("*")
+      .eq("bill_id", bill.id)
+      .order("sort_order");
+    if (error || !billItems?.length) {
+      toast.error("No items found for this bill");
+      return;
+    }
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const now = new Date(bill.created_at);
+    printWindow.document.write(`
+      <html><head><title>KOT - ${bill.table_number || "N/A"}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; padding: 16px; max-width: 300px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 8px; }
+        .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+        .reprint { text-align: center; font-size: 11px; font-weight: bold; margin-bottom: 4px; }
+        .divider { border-top: 1px dashed #333; margin: 6px 0; }
+        .info { font-size: 12px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 13px; border-collapse: collapse; margin: 6px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; font-size: 12px; }
+        td { padding: 4px 0; font-size: 13px; }
+        .center { text-align: center; }
+        .footer { text-align: center; font-size: 10px; margin-top: 12px; }
+      </style>
+      </head><body>
+        <div class="header"><h1>** KOT **</h1></div>
+        <div class="reprint">[ REPRINT ]</div>
+        <div class="divider"></div>
+        <div class="info"><span>Table: ${bill.table_number || "N/A"}</span><span>${now.toLocaleTimeString()}</span></div>
+        <div class="info"><span>Server: ${bill.server_name || "N/A"}</span><span>${now.toLocaleDateString()}</span></div>
+        <div class="info"><span>${bill.bill_number}</span></div>
+        <div class="divider"></div>
+        <table>
+          <thead><tr><th>Item</th><th class="center">Qty</th></tr></thead>
+          <tbody>
+            ${billItems.map((i) => `<tr><td>${i.name}</td><td class="center">${i.quantity}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <div class="divider"></div>
+        ${bill.notes ? `<p style="font-size:11px;margin-top:4px;">Note: ${bill.notes}</p>` : ""}
+        <div class="footer"><p>Kitchen Order Ticket</p></div>
+      <script>window.print(); window.close();</script>
+      </body></html>
+    `);
+    printWindow.document.close();
+  };
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("restaurant_bills").delete().eq("id", id);
@@ -103,6 +155,15 @@ export default function RestaurantBills() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-mono font-bold">₹{Number(bill.total).toFixed(2)}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => handleKOTReprint(bill)}
+                      title="Reprint KOT"
+                    >
+                      <ChefHat className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
