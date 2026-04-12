@@ -25,6 +25,7 @@ import { BuilderElement, DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder"
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 import { cn } from "@/lib/utils";
 import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
+import InventorySearch from "@/components/InventorySearch";
 
 interface InvoiceItem {
   id: string;
