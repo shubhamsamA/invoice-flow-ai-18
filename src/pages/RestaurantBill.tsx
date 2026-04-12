@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Printer, Download, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Printer, Download, Save, Loader2, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -135,6 +135,51 @@ export default function RestaurantBill() {
     }
   };
 
+  const handleKOTPrint = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const kotItems = items.filter((i) => i.name.trim());
+    if (!kotItems.length) {
+      toast.error("Add at least one item to print KOT");
+      return;
+    }
+    const now = new Date();
+    printWindow.document.write(`
+      <html><head><title>KOT - ${tableNumber || "N/A"}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; padding: 16px; max-width: 300px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 8px; }
+        .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+        .divider { border-top: 1px dashed #333; margin: 6px 0; }
+        .info { font-size: 12px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 13px; border-collapse: collapse; margin: 6px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; font-size: 12px; }
+        td { padding: 4px 0; font-size: 13px; }
+        .center { text-align: center; }
+        .footer { text-align: center; font-size: 10px; margin-top: 12px; }
+      </style>
+      </head><body>
+        <div class="header"><h1>** KOT **</h1></div>
+        <div class="divider"></div>
+        <div class="info"><span>Table: ${tableNumber || "N/A"}</span><span>${now.toLocaleTimeString()}</span></div>
+        <div class="info"><span>Server: ${serverName || "N/A"}</span><span>${now.toLocaleDateString()}</span></div>
+        <div class="divider"></div>
+        <table>
+          <thead><tr><th>Item</th><th class="center">Qty</th></tr></thead>
+          <tbody>
+            ${kotItems.map((i) => `<tr><td>${i.name}</td><td class="center">${i.quantity}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <div class="divider"></div>
+        ${notes ? `<p style="font-size:11px;margin-top:4px;">Note: ${notes}</p>` : ""}
+        <div class="footer"><p>Kitchen Order Ticket</p></div>
+      <script>window.print(); window.close();</script>
+      </body></html>
+    `);
+    printWindow.document.close();
+  };
+
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
     if (!printWindow || !printRef.current) return;
@@ -176,6 +221,9 @@ export default function RestaurantBill() {
           <p className="text-sm text-muted-foreground">Create a new restaurant bill</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleKOTPrint}>
+            <ChefHat className="h-4 w-4" /> KOT
+          </Button>
           <Button variant="outline" className="gap-2" onClick={handlePrint}>
             <Printer className="h-4 w-4" /> Print
           </Button>
