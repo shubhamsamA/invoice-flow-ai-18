@@ -147,9 +147,9 @@ export default function RestaurantBill() {
     printWindow.document.write(`
       <html><head><title>KOT - ${tableNumber || "N/A"}</title>
       <style>
-        @page { size: 80mm auto; margin: 0; }
+        @page { size: 80mm 200mm; margin: 1mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        body { font-family: 'Courier New', monospace; padding: 2mm; width: 76mm; }
         .header { text-align: center; margin-bottom: 6px; }
         .header h1 { font-size: 16px; font-weight: bold; letter-spacing: 2px; }
         .divider { border-top: 1px dashed #333; margin: 4px 0; }
@@ -187,9 +187,9 @@ export default function RestaurantBill() {
     printWindow.document.write(`
       <html><head><title>${billNumber}</title>
       <style>
-        @page { size: 80mm auto; margin: 0; }
+        @page { size: 80mm 200mm; margin: 1mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        body { font-family: 'Courier New', monospace; padding: 2mm; width: 76mm; }
         .header { text-align: center; margin-bottom: 8px; }
         .header h1 { font-size: 14px; font-weight: bold; }
         .header p { font-size: 10px; color: #666; }
