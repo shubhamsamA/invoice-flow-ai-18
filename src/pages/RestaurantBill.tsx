@@ -187,19 +187,20 @@ export default function RestaurantBill() {
     printWindow.document.write(`
       <html><head><title>${billNumber}</title>
       <style>
+        @page { size: 80mm auto; margin: 0; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 20px; max-width: 320px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 12px; }
-        .header h1 { font-size: 16px; font-weight: bold; }
-        .header p { font-size: 11px; color: #666; }
-        .divider { border-top: 1px dashed #999; margin: 8px 0; }
-        .info { font-size: 11px; display: flex; justify-content: space-between; }
-        table { width: 100%; font-size: 11px; border-collapse: collapse; margin: 8px 0; }
-        th { text-align: left; border-bottom: 1px solid #333; padding: 4px 0; }
-        td { padding: 3px 0; }
+        body { font-family: 'Courier New', monospace; padding: 8mm; width: 80mm; }
+        .header { text-align: center; margin-bottom: 8px; }
+        .header h1 { font-size: 14px; font-weight: bold; }
+        .header p { font-size: 10px; color: #666; }
+        .divider { border-top: 1px dashed #999; margin: 6px 0; }
+        .info { font-size: 10px; display: flex; justify-content: space-between; }
+        table { width: 100%; font-size: 10px; border-collapse: collapse; margin: 6px 0; }
+        th { text-align: left; border-bottom: 1px solid #333; padding: 3px 0; }
+        td { padding: 2px 0; }
         .right { text-align: right; }
-        .total-row { font-weight: bold; font-size: 13px; }
-        .footer { text-align: center; font-size: 10px; color: #666; margin-top: 16px; }
+        .total-row { font-weight: bold; font-size: 12px; }
+        .footer { text-align: center; font-size: 9px; color: #666; margin-top: 10px; }
       </style>
       </head><body>${printRef.current.innerHTML}
       <script>window.print(); window.close();</script>
