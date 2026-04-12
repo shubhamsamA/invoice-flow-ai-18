@@ -805,13 +805,29 @@ export default function CreateInvoicePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-border/50 bg-muted/30 flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <Receipt className="h-4 w-4 text-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Line Items</h2>
               </div>
               <div className="flex items-center gap-2">
-               
+                <div className="w-48">
+                  <InventorySearch
+                    onSelect={(inv) => {
+                      setItems(prev => [...prev, {
+                        id: crypto.randomUUID(),
+                        sl_no: prev.length + 1,
+                        name: inv.name,
+                        description: inv.description,
+                        hsn_sac: inv.hsn_sac,
+                        quantity: 1,
+                        price: inv.price,
+                        gst_type: "none",
+                        gst_rate: 0,
+                      }]);
+                    }}
+                  />
+                </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
