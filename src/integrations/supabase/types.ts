@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          hsn_code: string | null
+          id: string
+          is_active: boolean
+          low_stock_threshold: number
+          name: string
+          sku: string | null
+          stock_quantity: number
+          unit: string | null
+          unit_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          hsn_code?: string | null
+          id?: string
+          is_active?: boolean
+          low_stock_threshold?: number
+          name: string
+          sku?: string | null
+          stock_quantity?: number
+          unit?: string | null
+          unit_price?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          hsn_code?: string | null
+          id?: string
+          is_active?: boolean
+          low_stock_threshold?: number
+          name?: string
+          sku?: string | null
+          stock_quantity?: number
+          unit?: string | null
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           amount: number

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import InventorySearch from "@/components/InventorySearch";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -532,6 +533,23 @@ export default function EditInvoicePage() {
                 <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowTableSettings(!showTableSettings)}>
                   {showTableSettings ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />} Table Settings
                 </Button>
+                <div className="w-44">
+                  <InventorySearch
+                    onSelect={(inv) => {
+                      setItems(prev => [...prev, {
+                        id: crypto.randomUUID(),
+                        sl_no: prev.length + 1,
+                        name: inv.name,
+                        description: inv.description,
+                        hsn_sac: inv.hsn_sac,
+                        quantity: 1,
+                        price: inv.price,
+                        gst_type: "none",
+                        gst_rate: 0,
+                      }]);
+                    }}
+                  />
+                </div>
                 <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addItem}><Plus className="h-3.5 w-3.5" /> Add Row</Button>
               </div>
             </div>
