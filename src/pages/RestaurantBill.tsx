@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Printer, Download, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Printer, Download, Save, Loader2, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
