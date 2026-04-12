@@ -221,6 +221,9 @@ export default function RestaurantBill() {
           <p className="text-sm text-muted-foreground">Create a new restaurant bill</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleKOTPrint}>
+            <ChefHat className="h-4 w-4" /> KOT
+          </Button>
           <Button variant="outline" className="gap-2" onClick={handlePrint}>
             <Printer className="h-4 w-4" /> Print
           </Button>
