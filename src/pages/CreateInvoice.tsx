@@ -37,6 +37,7 @@ interface InvoiceItem {
   price: number;
   gst_type: string;
   gst_rate: number;
+  inventory_id?: string;
 }
 
 const GST_TYPES = [
@@ -824,6 +825,7 @@ export default function CreateInvoicePage() {
                         price: inv.price,
                         gst_type: "none",
                         gst_rate: 0,
+                        inventory_id: inv.inventory_id,
                       }]);
                     }}
                   />
