@@ -328,7 +328,7 @@ export default function RestaurantBill() {
                         id: crypto.randomUUID(),
                         name: inv.name,
                         quantity: 1,
-                        price: inv.price,
+                        unitPrice: inv.price,
                       }]);
                     }}
                   />
