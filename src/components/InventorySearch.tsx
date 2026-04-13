@@ -16,7 +16,7 @@ interface InventoryItem {
 }
 
 interface InventorySearchProps {
-  onSelect: (item: { name: string; description: string; hsn_sac: string; price: number }) => void;
+  onSelect: (item: { inventory_id: string; name: string; description: string; hsn_sac: string; price: number }) => void;
 }
 
 export default function InventorySearch({ onSelect }: InventorySearchProps) {
@@ -59,6 +59,7 @@ export default function InventorySearch({ onSelect }: InventorySearchProps) {
 
   const handleSelect = (item: InventoryItem) => {
     onSelect({
+      inventory_id: item.id,
       name: item.name,
       description: item.description || "",
       hsn_sac: item.hsn_code || "",

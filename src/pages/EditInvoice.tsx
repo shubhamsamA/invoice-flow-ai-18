@@ -32,6 +32,7 @@ interface InvoiceItem {
   price: number;
   gst_type: string;
   gst_rate: number;
+  inventory_id?: string;
 }
 
 const GST_TYPES = [
@@ -348,6 +349,23 @@ export default function EditInvoicePage() {
         const { error: itemsError } = await supabase.from("invoice_items").insert(itemRows);
         if (itemsError) throw itemsError;
       }
+
+      // Deduct stock for newly added inventory-linked items
+      const inventoryItems = items.filter(i => i.name.trim() && i.inventory_id);
+      for (const item of inventoryItems) {
+        const { data: current } = await supabase
+          .from("inventory")
+          .select("stock_quantity")
+          .eq("id", item.inventory_id!)
+          .single();
+        if (current) {
+          await supabase
+            .from("inventory")
+            .update({ stock_quantity: Math.max(0, current.stock_quantity - item.quantity) })
+            .eq("id", item.inventory_id!);
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["invoice-detail", id] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
@@ -546,6 +564,7 @@ export default function EditInvoicePage() {
                         price: inv.price,
                         gst_type: "none",
                         gst_rate: 0,
+                        inventory_id: inv.inventory_id,
                       }]);
                     }}
                   />
