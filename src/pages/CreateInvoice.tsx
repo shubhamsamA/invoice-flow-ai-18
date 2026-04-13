@@ -417,6 +417,23 @@ export default function CreateInvoicePage() {
         if (itemsError) throw itemsError;
       }
 
+      // Deduct stock for inventory-linked items
+      const inventoryItems = items.filter(i => i.name.trim() && i.inventory_id);
+      for (const item of inventoryItems) {
+        const { data: current } = await supabase
+          .from("inventory")
+          .select("stock_quantity")
+          .eq("id", item.inventory_id!)
+          .single();
+        if (current) {
+          await supabase
+            .from("inventory")
+            .update({ stock_quantity: Math.max(0, current.stock_quantity - item.quantity) })
+            .eq("id", item.inventory_id!);
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       toast.success("Invoice saved");
