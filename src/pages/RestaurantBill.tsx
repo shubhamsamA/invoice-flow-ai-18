@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Printer, Download, Save, Loader2, ChefHat } from "lucide-react";
+import InventorySearch from "@/components/InventorySearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -319,9 +320,23 @@ export default function RestaurantBill() {
                   </Button>
                 </div>
               ))}
-              <Button variant="outline" size="sm" className="w-full gap-2" onClick={addItem}>
-                <Plus className="h-3.5 w-3.5" /> Add Item
-              </Button>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <InventorySearch
+                    onSelect={(inv) => {
+                      setItems(prev => [...prev, {
+                        id: crypto.randomUUID(),
+                        name: inv.name,
+                        quantity: 1,
+                        unitPrice: inv.price,
+                      }]);
+                    }}
+                  />
+                </div>
+                <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={addItem}>
+                  <Plus className="h-3.5 w-3.5" /> Add
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
