@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Trash2, Edit2, Search, Package, Save, X, Loader2 } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, Package, Save, X, Loader2, Upload } from "lucide-react";
+import InventoryBulkImport from "@/components/InventoryBulkImport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,7 @@ export default function InventoryPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["inventory"],
@@ -159,10 +161,16 @@ export default function InventoryPage() {
           <h1 className="text-2xl font-bold text-foreground">Inventory</h1>
           <p className="text-sm text-muted-foreground">Manage your products & services for quick invoice creation</p>
         </div>
-        <Button onClick={openAdd} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Item
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setBulkOpen(true)} className="gap-2">
+            <Upload className="h-4 w-4" />
+            Bulk Import
+          </Button>
+          <Button onClick={openAdd} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Item
+          </Button>
+        </div>
       </div>
 
       {/* Search & Filter */}
@@ -315,6 +323,8 @@ export default function InventoryPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <InventoryBulkImport open={bulkOpen} onOpenChange={setBulkOpen} />
     </div>
   );
 }
