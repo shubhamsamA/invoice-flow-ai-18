@@ -66,9 +66,17 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back!");
+        // Send login notification email
+        supabase.functions.invoke('send-email', {
+          body: {
+            type: 'login_notification',
+            to: email,
+            data: { loginTime: new Date().toLocaleString() },
+          },
+        });
         navigate("/dashboard");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -78,6 +86,17 @@ export default function AuthPage() {
         });
         if (error) throw error;
         toast.success("Account created! Check your email to confirm.");
+        // Send welcome email
+        supabase.functions.invoke('send-email', {
+          body: {
+            type: 'welcome',
+            to: email,
+            data: {
+              name: displayName,
+              loginUrl: `${window.location.origin}/auth`,
+            },
+          },
+        });
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -95,6 +114,14 @@ export default function AuthPage() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
+      // Send branded password reset email via Resend
+      supabase.functions.invoke('send-email', {
+        body: {
+          type: 'password_reset',
+          to: email,
+          data: { resetUrl: `${window.location.origin}/reset-password` },
+        },
+      });
       toast.success("Password reset link sent! Check your email.");
       setIsForgotPassword(false);
     } catch (error: any) {
