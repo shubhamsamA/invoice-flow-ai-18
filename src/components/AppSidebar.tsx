@@ -49,9 +49,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   const handleLinkClick = () => {
-    if (state === "expanded") {
-      setOpen(false);
-    }
+    // no-op: keep sidebar open on navigation
   };
 
   return (
