@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Printer, Download, Save, Loader2, ChefHat } from "lucide-react";
+import { Trash2, Printer, Save, Loader2, ChefHat } from "lucide-react";
 import InventorySearch from "@/components/InventorySearch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,9 +32,7 @@ export default function RestaurantBill() {
 
   const [tableNumber, setTableNumber] = useState("");
   const [serverName, setServerName] = useState("");
-  const [items, setItems] = useState<BillItem[]>([
-    { id: generateId(), name: "", quantity: 1, unitPrice: 0 },
-  ]);
+  const [items, setItems] = useState<BillItem[]>([]);
   const [serviceChargeEnabled, setServiceChargeEnabled] = useState(false);
   const [serviceChargeRate, setServiceChargeRate] = useState(10);
   const [gstRate, setGstRate] = useState(5);
@@ -280,63 +278,47 @@ export default function RestaurantBill() {
               <CardTitle className="text-base">Order Items</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {items.map((item, idx) => (
-                <div key={item.id} className="flex items-end gap-2">
-                  <div className="flex-1 space-y-1">
-                    {idx === 0 && <Label className="text-xs">Item</Label>}
-                    <Input
-                      placeholder="Item name"
-                      value={item.name}
-                      onChange={(e) => updateItem(item.id, "name", e.target.value)}
-                    />
+              <InventorySearch
+                onSelect={(inv) => {
+                  setItems(prev => {
+                    const empty = prev.filter(i => !i.name.trim());
+                    const filled = prev.filter(i => i.name.trim());
+                    const existing = filled.find(i => i.name === inv.name);
+                    if (existing) {
+                      return [...filled.map(i => i.id === existing.id ? { ...i, quantity: i.quantity + 1 } : i), ...empty];
+                    }
+                    return [...filled, { id: crypto.randomUUID(), name: inv.name, quantity: 1, unitPrice: inv.price }];
+                  });
+                }}
+              />
+              {items.filter(i => i.name.trim()).length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-4">Search and select items from inventory above</p>
+              )}
+              {items.filter(i => i.name.trim()).map((item, idx) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium truncate block">{item.name}</span>
                   </div>
-                  <div className="w-16 space-y-1">
-                    {idx === 0 && <Label className="text-xs">Qty</Label>}
+                  <div className="w-16">
                     <Input
                       type="number"
                       min={1}
                       value={item.quantity}
                       onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value) || 1)}
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="w-24 space-y-1">
-                    {idx === 0 && <Label className="text-xs">Price</Label>}
-                    <Input
-                      type="number"
-                      min={0}
-                      value={item.unitPrice || ""}
-                      onChange={(e) => updateItem(item.id, "unitPrice", Number(e.target.value) || 0)}
-                      placeholder="₹0"
-                    />
-                  </div>
+                  <span className="text-xs text-muted-foreground w-20 text-right">₹{(item.quantity * item.unitPrice).toLocaleString("en-IN")}</span>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => removeItem(item.id)}
-                    disabled={items.length === 1}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               ))}
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <InventorySearch
-                    onSelect={(inv) => {
-                      setItems(prev => [...prev, {
-                        id: crypto.randomUUID(),
-                        name: inv.name,
-                        quantity: 1,
-                        unitPrice: inv.price,
-                      }]);
-                    }}
-                  />
-                </div>
-                <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={addItem}>
-                  <Plus className="h-3.5 w-3.5" /> Add
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
