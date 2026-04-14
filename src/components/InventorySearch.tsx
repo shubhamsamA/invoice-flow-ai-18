@@ -78,6 +78,7 @@ export default function InventorySearch({ onSelect }: InventorySearchProps) {
           value={query}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
+          onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
           className="pl-8 h-8 text-xs"
         />
       </div>
