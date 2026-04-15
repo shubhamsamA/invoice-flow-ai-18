@@ -24,6 +24,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement } from "@/types/builder";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { TemplateThumbnail } from "@/components/TemplateThumbnail";
 import { cn } from "@/lib/utils";
 import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 import InventorySearch from "@/components/InventorySearch";
