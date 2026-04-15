@@ -4,6 +4,7 @@ import { DEFAULT_SIZES, DEFAULT_CONTENT } from "@/types/builder";
 export interface BuiltinTemplate {
   id: string;
   name: string;
+  description: string;
   elements: BuilderElement[];
 }
 
@@ -17,6 +18,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "minimal",
       name: "Minimal",
+      description: "Clean and simple layout",
       elements: [
         el("text", 32, 32, 320, 48, { text: "INVOICE", fontSize: 24, bold: true }),
         el("client-details", 32, 96, ...Object.values(DEFAULT_SIZES["client-details"]) as [number, number], DEFAULT_CONTENT["client-details"]),
@@ -29,6 +31,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "corporate",
       name: "Corporate",
+      description: "Logo & formal branding",
       elements: [
         el("logo", 32, 32, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
         el("text", 208, 48, 400, 48, { text: "CORPORATE INVOICE", fontSize: 22, bold: true }),
@@ -41,6 +44,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "freelance",
       name: "Modern Freelance",
+      description: "Stylish personal branding",
       elements: [
         el("divider", 32, 16, 576, 16, { style: "solid" }),
         el("logo", 32, 48, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
@@ -53,6 +57,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "gst",
       name: "Indian GST",
+      description: "HSN codes & tax breakdown",
       elements: [
         el("text", 160, 32, 320, 48, { text: "TAX INVOICE", fontSize: 22, bold: true }),
         el("logo", 32, 32, 112, 64, DEFAULT_CONTENT["logo"]),
@@ -66,6 +71,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "professional",
       name: "Professional",
+      description: "Full business details & notes",
       elements: [
         el("logo", 32, 32, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
         el("business-details", 320, 32, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
@@ -82,6 +88,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "consulting",
       name: "Consulting",
+      description: "Bank details & payment terms",
       elements: [
         el("text", 32, 32, 400, 48, { text: "CONSULTING INVOICE", fontSize: 22, bold: true, fontFamily: "serif" }),
         el("business-details", 32, 96, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
@@ -98,6 +105,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "creative",
       name: "Creative Studio",
+      description: "Bold accents & double borders",
       elements: [
         el("divider", 32, 16, 576, 16, { style: "solid", color: "#6366f1", thickness: 4 }),
         el("logo", 32, 48, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
@@ -115,6 +123,7 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
     {
       id: "services",
       name: "Service Provider",
+      description: "Bank, stamp & full details",
       elements: [
         el("logo", 32, 32, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
         el("business-details", 320, 32, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
@@ -129,5 +138,80 @@ export function getBuiltinTemplates(): BuiltinTemplate[] {
         el("stamp", 480, 760, ...Object.values(DEFAULT_SIZES["stamp"]) as [number, number], DEFAULT_CONTENT["stamp"]),
       ],
     },
+    // --- New templates ---
+    {
+      id: "retail",
+      name: "Retail",
+      description: "Product-focused with quantities",
+      elements: [
+        el("logo", 32, 32, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
+        el("text", 208, 40, 400, 48, { text: "RETAIL INVOICE", fontSize: 22, bold: true }),
+        el("invoice-number", 32, 120, ...Object.values(DEFAULT_SIZES["invoice-number"]) as [number, number], DEFAULT_CONTENT["invoice-number"]),
+        el("invoice-date", 320, 120, ...Object.values(DEFAULT_SIZES["invoice-date"]) as [number, number], DEFAULT_CONTENT["invoice-date"]),
+        el("divider", 32, 176, 576, 16, { style: "solid", color: "#e5e7eb", thickness: 1 }),
+        el("client-details", 32, 200, ...Object.values(DEFAULT_SIZES["client-details"]) as [number, number], DEFAULT_CONTENT["client-details"]),
+        el("items-table", 32, 360, 576, 280, { items: [{ name: "Product A", qty: 2, price: 500 }, { name: "Product B", qty: 1, price: 1200 }] }),
+        el("total-summary", 320, 660, ...Object.values(DEFAULT_SIZES["total-summary"]) as [number, number], DEFAULT_CONTENT["total-summary"]),
+        el("note", 32, 660, 280, 64, { text: "Exchange within 7 days with original receipt.", fontSize: 10 }),
+        el("divider", 32, 740, 576, 16, { style: "solid", color: "#e5e7eb", thickness: 1 }),
+      ],
+    },
+    {
+      id: "export",
+      name: "Export",
+      description: "International trade & shipping",
+      elements: [
+        el("logo", 32, 32, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
+        el("text", 208, 40, 400, 48, { text: "EXPORT INVOICE", fontSize: 22, bold: true }),
+        el("business-details", 32, 120, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
+        el("invoice-number", 400, 120, ...Object.values(DEFAULT_SIZES["invoice-number"]) as [number, number], DEFAULT_CONTENT["invoice-number"]),
+        el("invoice-date", 400, 184, ...Object.values(DEFAULT_SIZES["invoice-date"]) as [number, number], DEFAULT_CONTENT["invoice-date"]),
+        el("divider", 32, 280, 576, 16, { style: "double", color: "#333333", thickness: 2 }),
+        el("client-details", 32, 304, ...Object.values(DEFAULT_SIZES["client-details"]) as [number, number], { ...DEFAULT_CONTENT["client-details"] }),
+        el("note", 320, 304, 280, 96, { text: "Port of Loading: Mumbai\nPort of Discharge: London\nTerms: FOB", fontSize: 11 }),
+        el("items-table", 32, 480, 576, 240, DEFAULT_CONTENT["items-table"]),
+        el("total-summary", 320, 740, ...Object.values(DEFAULT_SIZES["total-summary"]) as [number, number], DEFAULT_CONTENT["total-summary"]),
+        el("bank-details", 32, 740, ...Object.values(DEFAULT_SIZES["bank-details"]) as [number, number], DEFAULT_CONTENT["bank-details"]),
+        el("signature", 32, 900, ...Object.values(DEFAULT_SIZES["signature"]) as [number, number], DEFAULT_CONTENT["signature"]),
+        el("stamp", 480, 870, ...Object.values(DEFAULT_SIZES["stamp"]) as [number, number], DEFAULT_CONTENT["stamp"]),
+      ],
+    },
+    {
+      id: "proforma",
+      name: "Proforma",
+      description: "Pre-sale quotation format",
+      elements: [
+        el("text", 32, 32, 576, 48, { text: "PROFORMA INVOICE", fontSize: 24, bold: true, textAlign: "center" }),
+        el("divider", 32, 88, 576, 16, { style: "solid", color: "#6366f1", thickness: 3 }),
+        el("logo", 32, 112, ...Object.values(DEFAULT_SIZES["logo"]) as [number, number], DEFAULT_CONTENT["logo"]),
+        el("business-details", 320, 112, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
+        el("invoice-number", 32, 264, ...Object.values(DEFAULT_SIZES["invoice-number"]) as [number, number], DEFAULT_CONTENT["invoice-number"]),
+        el("invoice-date", 320, 264, ...Object.values(DEFAULT_SIZES["invoice-date"]) as [number, number], DEFAULT_CONTENT["invoice-date"]),
+        el("client-details", 32, 328, ...Object.values(DEFAULT_SIZES["client-details"]) as [number, number], DEFAULT_CONTENT["client-details"]),
+        el("items-table", 32, 488, 576, 240, DEFAULT_CONTENT["items-table"]),
+        el("total-summary", 320, 744, ...Object.values(DEFAULT_SIZES["total-summary"]) as [number, number], DEFAULT_CONTENT["total-summary"]),
+        el("note", 32, 744, 280, 80, { text: "This is a proforma invoice and not a demand for payment. Valid for 30 days.", fontSize: 10, italic: true }),
+        el("signature", 32, 850, ...Object.values(DEFAULT_SIZES["signature"]) as [number, number], DEFAULT_CONTENT["signature"]),
+      ],
+    },
+    {
+      id: "hourly",
+      name: "Hourly Billing",
+      description: "Time-based consulting rates",
+      elements: [
+        el("text", 32, 32, 400, 48, { text: "TIME & MATERIALS INVOICE", fontSize: 20, bold: true }),
+        el("logo", 480, 32, 112, 64, DEFAULT_CONTENT["logo"]),
+        el("divider", 32, 104, 576, 16, { style: "dashed", color: "#94a3b8", thickness: 1 }),
+        el("business-details", 32, 128, ...Object.values(DEFAULT_SIZES["business-details"]) as [number, number], DEFAULT_CONTENT["business-details"]),
+        el("invoice-number", 400, 128, ...Object.values(DEFAULT_SIZES["invoice-number"]) as [number, number], DEFAULT_CONTENT["invoice-number"]),
+        el("invoice-date", 400, 192, ...Object.values(DEFAULT_SIZES["invoice-date"]) as [number, number], DEFAULT_CONTENT["invoice-date"]),
+        el("client-details", 32, 288, ...Object.values(DEFAULT_SIZES["client-details"]) as [number, number], DEFAULT_CONTENT["client-details"]),
+        el("items-table", 32, 448, 576, 240, { items: [{ name: "Consulting – 8 hrs @ ₹2,000/hr", qty: 8, price: 2000 }, { name: "Research – 4 hrs @ ₹1,500/hr", qty: 4, price: 1500 }] }),
+        el("total-summary", 320, 704, ...Object.values(DEFAULT_SIZES["total-summary"]) as [number, number], DEFAULT_CONTENT["total-summary"]),
+        el("bank-details", 32, 704, ...Object.values(DEFAULT_SIZES["bank-details"]) as [number, number], DEFAULT_CONTENT["bank-details"]),
+        el("note", 32, 870, 576, 48, { text: "All hours logged are subject to client approval.", fontSize: 10 }),
+      ],
+    },
   ];
 }
+

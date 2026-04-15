@@ -24,6 +24,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement } from "@/types/builder";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { TemplateThumbnail } from "@/components/TemplateThumbnail";
 import { cn } from "@/lib/utils";
 import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 import InventorySearch from "@/components/InventorySearch";
@@ -700,39 +701,39 @@ export default function CreateInvoicePage() {
                       <DialogHeader>
                         <DialogTitle className="text-xl font-bold">Select Invoice Template</DialogTitle>
                       </DialogHeader>
-                      <div className="grid grid-cols-2 gap-4 mt-4 max-h-[60vh] overflow-y-auto p-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 max-h-[60vh] overflow-y-auto p-1">
                         <button
                           className={cn(
-                            "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                            "flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all",
                             !selectedTemplate ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
                           )}
                           onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}
                         >
-                          <div className="h-32 w-full bg-muted rounded-lg mb-3 flex items-center justify-center">
-                            <FileText className="h-8 w-8 text-muted-foreground/30" />
+                          <div className="h-24 w-full bg-muted rounded-lg mb-2 flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-muted-foreground/30" />
                           </div>
-                          <span className="font-bold text-foreground">No Template</span>
-                          <span className="text-xs text-muted-foreground">Standard minimalist layout</span>
+                          <span className="font-bold text-foreground text-sm">No Template</span>
+                          <span className="text-[10px] text-muted-foreground">Standard minimalist layout</span>
                         </button>
                         {builtinTemplateOptions.map((t) => (
                           <button
                             key={t.id}
                             className={cn(
-                              "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                              "flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all",
                               selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
                             )}
                             onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}
                           >
-                            <div className="h-32 w-full bg-muted/80 rounded-lg mb-3 flex items-center justify-center">
-                              <Sparkles className="h-8 w-8 text-primary/40" />
+                            <div className="h-24 w-full rounded-lg mb-2 overflow-hidden">
+                              <TemplateThumbnail templateId={t.id} />
                             </div>
-                            <span className="font-bold text-foreground">{t.name}</span>
-                            <span className="text-xs text-muted-foreground">{t.elements.length} components</span>
+                            <span className="font-bold text-foreground text-sm">{t.name}</span>
+                            <span className="text-[10px] text-muted-foreground">{t.description}</span>
                           </button>
                         ))}
 
                         {customTemplates.length > 0 && (
-                          <div className="col-span-2 mt-6 mb-2">
+                          <div className="col-span-2 sm:col-span-3 mt-4 mb-1">
                             <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Your Custom Templates</h3>
                           </div>
                         )}
@@ -741,16 +742,16 @@ export default function CreateInvoicePage() {
                           <button
                             key={t.id}
                             className={cn(
-                              "flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all",
+                              "flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all",
                               selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30"
                             )}
                             onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}
                           >
-                            <div className="h-32 w-full bg-primary/5 rounded-lg mb-3 flex items-center justify-center">
-                              <LayoutTemplate className="h-8 w-8 text-primary/40" />
+                            <div className="h-24 w-full bg-primary/5 rounded-lg mb-2 flex items-center justify-center">
+                              <LayoutTemplate className="h-6 w-6 text-primary/40" />
                             </div>
-                            <span className="font-bold text-foreground">{t.name}</span>
-                            <span className="text-xs text-muted-foreground">Custom Layout</span>
+                            <span className="font-bold text-foreground text-sm">{t.name}</span>
+                            <span className="text-[10px] text-muted-foreground">Custom Layout</span>
                           </button>
                         ))}
                       </div>

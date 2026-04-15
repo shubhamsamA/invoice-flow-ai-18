@@ -20,6 +20,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BuilderElement } from "@/types/builder";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
+import { TemplateThumbnail } from "@/components/TemplateThumbnail";
 import { cn } from "@/lib/utils";
 import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 
@@ -452,22 +453,27 @@ export default function EditInvoicePage() {
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs"><LayoutTemplate className="h-3.5 w-3.5" />{selectedTemplate ? "Change Template" : "Choose Template"}</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl">
                   <DialogHeader><DialogTitle>Select a Template</DialogTitle></DialogHeader>
-                  <div className="space-y-2 mt-3 max-h-[400px] overflow-y-auto">
-                    <button className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${!selectedTemplate ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`} onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}>
-                      <div className="flex items-center justify-between"><span className="font-medium">No Template</span>{!selectedTemplate && <Check className="h-4 w-4 text-primary" />}</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3 max-h-[60vh] overflow-y-auto p-1">
+                    <button className={cn("flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all", !selectedTemplate ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30")} onClick={() => { setSelectedTemplate(null); setTemplateDialogOpen(false); }}>
+                      <div className="h-24 w-full bg-muted rounded-lg mb-2 flex items-center justify-center"><FileText className="h-6 w-6 text-muted-foreground/30" /></div>
+                      <span className="font-bold text-foreground text-sm">No Template</span>
+                      <span className="text-[10px] text-muted-foreground">Standard layout</span>
                     </button>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Prebuilt</p>
                     {builtinTemplateOptions.map((t) => (
-                      <button key={t.id} className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
-                        <div className="flex items-center justify-between"><span className="font-medium">{t.name}</span>{selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}</div>
+                      <button key={t.id} className={cn("flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all", selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30")} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
+                        <div className="h-24 w-full rounded-lg mb-2 overflow-hidden"><TemplateThumbnail templateId={t.id} /></div>
+                        <span className="font-bold text-foreground text-sm">{t.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{t.description}</span>
                       </button>
                     ))}
-                    {customTemplates.length > 0 && <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium pt-2 px-1">Your Templates</p>}
+                    {customTemplates.length > 0 && <div className="col-span-2 sm:col-span-3 mt-4 mb-1"><h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Your Custom Templates</h3></div>}
                     {customTemplates.map((t: any) => (
-                      <button key={t.id} className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm ${selectedTemplate === t.id ? "ring-2 ring-primary bg-primary/5 border-primary" : "hover:bg-muted/50"}`} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
-                        <div className="flex items-center justify-between"><span className="font-medium">{t.name}</span>{selectedTemplate === t.id && <Check className="h-4 w-4 text-primary" />}</div>
+                      <button key={t.id} className={cn("flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all", selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30")} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
+                        <div className="h-24 w-full bg-primary/5 rounded-lg mb-2 flex items-center justify-center"><LayoutTemplate className="h-6 w-6 text-primary/40" /></div>
+                        <span className="font-bold text-foreground text-sm">{t.name}</span>
+                        <span className="text-[10px] text-muted-foreground">Custom Layout</span>
                       </button>
                     ))}
                   </div>
