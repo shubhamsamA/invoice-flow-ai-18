@@ -21,6 +21,7 @@ import { BuilderElement } from "@/types/builder";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { generateInvoicePreviewHTML } from "@/lib/pdf-export";
 import { TemplateThumbnail } from "@/components/TemplateThumbnail";
+import { TemplatePreviewModal } from "@/components/TemplatePreviewModal";
 import { cn } from "@/lib/utils";
 import ClientSelector, { type ClientMode, type InlineClientDetails, emptyInline } from "@/components/ClientSelector";
 
@@ -105,6 +106,7 @@ export default function EditInvoicePage() {
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [overallGstEnabled, setOverallGstEnabled] = useState(false);
   const [overallGstRate, setOverallGstRate] = useState(18);
@@ -462,8 +464,17 @@ export default function EditInvoicePage() {
                       <span className="text-[10px] text-muted-foreground">Standard layout</span>
                     </button>
                     {builtinTemplateOptions.map((t) => (
-                      <button key={t.id} className={cn("flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all", selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30")} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
-                        <div className="h-24 w-full rounded-lg mb-2 overflow-hidden"><TemplateThumbnail templateId={t.id} /></div>
+                      <button key={t.id} className={cn("flex flex-col items-start p-3 rounded-xl border-2 text-left transition-all relative group/tpl", selectedTemplate === t.id ? "border-primary bg-primary/5" : "border-border/50 hover:border-border hover:bg-muted/30")} onClick={() => { setSelectedTemplate(t.id); setTemplateDialogOpen(false); }}>
+                        <div className="h-24 w-full rounded-lg mb-2 overflow-hidden relative">
+                          <TemplateThumbnail templateId={t.id} />
+                          <button
+                            className="absolute top-1 right-1 h-7 w-7 rounded-full bg-background/90 border border-border flex items-center justify-center opacity-0 group-hover/tpl:opacity-100 transition-opacity shadow-sm"
+                            onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(t.id); }}
+                            title="Preview"
+                          >
+                            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
                         <span className="font-bold text-foreground text-sm">{t.name}</span>
                         <span className="text-[10px] text-muted-foreground">{t.description}</span>
                       </button>
@@ -479,6 +490,31 @@ export default function EditInvoicePage() {
                   </div>
                 </DialogContent>
               </Dialog>
+              {(() => {
+                const previewT = builtinTemplateOptions.find(t => t.id === previewTemplateId);
+                return previewT ? (
+                  <TemplatePreviewModal
+                    open={!!previewTemplateId}
+                    onOpenChange={(open) => { if (!open) setPreviewTemplateId(null); }}
+                    templateName={previewT.name}
+                    templateDescription={previewT.description}
+                    elements={previewT.elements}
+                    onSelect={() => { setSelectedTemplate(previewT.id); setPreviewTemplateId(null); setTemplateDialogOpen(false); }}
+                    onDuplicate={() => {
+                      const data = {
+                        id: crypto.randomUUID(),
+                        name: previewT.name,
+                        elements: previewT.elements,
+                        canvasWidth: 640,
+                        canvasHeight: 900,
+                        createdAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+                      navigate("/invoices/builder");
+                    }}
+                  />
+                ) : null;
+              })()}
             </div>
             {selectedTemplate && <div className="flex items-center gap-2 bg-primary/5 text-primary rounded-lg px-3 py-2 text-xs font-medium"><LayoutTemplate className="h-3.5 w-3.5" /> Using: {getSelectedTemplateName()}</div>}
           </div>
