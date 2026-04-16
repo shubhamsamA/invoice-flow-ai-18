@@ -331,7 +331,8 @@ export default function TemplatesPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
-
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const allBuiltinTemplates = getBuiltinTemplates();
 
   // Fetch user's custom templates from the database
   const { data: customTemplates = [], isLoading } = useQuery<CustomTemplate[]>({
