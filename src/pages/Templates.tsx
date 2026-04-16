@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { Check, Plus, Trash2, Loader2, Eye, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { getBuiltinTemplates } from "@/lib/builtin-templates";
+import { TemplatePreviewModal } from "@/components/TemplatePreviewModal";
 
 interface CustomTemplate {
   id: string;
