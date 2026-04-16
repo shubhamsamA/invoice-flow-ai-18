@@ -669,6 +669,33 @@ export default function TemplatesPage() {
           </div>
         </div>
       </div>
+
+      {(() => {
+        const previewT = allBuiltinTemplates.find(t => t.id === previewTemplateId);
+        return previewT ? (
+          <TemplatePreviewModal
+            open={!!previewTemplateId}
+            onOpenChange={(open) => { if (!open) setPreviewTemplateId(null); }}
+            templateName={previewT.name}
+            templateDescription={previewT.description}
+            elements={previewT.elements}
+            onSelect={() => { loadTemplate(previewT.id); setPreviewTemplateId(null); }}
+            onDuplicate={() => {
+              const data = {
+                id: crypto.randomUUID(),
+                name: previewT.name + " (Copy)",
+                elements: previewT.elements,
+                canvasWidth: 640,
+                canvasHeight: 900,
+                createdAt: new Date().toISOString(),
+              };
+              localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+              toast.success("Template loaded into builder for customization");
+              navigate("/invoices/builder");
+            }}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }
