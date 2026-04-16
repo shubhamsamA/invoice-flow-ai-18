@@ -525,6 +525,41 @@ export default function TemplatesPage() {
                         </span>
                       ))}
                     </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`gap-1.5 text-[10px] uppercase tracking-wider ${selected === t.id ? 'text-background/70 hover:text-background hover:bg-background/10' : 'text-foreground/50 hover:text-foreground'}`}
+                        onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(t.id); }}
+                      >
+                        <Eye className="h-3.5 w-3.5" /> Preview
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`gap-1.5 text-[10px] uppercase tracking-wider ${selected === t.id ? 'text-background/70 hover:text-background hover:bg-background/10' : 'text-foreground/50 hover:text-foreground'}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const bt = allBuiltinTemplates.find(bt => bt.id === t.id);
+                          if (bt) {
+                            const data = {
+                              id: crypto.randomUUID(),
+                              name: bt.name + " (Copy)",
+                              elements: bt.elements,
+                              canvasWidth: 640,
+                              canvasHeight: 900,
+                              createdAt: new Date().toISOString(),
+                            };
+                            localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+                            toast.success("Template loaded into builder");
+                            navigate("/invoices/builder");
+                          }
+                        }}
+                      >
+                        <Copy className="h-3.5 w-3.5" /> Customize
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Selection Indicator */}
