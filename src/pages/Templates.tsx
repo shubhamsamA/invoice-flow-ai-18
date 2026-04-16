@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { Check, Plus, Trash2, Loader2, Eye, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { getBuiltinTemplates } from "@/lib/builtin-templates";
+import { TemplatePreviewModal } from "@/components/TemplatePreviewModal";
 
 interface CustomTemplate {
   id: string;
@@ -329,7 +331,8 @@ export default function TemplatesPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
-
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const allBuiltinTemplates = getBuiltinTemplates();
 
   // Fetch user's custom templates from the database
   const { data: customTemplates = [], isLoading } = useQuery<CustomTemplate[]>({
@@ -522,6 +525,41 @@ export default function TemplatesPage() {
                         </span>
                       ))}
                     </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`gap-1.5 text-[10px] uppercase tracking-wider ${selected === t.id ? 'text-background/70 hover:text-background hover:bg-background/10' : 'text-foreground/50 hover:text-foreground'}`}
+                        onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(t.id); }}
+                      >
+                        <Eye className="h-3.5 w-3.5" /> Preview
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`gap-1.5 text-[10px] uppercase tracking-wider ${selected === t.id ? 'text-background/70 hover:text-background hover:bg-background/10' : 'text-foreground/50 hover:text-foreground'}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const bt = allBuiltinTemplates.find(bt => bt.id === t.id);
+                          if (bt) {
+                            const data = {
+                              id: crypto.randomUUID(),
+                              name: bt.name + " (Copy)",
+                              elements: bt.elements,
+                              canvasWidth: 640,
+                              canvasHeight: 900,
+                              createdAt: new Date().toISOString(),
+                            };
+                            localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+                            toast.success("Template loaded into builder");
+                            navigate("/invoices/builder");
+                          }
+                        }}
+                      >
+                        <Copy className="h-3.5 w-3.5" /> Customize
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Selection Indicator */}
@@ -631,6 +669,33 @@ export default function TemplatesPage() {
           </div>
         </div>
       </div>
+
+      {(() => {
+        const previewT = allBuiltinTemplates.find(t => t.id === previewTemplateId);
+        return previewT ? (
+          <TemplatePreviewModal
+            open={!!previewTemplateId}
+            onOpenChange={(open) => { if (!open) setPreviewTemplateId(null); }}
+            templateName={previewT.name}
+            templateDescription={previewT.description}
+            elements={previewT.elements}
+            onSelect={() => { loadTemplate(previewT.id); setPreviewTemplateId(null); }}
+            onDuplicate={() => {
+              const data = {
+                id: crypto.randomUUID(),
+                name: previewT.name + " (Copy)",
+                elements: previewT.elements,
+                canvasWidth: 640,
+                canvasHeight: 900,
+                createdAt: new Date().toISOString(),
+              };
+              localStorage.setItem("invoiceflow-builder-layout", JSON.stringify(data));
+              toast.success("Template loaded into builder for customization");
+              navigate("/invoices/builder");
+            }}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }
