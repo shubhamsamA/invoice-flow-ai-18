@@ -194,6 +194,7 @@ export default function RestaurantBill() {
         billNumber,
         tableNumber,
         serverName,
+        customerName,
         items,
         serviceChargeEnabled,
         serviceChargeRate,
