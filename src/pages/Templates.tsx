@@ -211,8 +211,8 @@ export default function TemplatesPage() {
                     <div className="absolute inset-0 opacity-5 pointer-events-none" 
                          style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                     
-                    <div className="w-full max-w-[240px] bg-background shadow-2xl p-6 border border-foreground/10 transform -rotate-2 group-hover:rotate-0 transition-transform duration-500">
-                      {t.preview}
+                    <div className="w-full max-w-[240px] aspect-[16/10] bg-background shadow-2xl p-2 border border-foreground/10 transform -rotate-2 group-hover:rotate-0 transition-transform duration-500">
+                      <TemplateThumbnail templateId={t.id} />
                     </div>
                   </div>
 
