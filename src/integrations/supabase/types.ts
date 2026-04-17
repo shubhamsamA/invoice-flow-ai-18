@@ -324,6 +324,7 @@ export type Database = {
         Row: {
           bill_number: string
           created_at: string
+          customer_name: string | null
           gst_amount: number
           gst_rate: number
           id: string
@@ -343,6 +344,7 @@ export type Database = {
         Insert: {
           bill_number: string
           created_at?: string
+          customer_name?: string | null
           gst_amount?: number
           gst_rate?: number
           id?: string
@@ -362,6 +364,7 @@ export type Database = {
         Update: {
           bill_number?: string
           created_at?: string
+          customer_name?: string | null
           gst_amount?: number
           gst_rate?: number
           id?: string

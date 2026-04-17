@@ -1,0 +1,1 @@
+ALTER TABLE public.restaurant_bills ADD COLUMN customer_name text;
