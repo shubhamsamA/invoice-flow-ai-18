@@ -253,6 +253,18 @@ export default function RestaurantBill() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
+                  <Label className="text-xs">Bill Number</Label>
+                  <Input
+                    placeholder={`BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`}
+                    value={billNumberInput}
+                    onChange={(e) => setBillNumberInput(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Customer Name</Label>
+                  <Input placeholder="Walk-in" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
                   <Label className="text-xs">Table Number</Label>
                   <Input placeholder="e.g. T-05" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} />
                 </div>
