@@ -15,6 +15,7 @@ export interface PrintableBill {
   billNumber: string;
   tableNumber?: string | null;
   serverName?: string | null;
+  customerName?: string | null;
   items: BillItemLike[];
   serviceChargeEnabled: boolean;
   serviceChargeRate: number;
@@ -76,6 +77,7 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
         ${bill.tableNumber ? `<span>Table: ${esc(bill.tableNumber)}</span>` : "<span></span>"}
         ${bill.serverName ? `<span>Server: ${esc(bill.serverName)}</span>` : "<span></span>"}
       </div>
+      ${bill.customerName ? `<div class="info-row"><span>Customer: ${esc(bill.customerName)}</span><span></span></div>` : ""}
       <div class="divider"></div>
       <table>
         <thead><tr><th>Item</th><th class="qty">Qty</th><th class="amt">Amt</th></tr></thead>

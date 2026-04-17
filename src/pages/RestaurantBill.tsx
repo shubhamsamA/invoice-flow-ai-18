@@ -33,6 +33,8 @@ export default function RestaurantBill() {
 
   const [tableNumber, setTableNumber] = useState("");
   const [serverName, setServerName] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [billNumberInput, setBillNumberInput] = useState("");
   const [items, setItems] = useState<BillItem[]>([]);
   const [serviceChargeEnabled, setServiceChargeEnabled] = useState(false);
   const [serviceChargeRate, setServiceChargeRate] = useState(10);
@@ -77,7 +79,7 @@ export default function RestaurantBill() {
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
-  const billNumber = `BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`;
+  const billNumber = billNumberInput.trim() || `BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`;
 
   const handleSave = async () => {
     if (!user) return;
@@ -94,6 +96,7 @@ export default function RestaurantBill() {
           bill_number: billNumber,
           table_number: tableNumber || null,
           server_name: serverName || null,
+          customer_name: customerName || null,
           subtotal,
           service_charge_rate: serviceChargeEnabled ? serviceChargeRate : 0,
           service_charge_amount: serviceChargeAmount,
@@ -191,6 +194,7 @@ export default function RestaurantBill() {
         billNumber,
         tableNumber,
         serverName,
+        customerName,
         items,
         serviceChargeEnabled,
         serviceChargeRate,
@@ -249,6 +253,18 @@ export default function RestaurantBill() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Bill Number</Label>
+                  <Input
+                    placeholder={`BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`}
+                    value={billNumberInput}
+                    onChange={(e) => setBillNumberInput(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Customer Name</Label>
+                  <Input placeholder="Walk-in" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Table Number</Label>
                   <Input placeholder="e.g. T-05" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} />
@@ -422,6 +438,11 @@ export default function RestaurantBill() {
                   {tableNumber && <span>Table: {tableNumber}</span>}
                   {serverName && <span>Server: {serverName}</span>}
                 </div>
+                {customerName && (
+                  <div className="text-[10px] text-muted-foreground">
+                    <span>Customer: {customerName}</span>
+                  </div>
+                )}
 
                 <div className="border-t border-dashed border-muted-foreground/40 my-2" />
 

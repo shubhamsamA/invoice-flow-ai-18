@@ -53,6 +53,7 @@ export default function RestaurantBills() {
         billNumber: bill.bill_number,
         tableNumber: bill.table_number,
         serverName: bill.server_name,
+        customerName: (bill as { customer_name?: string | null }).customer_name ?? null,
         items: billItems.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: Number(i.unit_price) })),
         serviceChargeEnabled: Number(bill.service_charge_amount) > 0,
         serviceChargeRate: Number(bill.service_charge_rate),
@@ -193,6 +194,9 @@ export default function RestaurantBills() {
                       </Badge>
                     </div>
                     <div className="flex gap-3 text-xs text-muted-foreground">
+                      {(bill as { customer_name?: string | null }).customer_name && (
+                        <span>{(bill as { customer_name?: string | null }).customer_name}</span>
+                      )}
                       {bill.table_number && <span>Table: {bill.table_number}</span>}
                       <span>{new Date(bill.created_at).toLocaleDateString()}</span>
                     </div>
