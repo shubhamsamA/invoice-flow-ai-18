@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Plus, Loader2, Trash2, ChefHat } from "lucide-react";
+import { Plus, Loader2, Trash2, ChefHat, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { openPrintWindow } from "@/lib/restaurant-bill-print";
 
 export default function RestaurantBills() {
   const { user } = useAuth();
@@ -26,6 +27,48 @@ export default function RestaurantBills() {
     },
     enabled: !!user,
   });
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const handlePrintBill = async (bill: NonNullable<typeof bills>[number]) => {
+    const { data: billItems, error } = await supabase
+      .from("restaurant_bill_items")
+      .select("*")
+      .eq("bill_id", bill.id)
+      .order("sort_order");
+    if (error || !billItems?.length) {
+      toast.error("No items found for this bill");
+      return;
+    }
+    openPrintWindow(
+      {
+        billNumber: bill.bill_number,
+        tableNumber: bill.table_number,
+        serverName: bill.server_name,
+        items: billItems.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: Number(i.unit_price) })),
+        serviceChargeEnabled: Number(bill.service_charge_amount) > 0,
+        serviceChargeRate: Number(bill.service_charge_rate),
+        serviceChargeAmount: Number(bill.service_charge_amount),
+        gstRate: Number(bill.gst_rate),
+        gstAmount: Number(bill.gst_amount),
+        tip: Number(bill.tip),
+        subtotal: Number(bill.subtotal),
+        grandTotal: Number(bill.total),
+        paymentMethod: bill.payment_method,
+        notes: bill.notes,
+        date: new Date(bill.created_at),
+      },
+      profile ?? null,
+    );
+  };
 
   const handleKOTReprint = async (bill: typeof bills extends (infer T)[] | undefined ? T : never) => {
     const { data: billItems, error } = await supabase
@@ -156,6 +199,15 @@ export default function RestaurantBills() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-mono font-bold">₹{Number(bill.total).toFixed(2)}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => handlePrintBill(bill)}
+                      title="Print Bill"
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
