@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { TemplatePreviewModal } from "@/components/TemplatePreviewModal";
+import { TemplateThumbnail } from "@/components/TemplateThumbnail";
 
 interface CustomTemplate {
   id: string;
@@ -25,306 +26,19 @@ interface CustomTemplate {
   created_at: string;
 }
 
-/** Built-in template definitions (read-only presets) */
-const builtinTemplates = [
-  {
-    id: "minimal",
-    name: "Minimal",
-    description: "Clean and simple — perfect for freelancers and small businesses.",
-    color: "from-slate-100 to-slate-50",
-    features: ["Simple layout", "One-column items", "Clean typography"],
-    preview: (
-      <div className="space-y-3 font-mono text-[8px] opacity-50">
-        <div className="flex justify-between border-b border-foreground/20 pb-1">
-          <span>ID: MNML-01</span>
-          <span>V1.0</span>
-        </div>
-        <div className="h-2 w-16 bg-foreground" />
-        <div className="space-y-1">
-          <div className="h-0.5 w-full bg-foreground/20" />
-          <div className="h-0.5 w-full bg-foreground/20" />
-          <div className="h-0.5 w-3/4 bg-foreground/20" />
-        </div>
-        <div className="pt-2 flex justify-end">
-          <div className="h-2 w-8 bg-foreground/40" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "corporate",
-    name: "Corporate",
-    description: "Professional and structured — ideal for agencies and enterprises.",
-    color: "from-blue-50 to-indigo-50",
-    features: ["Header banner", "Two-column layout", "Company branding"],
-    preview: (
-      <div className="space-y-3 font-mono text-[8px] opacity-50">
-        <div className="h-4 w-full bg-primary flex items-center px-2 text-primary-foreground">
-          CORP_SYS
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1 space-y-1">
-            <div className="h-0.5 w-12 bg-primary/40" />
-            <div className="h-0.5 w-16 bg-primary/20" />
-          </div>
-          <div className="flex-1 text-right">
-            <div className="h-2 w-8 bg-primary/60 ml-auto" />
-          </div>
-        </div>
-        <div className="border-t border-primary/20 pt-2 space-y-1">
-          <div className="h-0.5 w-full bg-primary/10" />
-          <div className="h-0.5 w-full bg-primary/10" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "freelance",
-    name: "Modern Freelance",
-    description: "Bold and creative — showcase your work with style.",
-    color: "from-amber-50 to-orange-50",
-    features: ["Accent color bar", "Rounded elements", "Modern feel"],
-    preview: (
-      <div className="space-y-3 font-mono text-[8px] opacity-50">
-        <div className="flex items-center justify-between">
-          <div className="h-4 w-4 rounded-full border border-primary flex items-center justify-center text-[6px]">
-            FR
-          </div>
-          <div className="h-0.5 w-12 bg-primary" />
-        </div>
-        <div className="space-y-1">
-          <div className="h-0.5 w-full bg-primary/20" />
-          <div className="h-0.5 w-full bg-primary/20" />
-          <div className="h-0.5 w-2/3 bg-primary/20" />
-        </div>
-        <div className="mt-4 h-6 w-full bg-primary/10 border border-primary/20" />
-      </div>
-    ),
-  },
-  {
-    id: "gst",
-    name: "Indian GST",
-    description: "GST-compliant format with CGST/SGST breakdowns and HSN codes.",
-    color: "from-emerald-50 to-green-50",
-    features: ["HSN/SAC codes", "CGST/SGST split", "Tax invoice format"],
-    preview: (
-      <div className="space-y-2 font-mono text-[6px] opacity-50">
-        <div className="text-center border-b border-emerald-200 pb-1">
-          TAX_INVOICE_V2
-        </div>
-        <div className="grid grid-cols-4 gap-1">
-          <div className="h-1 bg-emerald-200 col-span-2" />
-          <div className="h-1 bg-emerald-100" />
-          <div className="h-1 bg-emerald-100" />
-        </div>
-        <div className="space-y-1 py-1">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="flex gap-1">
-              <div className="h-0.5 flex-1 bg-emerald-50" />
-              <div className="h-0.5 w-2 bg-emerald-100" />
-              <div className="h-0.5 w-2 bg-emerald-100" />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end gap-1 border-t border-emerald-200 pt-1">
-          <div className="h-1 w-4 bg-emerald-300" />
-          <div className="h-1 w-4 bg-emerald-600" />
-        </div>
-      </div>
-    ),
-  },
-];
+/** Built-in templates derived from the central registry */
+const allBuiltins = getBuiltinTemplates();
+const builtinTemplates = allBuiltins.map((t) => ({
+  id: t.id,
+  name: t.name,
+  description: t.description,
+  features: Array.from(new Set(t.elements.map((e) => e.type))).slice(0, 4),
+}));
 
-/** Prebuilt template layouts — maps template id to BuilderElement arrays */
-const templateLayouts: Record<string, BuilderElement[]> = {
-  minimal: [
-    {
-      id: crypto.randomUUID(),
-      type: "text",
-      x: 32,
-      y: 32,
-      width: 320,
-      height: 48,
-      content: { text: "INVOICE", fontSize: 24, bold: true },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "client-details",
-      x: 32,
-      y: 96,
-      ...DEFAULT_SIZES["client-details"],
-      content: DEFAULT_CONTENT["client-details"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "divider",
-      x: 32,
-      y: 256,
-      ...DEFAULT_SIZES["divider"],
-      content: DEFAULT_CONTENT["divider"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "items-table",
-      x: 32,
-      y: 288,
-      ...DEFAULT_SIZES["items-table"],
-      content: DEFAULT_CONTENT["items-table"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "total-summary",
-      x: 320,
-      y: 528,
-      ...DEFAULT_SIZES["total-summary"],
-      content: DEFAULT_CONTENT["total-summary"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "signature",
-      x: 32,
-      y: 736,
-      ...DEFAULT_SIZES["signature"],
-      content: DEFAULT_CONTENT["signature"],
-    },
-  ],
-  corporate: [
-    { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-    {
-      id: crypto.randomUUID(),
-      type: "text",
-      x: 208,
-      y: 48,
-      width: 400,
-      height: 48,
-      content: { text: "CORPORATE INVOICE", fontSize: 22, bold: true },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "client-details",
-      x: 32,
-      y: 128,
-      ...DEFAULT_SIZES["client-details"],
-      content: DEFAULT_CONTENT["client-details"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "items-table",
-      x: 32,
-      y: 288,
-      width: 576,
-      height: 256,
-      content: DEFAULT_CONTENT["items-table"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "total-summary",
-      x: 320,
-      y: 560,
-      ...DEFAULT_SIZES["total-summary"],
-      content: DEFAULT_CONTENT["total-summary"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "signature",
-      x: 32,
-      y: 768,
-      ...DEFAULT_SIZES["signature"],
-      content: DEFAULT_CONTENT["signature"],
-    },
-  ],
-  freelance: [
-    { id: crypto.randomUUID(), type: "divider", x: 32, y: 16, width: 576, height: 16, content: { style: "solid" } },
-    { id: crypto.randomUUID(), type: "logo", x: 32, y: 48, ...DEFAULT_SIZES["logo"], content: DEFAULT_CONTENT["logo"] },
-    {
-      id: crypto.randomUUID(),
-      type: "text",
-      x: 32,
-      y: 144,
-      width: 400,
-      height: 48,
-      content: { text: "Invoice", fontSize: 28, bold: true },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "client-details",
-      x: 32,
-      y: 208,
-      ...DEFAULT_SIZES["client-details"],
-      content: DEFAULT_CONTENT["client-details"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "items-table",
-      x: 32,
-      y: 368,
-      ...DEFAULT_SIZES["items-table"],
-      content: DEFAULT_CONTENT["items-table"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "total-summary",
-      x: 320,
-      y: 608,
-      ...DEFAULT_SIZES["total-summary"],
-      content: DEFAULT_CONTENT["total-summary"],
-    },
-  ],
-  gst: [
-    {
-      id: crypto.randomUUID(),
-      type: "text",
-      x: 160,
-      y: 32,
-      width: 320,
-      height: 48,
-      content: { text: "TAX INVOICE", fontSize: 22, bold: true },
-    },
-    { id: crypto.randomUUID(), type: "logo", x: 32, y: 32, width: 112, height: 64, content: DEFAULT_CONTENT["logo"] },
-    {
-      id: crypto.randomUUID(),
-      type: "client-details",
-      x: 32,
-      y: 112,
-      ...DEFAULT_SIZES["client-details"],
-      content: { ...DEFAULT_CONTENT["client-details"], gst: "07AABCU9603R1ZM" },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "divider",
-      x: 32,
-      y: 272,
-      width: 576,
-      height: 16,
-      content: DEFAULT_CONTENT["divider"],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "items-table",
-      x: 32,
-      y: 304,
-      width: 576,
-      height: 256,
-      content: { items: [{ name: "Service (HSN 998311)", qty: 1, price: 10000 }] },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "total-summary",
-      x: 320,
-      y: 576,
-      ...DEFAULT_SIZES["total-summary"],
-      content: { subtotal: 10000, gst: 18, discount: 0 },
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "signature",
-      x: 32,
-      y: 768,
-      ...DEFAULT_SIZES["signature"],
-      content: DEFAULT_CONTENT["signature"],
-    },
-  ],
-};
+/** Layouts map derived from registry */
+const templateLayouts: Record<string, BuilderElement[]> = Object.fromEntries(
+  allBuiltins.map((t) => [t.id, t.elements])
+);
 
 export default function TemplatesPage() {
   const { user } = useAuth();
@@ -497,8 +211,8 @@ export default function TemplatesPage() {
                     <div className="absolute inset-0 opacity-5 pointer-events-none" 
                          style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                     
-                    <div className="w-full max-w-[240px] bg-background shadow-2xl p-6 border border-foreground/10 transform -rotate-2 group-hover:rotate-0 transition-transform duration-500">
-                      {t.preview}
+                    <div className="w-full max-w-[240px] aspect-[16/10] bg-background shadow-2xl p-2 border border-foreground/10 transform -rotate-2 group-hover:rotate-0 transition-transform duration-500">
+                      <TemplateThumbnail templateId={t.id} />
                     </div>
                   </div>
 
