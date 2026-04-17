@@ -15,6 +15,7 @@ export interface PrintableBill {
   billNumber: string;
   tableNumber?: string | null;
   serverName?: string | null;
+  customerName?: string | null;
   items: BillItemLike[];
   serviceChargeEnabled: boolean;
   serviceChargeRate: number;
