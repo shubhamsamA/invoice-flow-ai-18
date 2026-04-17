@@ -397,7 +397,7 @@ function renderBuilderElement(el: any, data: FullInvoiceData): string {
       const color = c.color || "#555";
       const textAlign = c.textAlign ? `text-align:${c.textAlign};` : "";
       const lineHeight = c.lineHeight ? `line-height:${c.lineHeight};` : "line-height:1.4;";
-      const noteText = (c.text || data.notes || "").replace(/\{\{notes\}\}/g, data.notes || "");
+      const noteText = data.notes || (c.text || "").replace(/\{\{notes\}\}/g, data.notes || "");
       return `<div style="${style}">
         <div style="padding:10px;background:#f8f9fa;border-radius:6px;font-family:${fontFamily};${textAlign}${lineHeight}">
           <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:4px;font-weight:600;">Note</div>
