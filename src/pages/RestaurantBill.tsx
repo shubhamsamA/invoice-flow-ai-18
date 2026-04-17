@@ -57,7 +57,10 @@ export default function RestaurantBill() {
   const { data: billCount } = useQuery({
     queryKey: ["restaurant-bill-count"],
     queryFn: async () => {
-      const { count } = await supabase.from("restaurant_bills").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
+      const { count } = await supabase
+        .from("restaurant_bills")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
       return count || 0;
     },
     enabled: !!user,
@@ -277,7 +280,9 @@ export default function RestaurantBill() {
               <div className="space-y-1.5">
                 <Label className="text-xs">Payment Method</Label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="card">Card</SelectItem>
@@ -296,45 +301,54 @@ export default function RestaurantBill() {
             <CardContent className="space-y-3">
               <InventorySearch
                 onSelect={(inv) => {
-                  setItems(prev => {
-                    const empty = prev.filter(i => !i.name.trim());
-                    const filled = prev.filter(i => i.name.trim());
-                    const existing = filled.find(i => i.name === inv.name);
+                  setItems((prev) => {
+                    const empty = prev.filter((i) => !i.name.trim());
+                    const filled = prev.filter((i) => i.name.trim());
+                    const existing = filled.find((i) => i.name === inv.name);
                     if (existing) {
-                      return [...filled.map(i => i.id === existing.id ? { ...i, quantity: i.quantity + 1 } : i), ...empty];
+                      return [
+                        ...filled.map((i) => (i.id === existing.id ? { ...i, quantity: i.quantity + 1 } : i)),
+                        ...empty,
+                      ];
                     }
                     return [...filled, { id: crypto.randomUUID(), name: inv.name, quantity: 1, unitPrice: inv.price }];
                   });
                 }}
               />
-              {items.filter(i => i.name.trim()).length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-4">Search and select items from inventory above</p>
+              {items.filter((i) => i.name.trim()).length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-4">
+                  Search and select items from inventory above
+                </p>
               )}
-              {items.filter(i => i.name.trim()).map((item, idx) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium truncate block">{item.name}</span>
+              {items
+                .filter((i) => i.name.trim())
+                .map((item, idx) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate block">{item.name}</span>
+                    </div>
+                    <div className="w-16">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value) || 1)}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-20 text-right">
+                      ₹{(item.quantity * item.unitPrice).toLocaleString("en-IN")}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                  <div className="w-16">
-                    <Input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value) || 1)}
-                      className="h-8 text-xs"
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground w-20 text-right">₹{(item.quantity * item.unitPrice).toLocaleString("en-IN")}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
+                ))}
             </CardContent>
           </Card>
 
@@ -362,7 +376,9 @@ export default function RestaurantBill() {
                 <Label className="text-xs">GST Rate</Label>
                 <div className="flex items-center gap-2">
                   <Select value={String(gstRate)} onValueChange={(v) => setGstRate(Number(v))}>
-                    <SelectTrigger className="w-20 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-20 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="0">0%</SelectItem>
                       <SelectItem value="5">5%</SelectItem>
@@ -397,20 +413,13 @@ export default function RestaurantBill() {
         </motion.div>
 
         {/* Live Preview */}
-        <motion.div
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
           <Card className="sticky top-4">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Bill Preview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div
-                ref={printRef}
-                className="bg-white border rounded-lg p-6 font-mono text-sm max-w-[320px] mx-auto"
-              >
+              <div ref={printRef} className="bg-white border rounded-lg p-6 font-mono text-sm max-w-[320px] mx-auto">
                 {/* Header */}
                 <div className="text-center mb-3">
                   <h2 className="text-base font-bold uppercase tracking-wide">
@@ -431,8 +440,7 @@ export default function RestaurantBill() {
 
                 {/* Bill info */}
                 <div className="flex justify-between text-[10px] text-muted-foreground">
-                  <span>{billNumber}</span>
-                  <span>{new Date().toLocaleDateString()}</span>
+                  {billNumber && <span>Bill: {billNumber}</span>} <span>{new Date().toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   {tableNumber && <span>Table: {tableNumber}</span>}
@@ -456,13 +464,15 @@ export default function RestaurantBill() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.filter((i) => i.name.trim()).map((item) => (
-                      <tr key={item.id}>
-                        <td className="py-0.5">{item.name}</td>
-                        <td className="text-center">{item.quantity}</td>
-                        <td className="text-right">{formatCurrency(item.quantity * item.unitPrice)}</td>
-                      </tr>
-                    ))}
+                    {items
+                      .filter((i) => i.name.trim())
+                      .map((item) => (
+                        <tr key={item.id}>
+                          <td className="py-0.5">{item.name}</td>
+                          <td className="text-center">{item.quantity}</td>
+                          <td className="text-right">{formatCurrency(item.quantity * item.unitPrice)}</td>
+                        </tr>
+                      ))}
                     {items.every((i) => !i.name.trim()) && (
                       <tr>
                         <td colSpan={3} className="text-center py-4 text-muted-foreground text-[10px]">
