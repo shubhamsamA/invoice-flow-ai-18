@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { getBuiltinTemplates } from "@/lib/builtin-templates";
 import { TemplatePreviewModal } from "@/components/TemplatePreviewModal";
+import { TemplateThumbnail } from "@/components/TemplateThumbnail";
 
 interface CustomTemplate {
   id: string;
