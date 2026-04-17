@@ -28,6 +28,48 @@ export default function RestaurantBills() {
     enabled: !!user,
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const handlePrintBill = async (bill: NonNullable<typeof bills>[number]) => {
+    const { data: billItems, error } = await supabase
+      .from("restaurant_bill_items")
+      .select("*")
+      .eq("bill_id", bill.id)
+      .order("sort_order");
+    if (error || !billItems?.length) {
+      toast.error("No items found for this bill");
+      return;
+    }
+    openPrintWindow(
+      {
+        billNumber: bill.bill_number,
+        tableNumber: bill.table_number,
+        serverName: bill.server_name,
+        items: billItems.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: Number(i.unit_price) })),
+        serviceChargeEnabled: Number(bill.service_charge_amount) > 0,
+        serviceChargeRate: Number(bill.service_charge_rate),
+        serviceChargeAmount: Number(bill.service_charge_amount),
+        gstRate: Number(bill.gst_rate),
+        gstAmount: Number(bill.gst_amount),
+        tip: Number(bill.tip),
+        subtotal: Number(bill.subtotal),
+        grandTotal: Number(bill.total),
+        paymentMethod: bill.payment_method,
+        notes: bill.notes,
+        date: new Date(bill.created_at),
+      },
+      profile ?? null,
+    );
+  };
+
   const handleKOTReprint = async (bill: typeof bills extends (infer T)[] | undefined ? T : never) => {
     const { data: billItems, error } = await supabase
       .from("restaurant_bill_items")
