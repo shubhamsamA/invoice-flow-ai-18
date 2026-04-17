@@ -182,31 +182,30 @@ export default function RestaurantBill() {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow || !printRef.current) return;
-    printWindow.document.write(`
-      <html><head><title>${billNumber}</title>
-      <style>
-        @page { size: 80mm 200mm; margin: 1mm; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; padding: 2mm; width: 76mm; }
-        .header { text-align: center; margin-bottom: 8px; }
-        .header h1 { font-size: 14px; font-weight: bold; }
-        .header p { font-size: 10px; color: #666; }
-        .divider { border-top: 1px dashed #999; margin: 6px 0; }
-        .info { font-size: 10px; display: flex; justify-content: space-between; }
-        table { width: 100%; font-size: 10px; border-collapse: collapse; margin: 6px 0; }
-        th { text-align: left; border-bottom: 1px solid #333; padding: 3px 0; }
-        td { padding: 2px 0; }
-        .right { text-align: right; }
-        .total-row { font-weight: bold; font-size: 12px; }
-        .footer { text-align: center; font-size: 9px; color: #666; margin-top: 10px; }
-      </style>
-      </head><body>${printRef.current.innerHTML}
-      <script>window.print(); window.close();</script>
-      </body></html>
-    `);
-    printWindow.document.close();
+    if (items.every((i) => !i.name.trim())) {
+      toast.error("Add at least one item to print");
+      return;
+    }
+    openPrintWindow(
+      {
+        billNumber,
+        tableNumber,
+        serverName,
+        items,
+        serviceChargeEnabled,
+        serviceChargeRate,
+        serviceChargeAmount,
+        gstRate,
+        gstAmount,
+        tip,
+        subtotal,
+        grandTotal,
+        paymentMethod,
+        notes,
+        date: new Date(),
+      },
+      profile ?? null,
+    );
   };
 
   const formatCurrency = (v: number) => `₹${v.toFixed(2)}`;
