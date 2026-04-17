@@ -53,6 +53,7 @@ export default function RestaurantBills() {
         billNumber: bill.bill_number,
         tableNumber: bill.table_number,
         serverName: bill.server_name,
+        customerName: (bill as { customer_name?: string | null }).customer_name ?? null,
         items: billItems.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: Number(i.unit_price) })),
         serviceChargeEnabled: Number(bill.service_charge_amount) > 0,
         serviceChargeRate: Number(bill.service_charge_rate),
