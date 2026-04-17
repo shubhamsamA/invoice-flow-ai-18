@@ -96,6 +96,7 @@ export default function RestaurantBill() {
           bill_number: billNumber,
           table_number: tableNumber || null,
           server_name: serverName || null,
+          customer_name: customerName || null,
           subtotal,
           service_charge_rate: serviceChargeEnabled ? serviceChargeRate : 0,
           service_charge_amount: serviceChargeAmount,
