@@ -79,7 +79,7 @@ export default function RestaurantBill() {
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
-  const billNumber = `BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`;
+  const billNumber = billNumberInput.trim() || `BILL-${String((billCount ?? 0) + 1).padStart(4, "0")}`;
 
   const handleSave = async () => {
     if (!user) return;
