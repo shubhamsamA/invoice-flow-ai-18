@@ -194,6 +194,9 @@ export default function RestaurantBills() {
                       </Badge>
                     </div>
                     <div className="flex gap-3 text-xs text-muted-foreground">
+                      {(bill as { customer_name?: string | null }).customer_name && (
+                        <span>{(bill as { customer_name?: string | null }).customer_name}</span>
+                      )}
                       {bill.table_number && <span>Table: {bill.table_number}</span>}
                       <span>{new Date(bill.created_at).toLocaleDateString()}</span>
                     </div>
