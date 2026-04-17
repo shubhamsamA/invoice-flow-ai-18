@@ -33,6 +33,8 @@ export default function RestaurantBill() {
 
   const [tableNumber, setTableNumber] = useState("");
   const [serverName, setServerName] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [billNumberInput, setBillNumberInput] = useState("");
   const [items, setItems] = useState<BillItem[]>([]);
   const [serviceChargeEnabled, setServiceChargeEnabled] = useState(false);
   const [serviceChargeRate, setServiceChargeRate] = useState(10);
