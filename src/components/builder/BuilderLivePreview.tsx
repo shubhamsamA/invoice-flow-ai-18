@@ -193,7 +193,8 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
         </div>
       );
     case "note": {
-      const rendered = resolveInvoiceText(c.text, data);
+      // Prefer form-entered notes; fall back to the element's template text
+      const rendered = data.notes || resolveInvoiceText(c.text, data) || "Note";
       return (
         <div className="h-full flex items-start px-3 py-2" style={{
           fontSize: c.fontSize || 12,
@@ -203,7 +204,7 @@ function PreviewElement({ element, data }: { element: BuilderElement; data: Invo
           textAlign: c.textAlign || "left",
           lineHeight: c.lineHeight || 1.4,
         }}>
-          <p>{rendered || data.notes || "Note"}</p>
+          <p>{rendered}</p>
         </div>
       );
     }
