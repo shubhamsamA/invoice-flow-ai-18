@@ -437,6 +437,11 @@ export default function RestaurantBill() {
                   {tableNumber && <span>Table: {tableNumber}</span>}
                   {serverName && <span>Server: {serverName}</span>}
                 </div>
+                {customerName && (
+                  <div className="text-[10px] text-muted-foreground">
+                    <span>Customer: {customerName}</span>
+                  </div>
+                )}
 
                 <div className="border-t border-dashed border-muted-foreground/40 my-2" />
 
