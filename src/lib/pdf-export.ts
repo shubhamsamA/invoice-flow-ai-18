@@ -186,15 +186,29 @@ export function exportFullInvoicePDF(data: FullInvoiceData) {
   if (data.layout_json) {
     const templateHTML = renderTemplateHTML(data);
     if (templateHTML) {
+      const lo = data.layout_json as any;
+      const ps = lo?.pageSize;
+      const cw = Number(lo?.canvasWidth) || 640;
+      const ch = Number(lo?.canvasHeight) || 900;
+      // Convert px to mm at 96dpi (1px = 0.264583mm) so the PDF page
+      // matches the on-screen preview exactly.
+      const pxToMm = (px: number) => (px * 25.4) / 96;
+      const pageSize =
+        ps === 'a4'
+          ? '210mm 297mm'
+          : ps === 'letter'
+            ? '8.5in 11in'
+            : `${pxToMm(cw).toFixed(2)}mm ${pxToMm(ch).toFixed(2)}mm`;
       const html = `<!DOCTYPE html><html><head><title>${data.invoice_number}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-          @page { size: ${(() => { const lo = data.layout_json as any; const ps = lo?.pageSize; return ps === 'a4' ? '210mm 297mm' : ps === 'letter' ? '8.5in 11in' : lo?.canvasWidth ? `${lo.canvasWidth}px ${lo.canvasHeight || 900}px` : '640px 900px'; })()}; margin: 0; }
+          @page { size: ${pageSize}; margin: 0; }
           * { margin:0; padding:0; box-sizing:border-box; }
-          html, body { width:100%; height:100%; }
-          body { font-family:'Inter',system-ui,sans-serif; background:#fff; }
+          html, body { width:${cw}px; height:${ch}px; margin:0; padding:0; }
+          body { font-family:'Inter',system-ui,sans-serif; background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+          @media print { html, body { width:${cw}px; height:${ch}px; } }
         </style>
-      </head><body>${templateHTML}<script>window.onload=function(){window.print();}</script></body></html>`;
+      </head><body>${templateHTML}<script>window.onload=function(){setTimeout(function(){window.print();},300);}</script></body></html>`;
       openPrintWindow(html);
       return;
     }
