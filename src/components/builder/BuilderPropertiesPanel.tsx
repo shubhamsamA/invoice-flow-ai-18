@@ -149,12 +149,13 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
   if (!element) {
     if (embedded) return null;
     return (
-      <div className="w-64 xl:w-72 shrink-0 border-l bg-card flex flex-col items-center justify-center p-8 text-center">
-        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
-          <Plus className="h-6 w-6 text-muted-foreground/30" />
+      <div
+        className="w-10 shrink-0 border-l bg-card flex flex-col items-center justify-center p-2 text-center"
+        title="Select an element on the canvas to edit its properties"
+      >
+        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
+          <Plus className="h-4 w-4 text-muted-foreground/40" />
         </div>
-        <p className="text-xs font-bold font-display uppercase tracking-widest text-muted-foreground">Select Element</p>
-        <p className="text-[10px] text-muted-foreground mt-2 font-serif italic">Choose a component on the canvas to refine its properties</p>
       </div>
     );
   }
