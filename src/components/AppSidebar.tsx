@@ -109,6 +109,8 @@ export function AppSidebar() {
                       to={item.url}
                       end={item.url === "/"}
                       onClick={handleLinkClick}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       className="group relative flex w-full items-center gap-3 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider text-sidebar-foreground/90 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-ring"
                     >
