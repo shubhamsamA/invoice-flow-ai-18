@@ -83,7 +83,12 @@ export function AppSidebar() {
               asChild
               onClick={handleLinkClick}
             >
-              <NavLink to="/invoices/new" activeClassName="">
+              <NavLink
+                to="/invoices/new"
+                activeClassName=""
+                onMouseEnter={() => prefetchRoute("/invoices/new")}
+                onFocus={() => prefetchRoute("/invoices/new")}
+              >
                 <Plus className="h-3.5 w-3.5" />
                 New_Invoice
               </NavLink>
