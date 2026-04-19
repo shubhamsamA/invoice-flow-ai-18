@@ -473,11 +473,37 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
 
   if (embedded) return inner;
 
+  if (!isExpanded) {
+    return (
+      <div className="w-10 shrink-0 border-l bg-card flex flex-col items-center pt-3 pb-2 shadow-sm">
+        <button
+          className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+          onClick={() => setIsExpanded(true)}
+          title="Expand properties panel"
+        >
+          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <div className="mt-2 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter [writing-mode:vertical-lr]">
+          {element.type.replace(/-/g, " ")}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-64 xl:w-72 shrink-0 border-l bg-card flex flex-col h-full overflow-hidden shadow-sm">
-      <div className="p-4 border-b bg-muted/10">
-        <h3 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Properties</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic capitalize">{element.type.replace("-", " ")}</p>
+      <div className="p-4 border-b bg-muted/10 flex items-center justify-between">
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Properties</h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic capitalize">{element.type.replace("-", " ")}</p>
+        </div>
+        <button
+          className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors shrink-0"
+          onClick={() => setIsExpanded(false)}
+          title="Collapse panel"
+        >
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
       </div>
       {inner}
     </div>
