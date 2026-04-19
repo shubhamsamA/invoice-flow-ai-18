@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -45,9 +46,17 @@ const mainNav = [
 const secondaryNav = [{ title: "Business Profile ", url: "/settings", icon: Settings }];
 
 export function AppSidebar() {
-  const { state, setOpen } = useSidebar();
+  const { state, setOpen, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+
+  // Auto-collapse on desktop when entering the builder page for more canvas room
+  useEffect(() => {
+    if (isMobile) return;
+    if (location.pathname.startsWith("/invoices/builder")) {
+      setOpen(false);
+    }
+  }, [location.pathname, isMobile, setOpen]);
 
   const handleLinkClick = () => {
     // no-op: keep sidebar open on navigation
