@@ -1,5 +1,5 @@
 import { BuilderElement } from "@/types/builder";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
+import { useState } from "react";
 
 interface Props {
   element: BuilderElement | null;
@@ -146,15 +147,50 @@ function FontControls({
 }
 
 export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!element) {
     if (embedded) return null;
+    
+    if (!isExpanded) {
+      return (
+        <div
+          className="w-10 shrink-0 border-l bg-card flex flex-col items-center pt-3 pb-2 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={() => setIsExpanded(true)}
+          title="Click to expand"
+        >
+          <button
+            className="h-7 w-7 rounded-full bg-muted flex items-center justify-center mb-2 hover:bg-muted-foreground/20 transition-colors"
+            onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
+          >
+            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className="h-7 w-7 rounded-full bg-muted/50 flex items-center justify-center">
+            <Plus className="h-4 w-4 text-muted-foreground/40" />
+          </div>
+        </div>
+      );
+    }
+    
     return (
-      <div
-        className="w-10 shrink-0 border-l bg-card flex flex-col items-center justify-center p-2 text-center"
-        title="Select an element on the canvas to edit its properties"
-      >
-        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
-          <Plus className="h-4 w-4 text-muted-foreground/40" />
+      <div className="w-64 shrink-0 border-l bg-card flex flex-col">
+        <div className="flex items-center justify-between p-3 border-b">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Properties</span>
+          <button
+            className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+            onClick={() => setIsExpanded(false)}
+            title="Collapse"
+          >
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <Plus className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Select an element on the canvas to edit its properties
+          </p>
         </div>
       </div>
     );
@@ -437,11 +473,37 @@ export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
 
   if (embedded) return inner;
 
+  if (!isExpanded) {
+    return (
+      <div className="w-10 shrink-0 border-l bg-card flex flex-col items-center pt-3 pb-2 shadow-sm">
+        <button
+          className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+          onClick={() => setIsExpanded(true)}
+          title="Expand properties panel"
+        >
+          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <div className="mt-2 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter [writing-mode:vertical-lr]">
+          {element.type.replace(/-/g, " ")}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-64 xl:w-72 shrink-0 border-l bg-card flex flex-col h-full overflow-hidden shadow-sm">
-      <div className="p-4 border-b bg-muted/10">
-        <h3 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Properties</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic capitalize">{element.type.replace("-", " ")}</p>
+      <div className="p-4 border-b bg-muted/10 flex items-center justify-between">
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-widest font-display text-primary">Properties</h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-serif italic capitalize">{element.type.replace("-", " ")}</p>
+        </div>
+        <button
+          className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors shrink-0"
+          onClick={() => setIsExpanded(false)}
+          title="Collapse panel"
+        >
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
       </div>
       {inner}
     </div>
