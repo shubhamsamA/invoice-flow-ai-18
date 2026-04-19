@@ -45,18 +45,72 @@ const mainNav = [
 
 const secondaryNav = [{ title: "Business Profile ", url: "/settings", icon: Settings }];
 
+const PREF_STORAGE_KEY = "sidebar:route-prefs";
+
+function getRouteKey(pathname: string): string {
+  // Group by top-level segment so /invoices and /invoices/123 share a preference,
+  // but /invoices/builder gets its own bucket.
+  if (pathname.startsWith("/invoices/builder")) return "/invoices/builder";
+  const seg = pathname.split("/").filter(Boolean)[0];
+  return seg ? `/${seg}` : "/";
+}
+
+function loadPrefs(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(PREF_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePref(routeKey: string, open: boolean) {
+  try {
+    const prefs = loadPrefs();
+    prefs[routeKey] = open;
+    localStorage.setItem(PREF_STORAGE_KEY, JSON.stringify(prefs));
+  } catch {}
+}
+
 export function AppSidebar() {
   const { state, setOpen, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const routeKey = getRouteKey(location.pathname);
+  const lastRouteKey = useRef<string | null>(null);
+  const lastAppliedState = useRef<boolean | null>(null);
 
-  // Auto-collapse on desktop when entering the builder page for more canvas room
+  // On route change: apply the saved preference, or fall back to a sensible default.
   useEffect(() => {
     if (isMobile) return;
-    if (location.pathname.startsWith("/invoices/builder")) {
-      setOpen(false);
+    if (lastRouteKey.current === routeKey) return;
+    lastRouteKey.current = routeKey;
+
+    const prefs = loadPrefs();
+    const saved = prefs[routeKey];
+    const next = typeof saved === "boolean"
+      ? saved
+      : routeKey === "/invoices/builder"
+        ? false // default collapsed on builder
+        : true; // default expanded elsewhere
+
+    lastAppliedState.current = next;
+    setOpen(next);
+  }, [routeKey, isMobile, setOpen]);
+
+  // Detect manual toggles (state changes that we didn't initiate) and persist them.
+  useEffect(() => {
+    if (isMobile) return;
+    const open = state === "expanded";
+    if (lastAppliedState.current === null) {
+      lastAppliedState.current = open;
+      return;
     }
-  }, [location.pathname, isMobile, setOpen]);
+    if (open !== lastAppliedState.current) {
+      lastAppliedState.current = open;
+      savePref(routeKey, open);
+    }
+  }, [state, routeKey, isMobile]);
 
   const handleLinkClick = () => {
     // no-op: keep sidebar open on navigation
