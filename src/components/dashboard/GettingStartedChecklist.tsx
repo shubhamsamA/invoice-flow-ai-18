@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
+import { prefetchRoute } from "@/lib/route-prefetch";
 
 interface ChecklistItem {
   key: string;
@@ -159,6 +160,8 @@ export function GettingStartedChecklist() {
             {!item.done && (
               <Link
                 to={item.link}
+                onMouseEnter={() => prefetchRoute(item.link)}
+                onFocus={() => prefetchRoute(item.link)}
                 className="text-[10px] font-mono uppercase text-primary hover:underline flex items-center gap-0.5 shrink-0"
               >
                 {item.linkLabel}

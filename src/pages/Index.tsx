@@ -30,6 +30,7 @@ import {
   Bar,
   Cell,
 } from "recharts";
+import { prefetchRoute } from "@/lib/route-prefetch";
 
 const statusClasses: Record<string, string> = {
   paid: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
@@ -163,8 +164,15 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button asChild className="gap-2 font-mono uppercase hover:bg-foreground hover:text-background text-xs">
-            <Link to="/invoices/new">
+          <Button 
+            asChild 
+            className="gap-2 font-mono uppercase hover:bg-foreground hover:text-background text-xs"
+          >
+            <Link 
+              to="/invoices/new"
+              onMouseEnter={() => prefetchRoute("/invoices/new")}
+              onFocus={() => prefetchRoute("/invoices/new")}
+            >
               <Plus className="h-4 w-4" />
               Initialize Invoice
             </Link>
@@ -268,7 +276,13 @@ export default function DashboardPage() {
                 <div className="p-4 border-b border-border/50 flex items-center justify-between">
                   <h2 className="font-serif italic text-lg text-muted-foreground">Recent Activity</h2>
                   <Button variant="ghost" size="sm" className="text-[10px] uppercase font-mono hover:bg-primary/5" asChild>
-                    <Link to="/invoices">View All</Link>
+                    <Link 
+                      to="/invoices"
+                      onMouseEnter={() => prefetchRoute("/invoices")}
+                      onFocus={() => prefetchRoute("/invoices")}
+                    >
+                      View All
+                    </Link>
                   </Button>
                 </div>
 
