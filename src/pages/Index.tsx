@@ -276,7 +276,13 @@ export default function DashboardPage() {
                 <div className="p-4 border-b border-border/50 flex items-center justify-between">
                   <h2 className="font-serif italic text-lg text-muted-foreground">Recent Activity</h2>
                   <Button variant="ghost" size="sm" className="text-[10px] uppercase font-mono hover:bg-primary/5" asChild>
-                    <Link to="/invoices">View All</Link>
+                    <Link 
+                      to="/invoices"
+                      onMouseEnter={() => prefetchRoute("/invoices")}
+                      onFocus={() => prefetchRoute("/invoices")}
+                    >
+                      View All
+                    </Link>
                   </Button>
                 </div>
 
