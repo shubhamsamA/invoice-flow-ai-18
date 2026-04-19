@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { prefetchRoute } from "@/lib/route-prefetch";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -82,7 +83,12 @@ export function AppSidebar() {
               asChild
               onClick={handleLinkClick}
             >
-              <NavLink to="/invoices/new" activeClassName="">
+              <NavLink
+                to="/invoices/new"
+                activeClassName=""
+                onMouseEnter={() => prefetchRoute("/invoices/new")}
+                onFocus={() => prefetchRoute("/invoices/new")}
+              >
                 <Plus className="h-3.5 w-3.5" />
                 New_Invoice
               </NavLink>
@@ -103,6 +109,8 @@ export function AppSidebar() {
                       to={item.url}
                       end={item.url === "/"}
                       onClick={handleLinkClick}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       className="group relative flex w-full items-center gap-3 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider text-sidebar-foreground/90 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-ring"
                     >
@@ -136,6 +144,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       onClick={handleLinkClick}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       className="group relative flex w-full items-center gap-3 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider  font-bold  text-sidebar-foreground/90 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-ring"
                     >
