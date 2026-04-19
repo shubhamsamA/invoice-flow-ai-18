@@ -147,15 +147,50 @@ function FontControls({
 }
 
 export function BuilderPropertiesPanel({ element, onUpdate, embedded }: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!element) {
     if (embedded) return null;
+    
+    if (!isExpanded) {
+      return (
+        <div
+          className="w-10 shrink-0 border-l bg-card flex flex-col items-center pt-3 pb-2 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={() => setIsExpanded(true)}
+          title="Click to expand"
+        >
+          <button
+            className="h-7 w-7 rounded-full bg-muted flex items-center justify-center mb-2 hover:bg-muted-foreground/20 transition-colors"
+            onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
+          >
+            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <div className="h-7 w-7 rounded-full bg-muted/50 flex items-center justify-center">
+            <Plus className="h-4 w-4 text-muted-foreground/40" />
+          </div>
+        </div>
+      );
+    }
+    
     return (
-      <div
-        className="w-10 shrink-0 border-l bg-card flex flex-col items-center justify-center p-2 text-center"
-        title="Select an element on the canvas to edit its properties"
-      >
-        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center">
-          <Plus className="h-4 w-4 text-muted-foreground/40" />
+      <div className="w-64 shrink-0 border-l bg-card flex flex-col">
+        <div className="flex items-center justify-between p-3 border-b">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Properties</span>
+          <button
+            className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+            onClick={() => setIsExpanded(false)}
+            title="Collapse"
+          >
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <Plus className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Select an element on the canvas to edit its properties
+          </p>
         </div>
       </div>
     );
