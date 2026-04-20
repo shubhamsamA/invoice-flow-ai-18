@@ -172,6 +172,12 @@ export function BuilderCanvas({
       const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
       const dx = clientX - startX;
       const dy = clientY - startY;
+      const shiftKey = "shiftKey" in ev ? ev.shiftKey : false;
+
+      // Update shift key state in dragState
+      if (dragState && dragState.shiftKey !== shiftKey) {
+        setDragState({ ...dragState, shiftKey });
+      }
 
       if (mode === "move") {
         let newX = snapToGrid(el.x + dx);
