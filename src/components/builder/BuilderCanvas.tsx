@@ -141,7 +141,8 @@ export function BuilderCanvas({
   const startDrag = useCallback((
     e: React.MouseEvent | React.TouchEvent,
     elementId: string,
-    mode: "move" | "resize"
+    mode: "move" | "resize",
+    handle?: ResizeHandle
   ) => {
     e.stopPropagation();
     e.preventDefault();
@@ -155,6 +156,7 @@ export function BuilderCanvas({
     setDragState({
       elementId,
       mode,
+      handle,
       startX,
       startY,
       origX: el.x,
