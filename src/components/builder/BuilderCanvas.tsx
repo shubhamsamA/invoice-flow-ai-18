@@ -109,6 +109,7 @@ export function BuilderCanvas({
     origY: number;
     origW: number;
     origH: number;
+    shiftKey: boolean;
   } | null>(null);
   const [guides, setGuides] = useState<AlignGuide[]>([]);
 
