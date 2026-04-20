@@ -164,6 +164,7 @@ export function BuilderCanvas({
       origY: el.y,
       origW: el.width,
       origH: el.height,
+      shiftKey: false,
     });
 
     const handleMove = (ev: MouseEvent | TouchEvent) => {
