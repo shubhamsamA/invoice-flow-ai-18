@@ -109,6 +109,7 @@ export function BuilderCanvas({
     origY: number;
     origW: number;
     origH: number;
+    shiftKey: boolean;
   } | null>(null);
   const [guides, setGuides] = useState<AlignGuide[]>([]);
 
@@ -163,6 +164,7 @@ export function BuilderCanvas({
       origY: el.y,
       origW: el.width,
       origH: el.height,
+      shiftKey: false,
     });
 
     const handleMove = (ev: MouseEvent | TouchEvent) => {
@@ -170,6 +172,12 @@ export function BuilderCanvas({
       const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
       const dx = clientX - startX;
       const dy = clientY - startY;
+      const shiftKey = "shiftKey" in ev ? ev.shiftKey : false;
+
+      // Update shift key state in dragState
+      if (dragState && dragState.shiftKey !== shiftKey) {
+        setDragState({ ...dragState, shiftKey });
+      }
 
       if (mode === "move") {
         let newX = snapToGrid(el.x + dx);
