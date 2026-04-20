@@ -236,6 +236,52 @@ export function BuilderCanvas({
           newY = clampedY;
         }
 
+        // Snap moving edges to alignment guides from other elements + canvas
+        const tempEl = { ...el, x: newX, y: newY, width: newW, height: newH };
+        const resizeGuides = computeAlignmentGuides(tempEl, elements, canvasWidth, canvasHeight);
+        const activeGuides: AlignGuide[] = [];
+
+        for (const guide of resizeGuides) {
+          if (guide.axis === "x") {
+            // Vertical guide — affects horizontal edges (w/e) only
+            if (h.includes("e")) {
+              const right = newX + newW;
+              if (Math.abs(right - guide.position) < SNAP_THRESHOLD) {
+                const snapped = Math.max(MIN_W, Math.min(guide.position - newX, canvasWidth - newX));
+                newW = snapped;
+                activeGuides.push(guide);
+              }
+            } else if (h.includes("w")) {
+              if (Math.abs(newX - guide.position) < SNAP_THRESHOLD) {
+                const right = el.x + el.width;
+                const snappedX = Math.max(0, Math.min(guide.position, right - MIN_W));
+                newW = right - snappedX;
+                newX = snappedX;
+                activeGuides.push(guide);
+              }
+            }
+          } else {
+            // Horizontal guide — affects vertical edges (n/s) only
+            if (h.includes("s")) {
+              const bottom = newY + newH;
+              if (Math.abs(bottom - guide.position) < SNAP_THRESHOLD) {
+                const snapped = Math.max(MIN_H, Math.min(guide.position - newY, canvasHeight - newY));
+                newH = snapped;
+                activeGuides.push(guide);
+              }
+            } else if (h.includes("n")) {
+              if (Math.abs(newY - guide.position) < SNAP_THRESHOLD) {
+                const bottom = el.y + el.height;
+                const snappedY = Math.max(0, Math.min(guide.position, bottom - MIN_H));
+                newH = bottom - snappedY;
+                newY = snappedY;
+                activeGuides.push(guide);
+              }
+            }
+          }
+        }
+
+        setGuides(activeGuides);
         onUpdateElement(elementId, { x: newX, y: newY, width: newW, height: newH });
       }
     };
