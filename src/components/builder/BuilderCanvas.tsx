@@ -396,7 +396,6 @@ export function BuilderCanvas({
             } else if (h.includes("n")) {
               if (Math.abs(newY - guide.position) < SNAP_THRESHOLD) {
                 const bottom = el.y + el.height;
-                logic to maintain aspect ratio when snapping to guides
                 const snappedY = Math.max(0, Math.min(guide.position, bottom - MIN_H));
                 newH = bottom - snappedY;
                 newY = snappedY;
