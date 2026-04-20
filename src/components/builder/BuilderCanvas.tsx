@@ -102,6 +102,7 @@ export function BuilderCanvas({
   const [dragState, setDragState] = useState<{
     elementId: string;
     mode: "move" | "resize";
+    handle?: ResizeHandle;
     startX: number;
     startY: number;
     origX: number;
