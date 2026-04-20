@@ -208,12 +208,35 @@ export function BuilderCanvas({
           y: Math.max(0, Math.min(newY, canvasHeight - el.height)),
         });
       } else {
-        const newW = snapToGrid(Math.max(80, el.width + dx));
-        const newH = snapToGrid(Math.max(32, el.height + dy));
-        onUpdateElement(elementId, {
-          width: Math.min(newW, canvasWidth - el.x),
-          height: Math.min(newH, canvasHeight - el.y),
-        });
+        const h = handle ?? "se";
+        let newX = el.x;
+        let newY = el.y;
+        let newW = el.width;
+        let newH = el.height;
+
+        // East / West
+        if (h.includes("e")) {
+          newW = snapToGrid(Math.max(MIN_W, el.width + dx));
+          newW = Math.min(newW, canvasWidth - el.x);
+        } else if (h.includes("w")) {
+          const proposedX = snapToGrid(el.x + dx);
+          const clampedX = Math.max(0, Math.min(proposedX, el.x + el.width - MIN_W));
+          newW = el.x + el.width - clampedX;
+          newX = clampedX;
+        }
+
+        // North / South
+        if (h.includes("s")) {
+          newH = snapToGrid(Math.max(MIN_H, el.height + dy));
+          newH = Math.min(newH, canvasHeight - el.y);
+        } else if (h.includes("n")) {
+          const proposedY = snapToGrid(el.y + dy);
+          const clampedY = Math.max(0, Math.min(proposedY, el.y + el.height - MIN_H));
+          newH = el.y + el.height - clampedY;
+          newY = clampedY;
+        }
+
+        onUpdateElement(elementId, { x: newX, y: newY, width: newW, height: newH });
       }
     };
 
