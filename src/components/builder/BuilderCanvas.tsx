@@ -196,7 +196,7 @@ export function BuilderCanvas({
               newX = guide.position - el.width / 2;
             } else if (Math.abs(newX - guide.position) < SNAP_THRESHOLD) {
               newX = guide.position;
-            } else if (Math.abs(newX + el.width - guide.position) < SNAP_THRESHOLD) {
+            } else if (Math.abs(newX + el.width - guide.position) < SNAP_RATIO) {
               newX = guide.position - el.width;
             }
           } else {
@@ -233,25 +233,6 @@ export function BuilderCanvas({
           newX = clampedX;
         }
 
-      } else {
-        const h = handle ?? "se";
-        const aspectRatio = el.width / el.height;
-        let newX = el.x;
-        let newY = el.y;
-        let newW = el.width;
-        let newH = el.height;
-
-        // East / West
-        if (h.includes("e")) {
-          newW = snapToGrid(Math.max(MIN_W, el.width + dx));
-          newW = Math.min(newW, canvasWidth - el.x);
-        } else if (h.includes("w")) {
-          const proposedX = snapToGrid(el.x + dx);
-          const clampedX = Math.max(0, Math.min(proposedX, el.x + el.width - MIN_W));
-          newW = el.x + el.width - clampedX;
-          newX = clampedX;
-        }
-
         // North / South
         if (h.includes("s")) {
           newH = snapToGrid(Math.max(MIN_H, el.height + dy));
@@ -261,50 +242,6 @@ export function BuilderCanvas({
           const clampedY = Math.max(0, Math.min(proposedY, el.y + el.height - MIN_H));
           newH = el.y + el.height - clampedY;
           newY = clampedY;
-        }
-
-        // Apply aspect ratio lock when Shift is held
-        if (shiftKey) {
-          if (h === "e" || h === "w") {
-            // Width changed, adjust height to maintain ratio
-            newH = Math.max(MIN_H, newW / aspectRatio);
-            // Re-clamp height to canvas bounds
-            if (newY + newH > canvasHeight) {
-              newH = canvasHeight - newY;
-              newW = newH * aspectRatio;
-            }
-          } else if (h === "n" || h === "s") {
-            // Height changed, adjust width to maintain ratio
-            newW = Math.max(MIN_W, newH * aspectRatio);
-            // Re-clamp width to canvas bounds
-            if (newX + newW > canvasWidth) {
-              newW = canvasWidth - newX;
-              newH = newW / aspectRatio;
-            }
-          } else {
-            // Corner resize - use the larger delta to determine the dominant dimension
-            const wDelta = Math.abs(newW - el.width);
-            const hDelta = Math.abs(newH - el.height);
-            if (wDelta > hDelta) {
-              // Width is dominant
-              newH = Math.max(MIN_H, newW / aspectRatio);
-            } else {
-              // Height is dominant
-              newW = Math.max(MIN_W, newH * aspectRatio);
-            }
-            // Re-clamp to canvas bounds
-            if (newX + newW > canvasWidth) {
-              newW = canvasWidth - newX;
-              newH = newW / aspectRatio;
-            }
-            if (newY + newH > canvasHeight) {
-              newH = canvasHeight - newY;
-              newW = newH * aspectRatio;
-            }
-          }
-          // Snap to grid after aspect ratio adjustment
-          newW = snapToGrid(newW);
-          newH = snapToGrid(newH);
         }
 
         // Snap moving edges to alignment guides from other elements + canvas
@@ -338,122 +275,6 @@ export function BuilderCanvas({
               if (Math.abs(bottom - guide.position) < SNAP_THRESHOLD) {
                 const snapped = Math.max(MIN_H, Math.min(guide.position - newY, canvasHeight - newY));
                 newH = snapped;
-                activeGuides.push(guide);
-              }
-      } else {
-        const h = handle ?? "se";
-        const aspectRatio = el.width / el.height;
-        let newX = el.x;
-        let newY = el.y;
-        let newW = el.width;
-        let newH = el.height;
-
-        // East / West
-        if (h.includes("e")) {
-          newW = snapToGrid(Math.max(MIN_W, el.width + dx));
-          newW = Math.min(newW, canvasWidth - el.x);
-        } else if (h.includes("w")) {
-          const proposedX = snapToGrid(el.x + dx);
-          const clampedX = Math.max(0, Math.min(proposedX, el.x + el.width - MIN_W));
-          newW = el.x + el.width - clampedX;
-          newX = clampedX;
-        }
-
-        // North / South
-        if (h.includes("s")) {
-          newH = snapToGrid(Math.max(MIN_H, el.height + dy));
-          newH = Math.min(newH, canvasHeight - el.y);
-        } else if (h.includes("n")) {
-          const proposedY = snapToGrid(el.y + dy);
-          const clampedY = Math.max(0, Math.min(proposedY, el.y + el.height - MIN_H));
-          newH = el.y + el.height - clampedY;
-          newY = clampedY;
-        }
-
-        // Apply aspect ratio lock when Shift is held
-        if (shiftKey) {
-          if (h === "e" || h === "w") {
-            // Width changed, adjust height to maintain ratio
-            newH = Math.max(MIN_H, newW / aspectRatio);
-            // Re-clamp height to canvas bounds
-            if (newY + newH > canvasHeight) {
-              newH = canvasHeight - newY;
-              newW = newH * aspectRatio;
-            }
-          } else if (h === "n" || h === "s") {
-            // Height changed, adjust width to maintain ratio
-            newW = Math.max(MIN_W, newH * aspectRatio);
-            // Re-clamp width to canvas bounds
-            if (newX + newW > canvasWidth) {
-              newW = canvasWidth - newX;
-              newH = newW / aspectRatio;
-            }
-          } else {
-            // Corner resize - use the larger delta to determine the dominant dimension
-            const wDelta = Math.abs(newW - el.width);
-            const hDelta = Math.abs(newH - el.height);
-            if (wDelta > hDelta) {
-              // Width is dominant
-              newH = Math.max(MIN_H, newW / aspectRatio);
-            } else {
-              // Height is dominant
-              newW = Math.max(MIN_W, newH * aspectRatio);
-            }
-            // Re-clamp to canvas bounds
-            if (newX + newW > canvasWidth) {
-              newW = canvasWidth - newX;
-              newH = newW / aspectRatio;
-            }
-            if (newY + newH > canvasHeight) {
-              newH = canvasHeight - newY;
-              newW = newH * aspectRatio;
-            }
-          }
-          // Snap to grid after aspect ratio adjustment
-          newW = snapToGrid(newW);
-          newH = snapToGrid(newH);
-        }
-
-        // Snap moving edges to alignment guides from other elements + canvas
-        const tempEl = { ...el, x: newX, y: newY, width: newW, height: newH };
-        const resizeGuides = computeAlignmentGuides(tempEl, elements, canvasWidth, canvasHeight);
-        const activeGuides: AlignGuide[] = [];
-
-        for (const guide of resizeGuides) {
-          if (guide.axis === "x") {
-            // Vertical guide — affects horizontal edges (w/e) only
-            if (h.includes("e")) {
-              const right = newX + newW;
-              if (Math.abs(right - guide.position) < SNAP_THRESHOLD) {
-                const snapped = Math.max(MIN_W, Math.min(guide.position - newX, canvasWidth - newX));
-                newW = snapped;
-                if (shiftKey) {
-                  newH = Math.max(MIN_H, newW / aspectRatio);
-                }
-                activeGuides.push(guide);
-              }
-            } else if (h.includes("w")) {
-              if (Math.abs(newX - guide.position) < SNAP_THRESHOLD) {
-                const right = el.x + el.width;
-                const snappedX = Math.max(0, Math.min(guide.position, right - MIN_W));
-                newW = right - snappedX;
-                newX = snappedX;
-                if (shiftKey) {
-                  newH = Math.max(MIN_H, newW / aspectRatio);
-                }
-                activeGuides.push(guide);
-              }
-            }
-          } else {
-            // Horizontal guide — affects vertical edges (n/s) only
-            if (h.includes("s")) {
-              const bottom = newY + newH;
-              if (Math.abs(bottom - guide.position) < SNAP_THRESHOLD) {
-                const snapped = Math.max(MIN_H, Math.min(guide.position - newY, canvasHeight - newY));
-                newH = snapped;
-                if (shiftKey) {
-                  newW = Math.max(MIN_W, newH * aspectRatio);
-                }
                 activeGuides.push(guide);
               }
             } else if (h.includes("n")) {
@@ -462,22 +283,9 @@ export function BuilderCanvas({
                 const snappedY = Math.max(0, Math.min(guide.position, bottom - MIN_H));
                 newH = bottom - snappedY;
                 newY = snappedY;
-                if (shiftKey) {
-                  newW = Math.max(MIN_W, newH * aspectRatio);
-                }
                 activeGuides.push(guide);
               }
             }
-          }
-        }
-
-        setGuides(activeGuides);
-        onUpdateElement(elementId, { x: newX, y: newY, width: newW, height: newH });
-      }
-    };
-
-    const handleEnd = () => {
-      setDragState(null);
           }
         }
 
