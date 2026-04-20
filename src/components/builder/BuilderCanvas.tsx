@@ -233,6 +233,25 @@ export function BuilderCanvas({
           newX = clampedX;
         }
 
+      } else {
+        const h = handle ?? "se";
+        const aspectRatio = el.width / el.height;
+        let newX = el.x;
+        let newY = el.y;
+        let newW = el.width;
+        let newH = el.height;
+
+        // East / West
+        if (h.includes("e")) {
+          newW = snapToGrid(Math.max(MIN_W, el.width + dx));
+          newW = Math.min(newW, canvasWidth - el.x);
+        } else if (h.includes("w")) {
+          const proposedX = snapToGrid(el.x + dx);
+          const clampedX = Math.max(0, Math.min(proposedX, el.x + el.width - MIN_W));
+          newW = el.x + el.width - clampedX;
+          newX = clampedX;
+        }
+
         // North / South
         if (h.includes("s")) {
           newH = snapToGrid(Math.max(MIN_H, el.height + dy));
@@ -242,6 +261,50 @@ export function BuilderCanvas({
           const clampedY = Math.max(0, Math.min(proposedY, el.y + el.height - MIN_H));
           newH = el.y + el.height - clampedY;
           newY = clampedY;
+        }
+
+        // Apply aspect ratio lock when Shift is held
+        if (shiftKey) {
+          if (h === "e" || h === "w") {
+            // Width changed, adjust height to maintain ratio
+            newH = Math.max(MIN_H, newW / aspectRatio);
+            // Re-clamp height to canvas bounds
+            if (newY + newH > canvasHeight) {
+              newH = canvasHeight - newY;
+              newW = newH * aspectRatio;
+            }
+          } else if (h === "n" || h === "s") {
+            // Height changed, adjust width to maintain ratio
+            newW = Math.max(MIN_W, newH * aspectRatio);
+            // Re-clamp width to canvas bounds
+            if (newX + newW > canvasWidth) {
+              newW = canvasWidth - newX;
+              newH = newW / aspectRatio;
+            }
+          } else {
+            // Corner resize - use the larger delta to determine the dominant dimension
+            const wDelta = Math.abs(newW - el.width);
+            const hDelta = Math.abs(newH - el.height);
+            if (wDelta > hDelta) {
+              // Width is dominant
+              newH = Math.max(MIN_H, newW / aspectRatio);
+            } else {
+              // Height is dominant
+              newW = Math.max(MIN_W, newH * aspectRatio);
+            }
+            // Re-clamp to canvas bounds
+            if (newX + newW > canvasWidth) {
+              newW = canvasWidth - newX;
+              newH = newW / aspectRatio;
+            }
+            if (newY + newH > canvasHeight) {
+              newH = canvasHeight - newY;
+              newW = newH * aspectRatio;
+            }
+          }
+          // Snap to grid after aspect ratio adjustment
+          newW = snapToGrid(newW);
+          newH = snapToGrid(newH);
         }
 
         // Snap moving edges to alignment guides from other elements + canvas
