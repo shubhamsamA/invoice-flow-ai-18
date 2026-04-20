@@ -368,16 +368,42 @@ export function BuilderCanvas({
                 </div>
               )}
 
-              {/* Resize handle — supports both mouse and touch */}
+              {/* Resize handles — 4 corners + 4 edges, mouse + touch */}
               {!el.locked && isSelected && (
-                <div
-                  className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-primary rounded-full cursor-se-resize z-30 shadow-xl border-2 border-white flex items-center justify-center touch-none transition-transform hover:scale-110"
-                  onMouseDown={(e) => startDrag(e, el.id, "resize")}
-                  onTouchStart={(e) => startDrag(e, el.id, "resize")}
-                  style={{ touchAction: "none" }}
-                >
-                  <div className="w-1.5 h-1.5 bg-white rounded-full opacity-50" />
-                </div>
+                <>
+                  {(["nw", "n", "ne", "e", "se", "s", "sw", "w"] as ResizeHandle[]).map((h) => {
+                    const isCorner = h.length === 2;
+                    const pos: React.CSSProperties = {
+                      cursor: HANDLE_CURSORS[h],
+                      touchAction: "none",
+                    };
+                    // Position
+                    if (h.includes("n")) pos.top = -6;
+                    else if (h.includes("s")) pos.bottom = -6;
+                    else { pos.top = "50%"; pos.transform = "translateY(-50%)"; }
+
+                    if (h.includes("w")) pos.left = -6;
+                    else if (h.includes("e")) pos.right = -6;
+                    else {
+                      pos.left = "50%";
+                      pos.transform = (pos.transform ? pos.transform + " " : "") + "translateX(-50%)";
+                    }
+
+                    return (
+                      <div
+                        key={h}
+                        role="button"
+                        aria-label={`resize ${h}`}
+                        className={`absolute z-30 bg-primary border-2 border-white shadow-md transition-transform hover:scale-110 ${
+                          isCorner ? "w-3 h-3 rounded-full" : "w-2.5 h-2.5 rounded-sm"
+                        }`}
+                        style={pos}
+                        onMouseDown={(e) => startDrag(e, el.id, "resize", h)}
+                        onTouchStart={(e) => startDrag(e, el.id, "resize", h)}
+                      />
+                    );
+                  })}
+                </>
               )}
             </div>
           );
