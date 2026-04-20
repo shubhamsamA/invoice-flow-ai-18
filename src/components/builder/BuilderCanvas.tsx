@@ -196,7 +196,7 @@ export function BuilderCanvas({
               newX = guide.position - el.width / 2;
             } else if (Math.abs(newX - guide.position) < SNAP_THRESHOLD) {
               newX = guide.position;
-            } else if (Math.abs(newX + el.width - guide.position) < SNAP_RATIO) {
+            } else if (Math.abs(newX + el.width - guide.position) < SNAP_THRESHOLD) {
               newX = guide.position - el.width;
             }
           } else {
