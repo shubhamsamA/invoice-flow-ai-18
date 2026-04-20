@@ -7,6 +7,22 @@ import {
 import { BuilderElementRenderer } from "./BuilderElementRenderer";
 import { Trash2, Move, Lock, Unlock, Plus } from "lucide-react";
 
+type ResizeHandle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+
+const HANDLE_CURSORS: Record<ResizeHandle, string> = {
+  n: "ns-resize",
+  s: "ns-resize",
+  e: "ew-resize",
+  w: "ew-resize",
+  ne: "nesw-resize",
+  sw: "nesw-resize",
+  nw: "nwse-resize",
+  se: "nwse-resize",
+};
+
+const MIN_W = 80;
+const MIN_H = 32;
+
 interface AlignGuide {
   axis: "x" | "y";
   position: number;
