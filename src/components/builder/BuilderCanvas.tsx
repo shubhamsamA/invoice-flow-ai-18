@@ -7,6 +7,22 @@ import {
 import { BuilderElementRenderer } from "./BuilderElementRenderer";
 import { Trash2, Move, Lock, Unlock, Plus } from "lucide-react";
 
+type ResizeHandle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+
+const HANDLE_CURSORS: Record<ResizeHandle, string> = {
+  n: "ns-resize",
+  s: "ns-resize",
+  e: "ew-resize",
+  w: "ew-resize",
+  ne: "nesw-resize",
+  sw: "nesw-resize",
+  nw: "nwse-resize",
+  se: "nwse-resize",
+};
+
+const MIN_W = 80;
+const MIN_H = 32;
+
 interface AlignGuide {
   axis: "x" | "y";
   position: number;
@@ -86,6 +102,7 @@ export function BuilderCanvas({
   const [dragState, setDragState] = useState<{
     elementId: string;
     mode: "move" | "resize";
+    handle?: ResizeHandle;
     startX: number;
     startY: number;
     origX: number;
@@ -124,7 +141,8 @@ export function BuilderCanvas({
   const startDrag = useCallback((
     e: React.MouseEvent | React.TouchEvent,
     elementId: string,
-    mode: "move" | "resize"
+    mode: "move" | "resize",
+    handle?: ResizeHandle
   ) => {
     e.stopPropagation();
     e.preventDefault();
@@ -138,6 +156,7 @@ export function BuilderCanvas({
     setDragState({
       elementId,
       mode,
+      handle,
       startX,
       startY,
       origX: el.x,
@@ -189,12 +208,35 @@ export function BuilderCanvas({
           y: Math.max(0, Math.min(newY, canvasHeight - el.height)),
         });
       } else {
-        const newW = snapToGrid(Math.max(80, el.width + dx));
-        const newH = snapToGrid(Math.max(32, el.height + dy));
-        onUpdateElement(elementId, {
-          width: Math.min(newW, canvasWidth - el.x),
-          height: Math.min(newH, canvasHeight - el.y),
-        });
+        const h = handle ?? "se";
+        let newX = el.x;
+        let newY = el.y;
+        let newW = el.width;
+        let newH = el.height;
+
+        // East / West
+        if (h.includes("e")) {
+          newW = snapToGrid(Math.max(MIN_W, el.width + dx));
+          newW = Math.min(newW, canvasWidth - el.x);
+        } else if (h.includes("w")) {
+          const proposedX = snapToGrid(el.x + dx);
+          const clampedX = Math.max(0, Math.min(proposedX, el.x + el.width - MIN_W));
+          newW = el.x + el.width - clampedX;
+          newX = clampedX;
+        }
+
+        // North / South
+        if (h.includes("s")) {
+          newH = snapToGrid(Math.max(MIN_H, el.height + dy));
+          newH = Math.min(newH, canvasHeight - el.y);
+        } else if (h.includes("n")) {
+          const proposedY = snapToGrid(el.y + dy);
+          const clampedY = Math.max(0, Math.min(proposedY, el.y + el.height - MIN_H));
+          newH = el.y + el.height - clampedY;
+          newY = clampedY;
+        }
+
+        onUpdateElement(elementId, { x: newX, y: newY, width: newW, height: newH });
       }
     };
 
@@ -326,16 +368,42 @@ export function BuilderCanvas({
                 </div>
               )}
 
-              {/* Resize handle — supports both mouse and touch */}
+              {/* Resize handles — 4 corners + 4 edges, mouse + touch */}
               {!el.locked && isSelected && (
-                <div
-                  className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-primary rounded-full cursor-se-resize z-30 shadow-xl border-2 border-white flex items-center justify-center touch-none transition-transform hover:scale-110"
-                  onMouseDown={(e) => startDrag(e, el.id, "resize")}
-                  onTouchStart={(e) => startDrag(e, el.id, "resize")}
-                  style={{ touchAction: "none" }}
-                >
-                  <div className="w-1.5 h-1.5 bg-white rounded-full opacity-50" />
-                </div>
+                <>
+                  {(["nw", "n", "ne", "e", "se", "s", "sw", "w"] as ResizeHandle[]).map((h) => {
+                    const isCorner = h.length === 2;
+                    const pos: React.CSSProperties = {
+                      cursor: HANDLE_CURSORS[h],
+                      touchAction: "none",
+                    };
+                    // Position
+                    if (h.includes("n")) pos.top = -6;
+                    else if (h.includes("s")) pos.bottom = -6;
+                    else { pos.top = "50%"; pos.transform = "translateY(-50%)"; }
+
+                    if (h.includes("w")) pos.left = -6;
+                    else if (h.includes("e")) pos.right = -6;
+                    else {
+                      pos.left = "50%";
+                      pos.transform = (pos.transform ? pos.transform + " " : "") + "translateX(-50%)";
+                    }
+
+                    return (
+                      <div
+                        key={h}
+                        role="button"
+                        aria-label={`resize ${h}`}
+                        className={`absolute z-30 bg-primary border-2 border-white shadow-md transition-transform hover:scale-110 ${
+                          isCorner ? "w-3 h-3 rounded-full" : "w-2.5 h-2.5 rounded-sm"
+                        }`}
+                        style={pos}
+                        onMouseDown={(e) => startDrag(e, el.id, "resize", h)}
+                        onTouchStart={(e) => startDrag(e, el.id, "resize", h)}
+                      />
+                    );
+                  })}
+                </>
               )}
             </div>
           );
