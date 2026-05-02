@@ -171,7 +171,25 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
         }
         <p style="margin-top:6px;">Thank you! Visit again.</p>
       </div>
-      <script>window.print(); setTimeout(()=>window.close(), 300);</script>
+      <script>
+        (function(){
+          function doPrint(){ try { window.focus(); window.print(); } catch(e){} setTimeout(function(){ try { window.close(); } catch(e){} }, 500); }
+          var imgs = Array.prototype.slice.call(document.images || []);
+          if (!imgs.length) { doPrint(); return; }
+          var remaining = imgs.length;
+          var done = false;
+          function check(){ if (done) return; remaining--; if (remaining <= 0) { done = true; doPrint(); } }
+          imgs.forEach(function(img){
+            if (img.complete && img.naturalWidth > 0) { check(); }
+            else {
+              img.addEventListener('load', check);
+              img.addEventListener('error', check);
+            }
+          });
+          // Fallback in case some image hangs
+          setTimeout(function(){ if (!done) { done = true; doPrint(); } }, 5000);
+        })();
+      </script>
     </body></html>
   `;
 }
