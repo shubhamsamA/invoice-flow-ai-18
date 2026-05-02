@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { openPrintWindow } from "@/lib/restaurant-bill-print";
+import { openPrintWindow, PAGE_SIZE_OPTIONS, type PageSize } from "@/lib/restaurant-bill-print";
 
 interface BillItem {
   id: string;
@@ -43,6 +43,7 @@ export default function RestaurantBill() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [pageSize, setPageSize] = useState<PageSize>("80mm");
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -210,6 +211,7 @@ export default function RestaurantBill() {
         paymentMethod,
         notes,
         date: new Date(),
+        pageSize,
       },
       profile ?? null,
     );
@@ -229,6 +231,18 @@ export default function RestaurantBill() {
           <p className="text-sm text-muted-foreground">Create a new restaurant bill</p>
         </div>
         <div className="flex items-center gap-2">
+          <Select value={pageSize} onValueChange={(v) => setPageSize(v as PageSize)}>
+            <SelectTrigger className="w-[150px] h-9 text-xs">
+              <SelectValue placeholder="Page size" />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button variant="outline" className="gap-2" onClick={handleKOTPrint}>
             <ChefHat className="h-4 w-4" /> KOT
           </Button>
@@ -521,6 +535,21 @@ export default function RestaurantBill() {
                 <div className="text-center text-[10px] text-muted-foreground">
                   <p>Payment: {paymentMethod.toUpperCase()}</p>
                   {notes && <p className="mt-1">{notes}</p>}
+                  {profile?.bank_upi_id && grandTotal > 0 && (
+                    <div className="mt-3 flex flex-col items-center gap-1">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
+                          `upi://pay?pa=${profile.bank_upi_id}&pn=${encodeURIComponent(
+                            profile.business_name || "Merchant",
+                          )}&am=${grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(billNumber)}`,
+                        )}`}
+                        alt="UPI QR"
+                        className="w-24 h-24"
+                      />
+                      <p className="text-[9px]">Scan to pay via UPI</p>
+                      <p className="text-[9px]">{profile.bank_upi_id}</p>
+                    </div>
+                  )}
                   <p className="mt-2">Thank you! Visit again.</p>
                 </div>
               </div>
