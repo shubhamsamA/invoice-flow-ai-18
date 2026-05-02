@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { openPrintWindow } from "@/lib/restaurant-bill-print";
+import { openPrintWindow, PAGE_SIZE_OPTIONS, type PageSize } from "@/lib/restaurant-bill-print";
 
 interface BillItem {
   id: string;
@@ -43,6 +43,7 @@ export default function RestaurantBill() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [pageSize, setPageSize] = useState<PageSize>("80mm");
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -210,6 +211,7 @@ export default function RestaurantBill() {
         paymentMethod,
         notes,
         date: new Date(),
+        pageSize,
       },
       profile ?? null,
     );
