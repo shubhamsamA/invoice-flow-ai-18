@@ -535,6 +535,21 @@ export default function RestaurantBill() {
                 <div className="text-center text-[10px] text-muted-foreground">
                   <p>Payment: {paymentMethod.toUpperCase()}</p>
                   {notes && <p className="mt-1">{notes}</p>}
+                  {profile?.bank_upi_id && grandTotal > 0 && (
+                    <div className="mt-3 flex flex-col items-center gap-1">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
+                          `upi://pay?pa=${profile.bank_upi_id}&pn=${encodeURIComponent(
+                            profile.business_name || "Merchant",
+                          )}&am=${grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(billNumber)}`,
+                        )}`}
+                        alt="UPI QR"
+                        className="w-24 h-24"
+                      />
+                      <p className="text-[9px]">Scan to pay via UPI</p>
+                      <p className="text-[9px]">{profile.bank_upi_id}</p>
+                    </div>
+                  )}
                   <p className="mt-2">Thank you! Visit again.</p>
                 </div>
               </div>
