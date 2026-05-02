@@ -231,6 +231,18 @@ export default function RestaurantBill() {
           <p className="text-sm text-muted-foreground">Create a new restaurant bill</p>
         </div>
         <div className="flex items-center gap-2">
+          <Select value={pageSize} onValueChange={(v) => setPageSize(v as PageSize)}>
+            <SelectTrigger className="w-[150px] h-9 text-xs">
+              <SelectValue placeholder="Page size" />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button variant="outline" className="gap-2" onClick={handleKOTPrint}>
             <ChefHat className="h-4 w-4" /> KOT
           </Button>
