@@ -3,6 +3,7 @@ interface BillProfile {
   business_address?: string | null;
   business_phone?: string | null;
   gst_number?: string | null;
+  bank_upi_id?: string | null;
 }
 
 interface BillItemLike {
@@ -28,6 +29,33 @@ export interface PrintableBill {
   paymentMethod: string;
   notes?: string | null;
   date: Date;
+  pageSize?: PageSize;
+}
+
+export type PageSize = "80mm" | "58mm" | "A4" | "A5" | "Letter";
+
+export const PAGE_SIZE_OPTIONS: { value: PageSize; label: string }[] = [
+  { value: "80mm", label: "Thermal 80mm" },
+  { value: "58mm", label: "Thermal 58mm" },
+  { value: "A4", label: "A4" },
+  { value: "A5", label: "A5" },
+  { value: "Letter", label: "Letter" },
+];
+
+function pageStyles(size: PageSize) {
+  switch (size) {
+    case "58mm":
+      return { page: "58mm 200mm", body: "width: 54mm; padding: 3mm 1mm; font-size: 10px;" };
+    case "A4":
+      return { page: "A4", body: "width: 100%; max-width: 180mm; margin: 0 auto; padding: 12mm; font-size: 12px;" };
+    case "A5":
+      return { page: "A5", body: "width: 100%; max-width: 130mm; margin: 0 auto; padding: 8mm; font-size: 11px;" };
+    case "Letter":
+      return { page: "Letter", body: "width: 100%; max-width: 190mm; margin: 0 auto; padding: 12mm; font-size: 12px;" };
+    case "80mm":
+    default:
+      return { page: "80mm 200mm", body: "width: 76mm; padding: 4mm 2mm;" };
+  }
 }
 
 const fmt = (v: number) => `Rs.${v.toFixed(2)}`;
@@ -38,12 +66,20 @@ const esc = (s: string) =>
 
 export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) {
   const filledItems = bill.items.filter((i) => i.name.trim());
+  const sizes = pageStyles(bill.pageSize || "80mm");
+  const upi = profile?.bank_upi_id?.trim();
+  const merchant = profile?.business_name || "Merchant";
+  const qrUrl = upi
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+        `upi://pay?pa=${upi}&pn=${encodeURIComponent(merchant)}&am=${bill.grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(bill.billNumber)}`
+      )}`
+    : null;
   return `
     <html><head><title>${esc(bill.billNumber)}</title>
     <style>
-      @page { size: 80mm 200mm; margin: 1mm; }
+      @page { size: ${sizes.page}; margin: 6mm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Courier New', monospace; padding: 4mm 2mm; width: 76mm; color: #000; }
+      body { font-family: 'Courier New', monospace; ${sizes.body} color: #000; }
       .center { text-align: center; }
       .right { text-align: right; }
       .muted { color: #555; }
@@ -63,6 +99,9 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
       .totals .row { display: flex; justify-content: space-between; padding: 1px 0; }
       .totals .grand { font-weight: bold; font-size: 12px; border-top: 1px solid #000; padding-top: 4px; margin-top: 4px; }
       .footer { text-align: center; font-size: 9px; color: #555; margin-top: 6px; }
+      .qr { text-align: center; margin-top: 8px; }
+      .qr img { width: 110px; height: 110px; }
+      .qr p { font-size: 9px; color: #333; margin-top: 2px; }
     </style>
     </head><body>
       <div class="center">
@@ -116,6 +155,11 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
       <div class="footer">
         <p>Payment: ${esc(bill.paymentMethod.toUpperCase())}</p>
         ${bill.notes ? `<p style="margin-top:2px;">${esc(bill.notes)}</p>` : ""}
+        ${
+          qrUrl
+            ? `<div class="qr"><img src="${qrUrl}" alt="UPI QR" /><p>Scan to pay via UPI</p><p class="muted">${esc(upi!)}</p></div>`
+            : ""
+        }
         <p style="margin-top:6px;">Thank you! Visit again.</p>
       </div>
       <script>window.print(); setTimeout(()=>window.close(), 300);</script>
