@@ -66,6 +66,7 @@ export default function RestaurantBills() {
         paymentMethod: bill.payment_method,
         notes: bill.notes,
         date: new Date(bill.created_at),
+        viewUrl: `${window.location.origin}/b/${bill.id}`,
       },
       profile ?? null,
     );
