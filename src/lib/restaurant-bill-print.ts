@@ -30,6 +30,7 @@ export interface PrintableBill {
   notes?: string | null;
   date: Date;
   pageSize?: PageSize;
+  viewUrl?: string | null;
 }
 
 export type PageSize = "80mm" | "58mm" | "A4" | "A5" | "Letter";
@@ -74,6 +75,9 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
         `upi://pay?pa=${upi}&pn=${encodeURIComponent(merchant)}&am=${bill.grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(bill.billNumber)}`
       )}`
     : null;
+  const viewQr = bill.viewUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bill.viewUrl)}`
+    : null;
   return `
     <html><head><title>${esc(bill.billNumber)}</title>
     <style>
@@ -102,6 +106,8 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
       .qr { text-align: center; margin-top: 8px; }
       .qr img { width: 110px; height: 110px; }
       .qr p { font-size: 9px; color: #333; margin-top: 2px; }
+      .qr-row { display: flex; justify-content: space-around; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+      .qr-row .qr { margin-top: 0; }
     </style>
     </head><body>
       <div class="center">
@@ -156,8 +162,11 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
         <p>Payment: ${esc(bill.paymentMethod.toUpperCase())}</p>
         ${bill.notes ? `<p style="margin-top:2px;">${esc(bill.notes)}</p>` : ""}
         ${
-          qrUrl
-            ? `<div class="qr"><img src="${qrUrl}" alt="UPI QR" /><p>Scan to pay via UPI</p><p class="muted">${esc(upi!)}</p></div>`
+          qrUrl || viewQr
+            ? `<div class="qr-row">
+                ${qrUrl ? `<div class="qr"><img src="${qrUrl}" alt="UPI QR" /><p>Pay via UPI</p><p class="muted">${esc(upi!)}</p></div>` : ""}
+                ${viewQr ? `<div class="qr"><img src="${viewQr}" alt="View Bill QR" /><p>Scan to view bill</p></div>` : ""}
+              </div>`
             : ""
         }
         <p style="margin-top:6px;">Thank you! Visit again.</p>
