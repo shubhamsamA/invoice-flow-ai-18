@@ -1,1 +1,4 @@
 project_id = "rwpmhmajkygahjpqnbdh"
+
+[functions.public-bill]
+verify_jwt = false
