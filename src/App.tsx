@@ -27,6 +27,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RestaurantBill = lazy(() => import("./pages/RestaurantBill"));
 const RestaurantBills = lazy(() => import("./pages/RestaurantBills"));
 const Inventory = lazy(() => import("./pages/Inventory"));
+const PublicBill = lazy(() => import("./pages/PublicBill"));
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/b/:id" element={<PublicBill />} />
             <Route
               element={
                 <ProtectedRoute>
