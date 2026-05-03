@@ -69,6 +69,7 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
               <Route path="/restaurant-bills" element={<RestaurantBills />} />
               <Route path="/restaurant-bill/new" element={<RestaurantBill />} />
+              <Route path="/restaurant-bill/:id" element={<RestaurantBill />} />
               <Route path="/inventory" element={<Inventory />} />
             </Route>
             <Route path="*" element={<NotFound />} />
