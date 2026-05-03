@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,6 +65,8 @@ export default function SettingsPage() {
     bank_name: "",
     bank_branch: "",
     bank_upi_id: "",
+    default_show_upi_qr: true,
+    default_show_view_qr: true,
   });
 
   // Sync form when profile loads
@@ -84,6 +87,8 @@ export default function SettingsPage() {
       bank_name: (profile as any).bank_name || "",
       bank_branch: (profile as any).bank_branch || "",
       bank_upi_id: (profile as any).bank_upi_id || "",
+      default_show_upi_qr: (profile as any).default_show_upi_qr ?? true,
+      default_show_view_qr: (profile as any).default_show_view_qr ?? true,
     });
     setSynced(true);
   }
@@ -369,6 +374,29 @@ export default function SettingsPage() {
                           onChange={(e) => setBankForm({ ...bankForm, bank_upi_id: e.target.value })} 
                           placeholder="username@bank"
                           className="font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-3 pt-2 border-t">
+                      <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Restaurant Bill QR Defaults</Label>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Show UPI Payment QR</p>
+                          <p className="text-xs text-muted-foreground">Default for new restaurant bills</p>
+                        </div>
+                        <Switch
+                          checked={bankForm.default_show_upi_qr}
+                          onCheckedChange={(v) => setBankForm({ ...bankForm, default_show_upi_qr: v })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Show "View Bill" QR</p>
+                          <p className="text-xs text-muted-foreground">Default for new restaurant bills</p>
+                        </div>
+                        <Switch
+                          checked={bankForm.default_show_view_qr}
+                          onCheckedChange={(v) => setBankForm({ ...bankForm, default_show_view_qr: v })}
                         />
                       </div>
                     </div>
