@@ -333,6 +333,8 @@ export type Database = {
           server_name: string | null
           service_charge_amount: number
           service_charge_rate: number
+          show_upi_qr: boolean
+          show_view_qr: boolean
           status: string
           subtotal: number
           table_number: string | null
@@ -353,6 +355,8 @@ export type Database = {
           server_name?: string | null
           service_charge_amount?: number
           service_charge_rate?: number
+          show_upi_qr?: boolean
+          show_view_qr?: boolean
           status?: string
           subtotal?: number
           table_number?: string | null
@@ -373,6 +377,8 @@ export type Database = {
           server_name?: string | null
           service_charge_amount?: number
           service_charge_rate?: number
+          show_upi_qr?: boolean
+          show_view_qr?: boolean
           status?: string
           subtotal?: number
           table_number?: string | null
