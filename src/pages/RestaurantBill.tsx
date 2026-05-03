@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, Printer, Save, Loader2, ChefHat } from "lucide-react";
 import InventorySearch from "@/components/InventorySearch";
@@ -56,6 +56,16 @@ export default function RestaurantBill() {
     },
     enabled: !!user,
   });
+
+  // Apply user's QR defaults from profile once it loads
+  const [defaultsApplied, setDefaultsApplied] = useState(false);
+  useEffect(() => {
+    if (profile && !defaultsApplied) {
+      setShowUpiQr((profile as any).default_show_upi_qr ?? true);
+      setShowViewQr((profile as any).default_show_view_qr ?? true);
+      setDefaultsApplied(true);
+    }
+  }, [profile, defaultsApplied]);
 
   const { data: billCount } = useQuery({
     queryKey: ["restaurant-bill-count"],
