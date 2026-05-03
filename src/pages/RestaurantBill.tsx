@@ -113,6 +113,8 @@ export default function RestaurantBill() {
           payment_method: paymentMethod,
           notes: notes || null,
           status: "unpaid",
+          show_upi_qr: showUpiQr,
+          show_view_qr: showViewQr,
         })
         .select()
         .single();
