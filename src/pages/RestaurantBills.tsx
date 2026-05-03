@@ -67,6 +67,8 @@ export default function RestaurantBills() {
         notes: bill.notes,
         date: new Date(bill.created_at),
         viewUrl: `${window.location.origin}/b/${bill.id}`,
+        showUpiQr: (bill as { show_upi_qr?: boolean }).show_upi_qr ?? true,
+        showViewQr: (bill as { show_view_qr?: boolean }).show_view_qr ?? true,
       },
       profile ?? null,
     );
