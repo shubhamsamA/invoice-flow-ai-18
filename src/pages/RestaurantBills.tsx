@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Plus, Loader2, Trash2, ChefHat, Printer } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Plus, Loader2, Trash2, ChefHat, Printer, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import { openPrintWindow } from "@/lib/restaurant-bill-print";
 export default function RestaurantBills() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: bills, isLoading } = useQuery({
     queryKey: ["restaurant-bills"],
@@ -214,6 +215,15 @@ export default function RestaurantBills() {
                       title="Print Bill"
                     >
                       <Printer className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => navigate(`/restaurant-bill/${bill.id}`)}
+                      title="Edit Bill"
+                    >
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
