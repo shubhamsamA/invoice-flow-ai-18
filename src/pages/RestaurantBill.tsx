@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, Printer, Save, Loader2, ChefHat } from "lucide-react";
 import InventorySearch from "@/components/InventorySearch";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ const generateId = () => crypto.randomUUID();
 export default function RestaurantBill() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEditing = !!editId;
   const printRef = useRef<HTMLDivElement>(null);
 
   const [tableNumber, setTableNumber] = useState("");
@@ -47,6 +49,26 @@ export default function RestaurantBill() {
   const [showUpiQr, setShowUpiQr] = useState(true);
   const [showViewQr, setShowViewQr] = useState(true);
 
+  const { data: existingBill, isLoading: loadingBill } = useQuery({
+    queryKey: ["restaurant-bill", editId],
+    queryFn: async () => {
+      const { data: bill, error } = await supabase
+        .from("restaurant_bills")
+        .select("*")
+        .eq("id", editId!)
+        .single();
+      if (error) throw error;
+      const { data: billItems, error: itemsErr } = await supabase
+        .from("restaurant_bill_items")
+        .select("*")
+        .eq("bill_id", editId!)
+        .order("sort_order");
+      if (itemsErr) throw itemsErr;
+      return { bill, items: billItems };
+    },
+    enabled: !!user && !!editId,
+  });
+
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -57,15 +79,44 @@ export default function RestaurantBill() {
     enabled: !!user,
   });
 
-  // Apply user's QR defaults from profile once it loads
+  // Apply user's QR defaults from profile once it loads (only for new bills)
   const [defaultsApplied, setDefaultsApplied] = useState(false);
   useEffect(() => {
+    if (isEditing) return; // saved bill values take precedence
     if (profile && !defaultsApplied) {
       setShowUpiQr((profile as any).default_show_upi_qr ?? true);
       setShowViewQr((profile as any).default_show_view_qr ?? true);
       setDefaultsApplied(true);
     }
-  }, [profile, defaultsApplied]);
+  }, [profile, defaultsApplied, isEditing]);
+
+  // Hydrate form from saved bill when editing — saved QR flags always override profile defaults
+  const [billHydrated, setBillHydrated] = useState(false);
+  useEffect(() => {
+    if (!existingBill || billHydrated) return;
+    const { bill, items: billItems } = existingBill;
+    setBillNumberInput(bill.bill_number || "");
+    setTableNumber(bill.table_number || "");
+    setServerName(bill.server_name || "");
+    setCustomerName((bill as any).customer_name || "");
+    setServiceChargeRate(Number(bill.service_charge_rate) || 0);
+    setServiceChargeEnabled(Number(bill.service_charge_amount) > 0);
+    setGstRate(Number(bill.gst_rate) || 0);
+    setTip(Number(bill.tip) || 0);
+    setPaymentMethod(bill.payment_method || "cash");
+    setNotes(bill.notes || "");
+    setShowUpiQr((bill as any).show_upi_qr ?? true);
+    setShowViewQr((bill as any).show_view_qr ?? true);
+    setItems(
+      (billItems || []).map((i: any) => ({
+        id: i.id,
+        name: i.name,
+        quantity: Number(i.quantity),
+        unitPrice: Number(i.unit_price),
+      })),
+    );
+    setBillHydrated(true);
+  }, [existingBill, billHydrated]);
 
   const { data: billCount } = useQuery({
     queryKey: ["restaurant-bill-count"],
@@ -105,36 +156,48 @@ export default function RestaurantBill() {
     }
     setSaving(true);
     try {
-      const { data: bill, error } = await supabase
-        .from("restaurant_bills")
-        .insert({
-          user_id: user.id,
-          bill_number: billNumber,
-          table_number: tableNumber || null,
-          server_name: serverName || null,
-          customer_name: customerName || null,
-          subtotal,
-          service_charge_rate: serviceChargeEnabled ? serviceChargeRate : 0,
-          service_charge_amount: serviceChargeAmount,
-          gst_rate: gstRate,
-          gst_amount: gstAmount,
-          tip,
-          total: grandTotal,
-          payment_method: paymentMethod,
-          notes: notes || null,
-          status: "unpaid",
-          show_upi_qr: showUpiQr,
-          show_view_qr: showViewQr,
-        })
-        .select()
-        .single();
+      const payload = {
+        user_id: user.id,
+        bill_number: billNumber,
+        table_number: tableNumber || null,
+        server_name: serverName || null,
+        customer_name: customerName || null,
+        subtotal,
+        service_charge_rate: serviceChargeEnabled ? serviceChargeRate : 0,
+        service_charge_amount: serviceChargeAmount,
+        gst_rate: gstRate,
+        gst_amount: gstAmount,
+        tip,
+        total: grandTotal,
+        payment_method: paymentMethod,
+        notes: notes || null,
+        show_upi_qr: showUpiQr,
+        show_view_qr: showViewQr,
+      };
 
-      if (error) throw error;
+      let billId = editId;
+      if (isEditing && editId) {
+        const { error: updErr } = await supabase
+          .from("restaurant_bills")
+          .update(payload)
+          .eq("id", editId);
+        if (updErr) throw updErr;
+        // Replace items
+        await supabase.from("restaurant_bill_items").delete().eq("bill_id", editId);
+      } else {
+        const { data: bill, error } = await supabase
+        .from("restaurant_bills")
+          .insert({ ...payload, status: "unpaid" })
+          .select()
+          .single();
+        if (error) throw error;
+        billId = bill.id;
+      }
 
       const billItems = items
         .filter((i) => i.name.trim())
         .map((i, idx) => ({
-          bill_id: bill.id,
+          bill_id: billId!,
           name: i.name,
           quantity: i.quantity,
           unit_price: i.unitPrice,
@@ -147,7 +210,7 @@ export default function RestaurantBill() {
         if (itemsError) throw itemsError;
       }
 
-      toast.success("Bill saved successfully!");
+      toast.success(isEditing ? "Bill updated successfully!" : "Bill saved successfully!");
       navigate("/restaurant-bills");
     } catch (err: any) {
       toast.error(err.message || "Failed to save bill");
