@@ -31,6 +31,8 @@ export interface PrintableBill {
   date: Date;
   pageSize?: PageSize;
   viewUrl?: string | null;
+  showUpiQr?: boolean;
+  showViewQr?: boolean;
 }
 
 export type PageSize = "80mm" | "58mm" | "A4" | "A5" | "Letter";
@@ -70,12 +72,14 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
   const sizes = pageStyles(bill.pageSize || "80mm");
   const upi = profile?.bank_upi_id?.trim();
   const merchant = profile?.business_name || "Merchant";
-  const qrUrl = upi
+  const showUpi = bill.showUpiQr !== false;
+  const showView = bill.showViewQr !== false;
+  const qrUrl = upi && showUpi
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
         `upi://pay?pa=${upi}&pn=${encodeURIComponent(merchant)}&am=${bill.grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(bill.billNumber)}`
       )}`
     : null;
-  const viewQr = bill.viewUrl
+  const viewQr = bill.viewUrl && showView
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bill.viewUrl)}`
     : null;
   return `

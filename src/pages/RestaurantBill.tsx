@@ -44,6 +44,8 @@ export default function RestaurantBill() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [pageSize, setPageSize] = useState<PageSize>("80mm");
+  const [showUpiQr, setShowUpiQr] = useState(true);
+  const [showViewQr, setShowViewQr] = useState(true);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -212,6 +214,8 @@ export default function RestaurantBill() {
         notes,
         date: new Date(),
         pageSize,
+        showUpiQr,
+        showViewQr,
       },
       profile ?? null,
     );
@@ -413,6 +417,14 @@ export default function RestaurantBill() {
                   placeholder="₹0"
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Show UPI Payment QR</Label>
+                <Switch checked={showUpiQr} onCheckedChange={setShowUpiQr} />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Show "View Bill" QR</Label>
+                <Switch checked={showViewQr} onCheckedChange={setShowViewQr} />
+              </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Notes</Label>
                 <Textarea
@@ -535,7 +547,7 @@ export default function RestaurantBill() {
                 <div className="text-center text-[10px] text-muted-foreground">
                   <p>Payment: {paymentMethod.toUpperCase()}</p>
                   {notes && <p className="mt-1">{notes}</p>}
-                  {profile?.bank_upi_id && grandTotal > 0 && (
+                  {showUpiQr && profile?.bank_upi_id && grandTotal > 0 && (
                     <div className="mt-3 flex flex-col items-center gap-1">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
