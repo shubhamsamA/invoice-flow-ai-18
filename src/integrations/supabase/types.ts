@@ -227,6 +227,8 @@ export type Database = {
           business_name: string | null
           business_phone: string | null
           created_at: string
+          default_show_upi_qr: boolean
+          default_show_view_qr: boolean
           display_name: string | null
           gst_number: string | null
           id: string
@@ -249,6 +251,8 @@ export type Database = {
           business_name?: string | null
           business_phone?: string | null
           created_at?: string
+          default_show_upi_qr?: boolean
+          default_show_view_qr?: boolean
           display_name?: string | null
           gst_number?: string | null
           id?: string
@@ -271,6 +275,8 @@ export type Database = {
           business_name?: string | null
           business_phone?: string | null
           created_at?: string
+          default_show_upi_qr?: boolean
+          default_show_view_qr?: boolean
           display_name?: string | null
           gst_number?: string | null
           id?: string
