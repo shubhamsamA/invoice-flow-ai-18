@@ -4,6 +4,7 @@ interface BillProfile {
   business_phone?: string | null;
   gst_number?: string | null;
   bank_upi_id?: string | null;
+  logo_url?: string | null;
 }
 
 interface BillItemLike {
@@ -112,9 +113,11 @@ export function buildBillHTML(bill: PrintableBill, profile: BillProfile | null) 
       .qr p { font-size: 9px; color: #333; margin-top: 2px; }
       .qr-row { display: flex; justify-content: space-around; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
       .qr-row .qr { margin-top: 0; }
+      .logo { max-width: 60px; max-height: 60px; margin: 0 auto 4px; display: block; object-fit: contain; }
     </style>
     </head><body>
       <div class="center">
+        ${profile?.logo_url ? `<img src="${esc(profile.logo_url)}" alt="Logo" class="logo" />` : ""}
         <h2>${esc(profile?.business_name || "Restaurant Name")}</h2>
         ${profile?.business_address ? `<p class="small muted">${esc(profile.business_address)}</p>` : ""}
         ${profile?.business_phone ? `<p class="small muted">Tel: ${esc(profile.business_phone)}</p>` : ""}
