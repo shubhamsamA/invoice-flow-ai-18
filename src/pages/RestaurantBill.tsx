@@ -523,6 +523,13 @@ export default function RestaurantBill() {
               <div ref={printRef} className="bg-white border rounded-lg p-6 font-mono text-sm max-w-[320px] mx-auto">
                 {/* Header */}
                 <div className="text-center mb-3">
+                  {profile?.logo_url && (
+                    <img
+                      src={profile.logo_url}
+                      alt="Logo"
+                      className="mx-auto mb-1 max-h-12 max-w-[60px] object-contain"
+                    />
+                  )}
                   <h2 className="text-base font-bold uppercase tracking-wide">
                     {profile?.business_name || "Restaurant Name"}
                   </h2>
